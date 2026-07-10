@@ -61,35 +61,64 @@
     });
   }
 
-  /* ---- 3. Scroll-reveal ------------------------------------ */
+  /* ---- 3. Scroll-reveal ------------------------------------
+     The CSS hides un-revealed diagram content only while html.anim is set.
+     We reveal on scroll via IntersectionObserver, but never rely on it
+     alone: a scroll/timeout "sweep" reveals anything in view, and setting
+     window.__diagramsArmed tells the head failsafe not to drop html.anim.
+     Result: the animation plays when it can, and content is never stuck
+     invisible if the observer misfires on a given device. ----------------- */
   var diagrams = document.querySelectorAll('[data-diagram]');
+  var density = document.querySelector('[data-density]');
+
+  function revealDiagram(d) { d.classList.add('in'); }
 
   if (reduce || !('IntersectionObserver' in window)) {
-    diagrams.forEach(function (d) { d.classList.add('in'); });
+    diagrams.forEach(revealDiagram);
     activateCells();
+    window.__diagramsArmed = true;
     return;
   }
 
   var io = new IntersectionObserver(function (entries, obs) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
-        entry.target.classList.add('in');
+        revealDiagram(entry.target);
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.25, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
   diagrams.forEach(function (d) { io.observe(d); });
 
   // Animate density cells in when the graph scrolls into view
-  var density = document.querySelector('[data-density]');
   if (density) {
     var dio = new IntersectionObserver(function (entries, obs) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) { activateCells(); obs.disconnect(); }
       });
-    }, { threshold: 0.3 });
+    }, { threshold: 0.2 });
     dio.observe(density);
-  } else {
-    activateCells();
   }
+
+  // Backstop: reveal anything already within the viewport, in case the
+  // observer callback doesn't fire for it. Runs on scroll, load, and once
+  // on a short timer — so a diagram in view always ends up revealed.
+  function sweep() {
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    diagrams.forEach(function (d) {
+      if (d.classList.contains('in')) return;
+      var r = d.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < vh * 0.92) revealDiagram(d);
+    });
+    if (density && !density.querySelector('.cell.on')) {
+      var dr = density.getBoundingClientRect();
+      if (dr.bottom > 0 && dr.top < vh * 0.92) activateCells();
+    }
+  }
+  window.addEventListener('scroll', sweep, { passive: true });
+  window.addEventListener('load', sweep);
+  setTimeout(sweep, 1000);
+
+  // The reveal mechanism is now fully in place; keep html.anim.
+  window.__diagramsArmed = true;
 })();
