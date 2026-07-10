@@ -453,17 +453,21 @@ img, svg { max-width: 100%; }
 .site-footer p { color: var(--fg-dim); font-size: 13px; margin: 0 0 6px; max-width: 80ch; }
 .foot-meta { color: var(--accent-dim); font-size: 12px; }
 
-/* ---- Scroll-reveal for diagrams ---------------------------- */
-.js .draw-in { opacity: 0; }
-.js .draw { stroke-dashoffset: var(--len, 100); stroke-dasharray: var(--len, 100); }
-[data-diagram].in .draw-in {
-  opacity: 1; transition: opacity .5s var(--ease);
-}
+/* ---- Scroll-reveal for diagrams ----------------------------
+   Content is visible by default. The hidden pre-animation state applies
+   ONLY while html.anim is set (added synchronously in the head, and dropped
+   by a failsafe if the reveal script never runs) and ONLY for diagrams not
+   yet revealed. A diagram therefore can never get stuck invisible if JS is
+   blocked, errors, or the IntersectionObserver misfires on a device. */
+html.anim .draw { stroke-dasharray: var(--len, 100); }
+html.anim [data-diagram]:not(.in) .draw-in { opacity: 0; }
+html.anim [data-diagram]:not(.in) .draw { stroke-dashoffset: var(--len, 100); }
+[data-diagram].in .draw-in { opacity: 1; transition: opacity .5s var(--ease); }
 [data-diagram].in .draw-in.d2 { transition-delay: .12s; }
 [data-diagram].in .draw-in.d3 { transition-delay: .24s; }
 [data-diagram].in .draw-in.d4 { transition-delay: .36s; }
 [data-diagram].in .draw-in.d5 { transition-delay: .48s; }
-[data-diagram].in .draw { transition: stroke-dashoffset .6s var(--ease); stroke-dashoffset: 0; }
+[data-diagram].in .draw { stroke-dashoffset: 0; transition: stroke-dashoffset .6s var(--ease); }
 [data-diagram].in .draw.d2 { transition-delay: .12s; }
 [data-diagram].in .draw.d3 { transition-delay: .24s; }
 [data-diagram].in .draw.d4 { transition-delay: .36s; }
@@ -500,8 +504,8 @@ img, svg { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
-  .js .draw-in { opacity: 1; }
-  .js .draw { stroke-dashoffset: 0; }
+  html.anim [data-diagram] .draw-in { opacity: 1; }
+  html.anim [data-diagram] .draw { stroke-dashoffset: 0; stroke-dasharray: none; }
   .dr-track .cell { transform: scaleY(1); }
   .repo-card:hover, .cl:hover, .btn:hover, .commit .c-dot { transform: none; }
 }

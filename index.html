@@ -20,7 +20,18 @@
        <link rel="stylesheet" href="css/style.css"> so the CSS caches normally. -->
   <script>document.write('<link rel="stylesheet" href="css/style.css?t=' + Date.now() + '">');</script>
   <noscript><link rel="stylesheet" href="css/style.css"></noscript>
-  <script>document.documentElement.className += ' js';</script>
+  <script>
+    document.documentElement.className += ' js anim';
+    /* Failsafe: diagrams start hidden (class "anim") and are revealed by
+       js/main.js as they scroll into view. If that script is ever blocked,
+       errors, or the observer misfires on a device, drop "anim" shortly
+       after load so no diagram can get stuck invisible. */
+    addEventListener('load', function () {
+      setTimeout(function () {
+        if (!window.__diagramsArmed) document.documentElement.classList.remove('anim');
+      }, 400);
+    });
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#readme">Skip to content</a>
