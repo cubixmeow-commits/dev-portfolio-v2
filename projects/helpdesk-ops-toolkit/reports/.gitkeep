@@ -1,0 +1,4 @@
+# Report output directory
+
+The Java TicketReportGenerator writes timestamped report files here.
+Generated reports are gitignored.
