@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iain · Operational software, built on 30 years in IT · cubixmeow.com</title>
+  <meta name="description" content="Operational software built by someone who's spent 30 years learning how IT teams actually keep systems running. Independent developer shipping production PHP and MySQL systems: inventory tracking, service requests, runbooks, and AI-assisted operations.">
+  <meta name="theme-color" content="#0C1A29">
+  <meta property="og:title" content="Iain · Operational software, built on 30 years in IT">
+  <meta property="og:description" content="Operational software built by someone who's spent 30 years learning how IT teams actually keep systems running.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cubixmeow.com">
+  <link rel="preload" href="fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.className += ' js';</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- =====================================================
+       HEADER — persistent title-block bar
+       ===================================================== -->
+  <header class="site-header">
+    <div class="wrap">
+      <div class="brand">
+        Iain<span class="brand-tag">Operational Software</span>
+      </div>
+      <span class="status-stamp header-status">Status: available for new roles</span>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav">Index</button>
+      <nav class="site-nav" id="site-nav" aria-label="Primary">
+        <a href="#subsystems">Systems</a>
+        <a href="#work">Work</a>
+        <a href="#ai-integration">AI Integration</a>
+        <a href="#route">Route</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- =====================================================
+         SHEET 01 — HERO
+         ===================================================== -->
+    <section class="sheet hero" id="hero" aria-labelledby="hero-h">
+      <div class="wrap">
+        <p class="hero-flag">Sheet 01 of 07 — Cover</p>
+        <h1 id="hero-h">Operational software built by someone who's spent <span class="hl">30 years</span> learning how IT teams actually keep systems running.</h1>
+        <div class="hero-meta">
+          <span class="status-stamp">Status: available for new roles</span>
+          <span class="scroll-cue"><span class="arrow" aria-hidden="true">▽</span> scroll to unroll the drawing set</span>
+        </div>
+
+        <figure class="hero-frame">
+          <span class="corner tl" aria-hidden="true"></span>
+          <span class="corner tr" aria-hidden="true"></span>
+          <span class="corner bl" aria-hidden="true"></span>
+          <span class="corner br" aria-hidden="true"></span>
+          <div class="diagram wide" data-diagram>
+            <!-- Cover schematic: system-of-record overview -->
+            <svg viewBox="0 0 720 150" role="img" aria-label="Overview schematic: deterministic system of record with an AI advisory layer that only reads aggregates.">
+              <text class="dg-title" x="4" y="16">DRAWING · SYSTEM OF RECORD + AI ADVISORY</text>
+              <!-- boxes -->
+              <rect class="dg-box fade-in" x="14"  y="46" width="150" height="46" rx="2"/>
+              <rect class="dg-box fade-in f2" x="285" y="46" width="150" height="46" rx="2"/>
+              <rect class="dg-box-active fade-in f4" x="556" y="46" width="150" height="46" rx="2"/>
+              <text class="dg-label fade-in"    x="30"  y="66">SYSTEM OF</text>
+              <text class="dg-label fade-in"    x="30"  y="82">RECORD (MySQL)</text>
+              <text class="dg-label fade-in f2" x="301" y="66">STATE MACHINE</text>
+              <text class="dg-sub fade-in f2"   x="301" y="82">+ append-only audit</text>
+              <text class="dg-label fade-in f4" x="572" y="66">AI ADVISORY</text>
+              <text class="dg-sub fade-in f4"   x="572" y="82">reads aggregates</text>
+              <!-- connectors -->
+              <path class="dg-line draw"    style="--len:120" d="M164 69 H285"/>
+              <path class="dg-arrow draw d2" style="--len:120" d="M435 69 H556"/>
+              <polygon class="dg-dot fade-in f4" points="556,69 546,64 546,74"/>
+              <polygon class="dg-dot fade-in f2" points="285,69 275,64 275,74"/>
+              <!-- one-way read annotation -->
+              <text class="dg-annot fade-in f5" x="450" y="112">read-only · no write path back</text>
+              <path class="dg-annot-line fade-in f5" d="M560 92 C520 108, 505 108, 495 104"/>
+            </svg>
+          </div>
+          <figcaption>Fig. 01 — The recurring pattern across every system here: the record stays deterministic; AI reads aggregates and never writes back.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 02 — IDENTITY
+         ===================================================== -->
+    <section class="sheet" id="identity" aria-labelledby="identity-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">02 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="identity-h">Identity</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>Who is behind this</span></div>
+        </div>
+
+        <ul class="checklist">
+          <li>
+            <svg class="chk" viewBox="0 0 26 26" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="2" fill="none" stroke="#24455f"/><path d="M6 13.5 L11 18.5 L20 7.5" fill="none" stroke="#57C08A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><span class="idx mono">CHK 01</span><span class="txt">Iain: operator identified</span></span>
+          </li>
+          <li>
+            <svg class="chk" viewBox="0 0 26 26" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="2" fill="none" stroke="#24455f"/><path d="M6 13.5 L11 18.5 L20 7.5" fill="none" stroke="#57C08A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><span class="idx mono">CHK 02</span><span class="txt">30+ years of hands-on development</span></span>
+          </li>
+          <li>
+            <svg class="chk" viewBox="0 0 26 26" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="2" fill="none" stroke="#24455f"/><path d="M6 13.5 L11 18.5 L20 7.5" fill="none" stroke="#57C08A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><span class="idx mono">CHK 03</span><span class="txt">founder · engineer · maintainer</span></span>
+          </li>
+          <li>
+            <svg class="chk" viewBox="0 0 26 26" aria-hidden="true"><rect x="1.5" y="1.5" width="23" height="23" rx="2" fill="none" stroke="#24455f"/><path d="M6 13.5 L11 18.5 L20 7.5" fill="none" stroke="#57C08A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><span class="idx mono">CHK 04</span><span class="txt">PHP · MySQL · the stacks that actually run things</span></span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 03 — SUBSYSTEMS
+         ===================================================== -->
+    <section class="sheet" id="subsystems" aria-labelledby="subsystems-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">03 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="subsystems-h">Subsystems</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>Mapped from real postings</span></div>
+        </div>
+        <p class="sheet-intro">Not a skills cloud: these are the competencies scored across actual government and enterprise IT postings. Open a node for the technologies inside it and the project that proves it.</p>
+
+        <div class="subsystem-grid">
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">01</span><span class="sub-name">Ticketing</span><span class="stamp building">Rev</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">PHP state machines · triage queues · SLA + escalation rules</p>
+              <p class="sub-tags mono">PHP · state machine · SLA · escalation</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#work">Service Request Tracker</a></span>
+            </div>
+          </article>
+
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">02</span><span class="sub-name">Asset Lifecycle</span><span class="stamp live">Live</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">MySQL schema design · state-machine enforcement · audit logging</p>
+              <p class="sub-tags mono">MySQL · schema · audit log</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#work">IT Asset Inventory Tracker (live)</a></span>
+            </div>
+          </article>
+
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">03</span><span class="sub-name">Docs &amp; Runbooks</span><span class="stamp planned">Draft</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">SOPs another tech can execute · revision history · sign-off</p>
+              <p class="sub-tags mono">SOP · revision history · sign-off</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#work">LAMP Deployment Playbook</a></span>
+            </div>
+          </article>
+
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">04</span><span class="sub-name">Backup &amp; DR</span><span class="stamp live">Live</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">nightly mysqldump · off-host copies · timed restore drills</p>
+              <p class="sub-tags mono">mysqldump · off-host · restore drill</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#work">Inventory Tracker backup regimen</a></span>
+            </div>
+          </article>
+
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">05</span><span class="sub-name">SQL Reporting</span><span class="stamp live">Live</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">hand-written SQL · server-side aggregates · read-only views</p>
+              <p class="sub-tags mono">SQL · aggregates · read-only views</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#work">Inventory dashboards</a></span>
+            </div>
+          </article>
+
+          <article class="subsystem">
+            <div class="sub-head"><span class="sub-no mono">06</span><span class="sub-name">Scheduled Automation</span><span class="stamp live">Live</span></div>
+            <div class="sub-body">
+              <p class="sub-desc">cron orchestration · duplicate-run guards · loud failures</p>
+              <p class="sub-tags mono">cron · run guards · alerting</p>
+              <span class="sub-proof mono"><span class="callout-dot"></span>proof: <a href="#ai-integration">Nightly AI review job</a></span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 04 — THE PROOF
+         ===================================================== -->
+    <section class="sheet" id="work" aria-labelledby="work-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">04 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="work-h">The Proof</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>Three projects</span></div>
+        </div>
+        <p class="sheet-intro">Three systems, one per competency cluster, shown working, not screenshotted. Every measurable claim here is inspectable in the live app or its case study.</p>
+
+        <!-- PROJECT 1 -->
+        <article class="project">
+          <div class="proj-head">
+            <span class="proj-no mono">Project 01</span>
+            <h3>IT Asset Inventory Tracker</h3>
+            <span class="stamp live">Live</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede">A deterministic system of record for hardware and software assets, built for environments where the audit trail is the product. Status changes flow through a PHP state machine that makes invalid transitions impossible to record, not merely hidden behind a disabled button, and every mutation is logged with who, what, when, and the previous value.</p>
+              <ul class="proj-points">
+                <li>Lifecycle enforced by a state machine: an asset cannot jump from RETIRED to ASSIGNED because no code path exists to write it.</li>
+                <li>Append-only audit log: every change records actor, field, old value, new value, timestamp.</li>
+                <li>Backups are restore-tested, not assumed: nightly dumps plus timed restore drills.</li>
+                <li>An AI advisory layer reads aggregates and writes recommendations to its own tables. It has no write path to the inventory. (Covered in the AI Integration section.)</li>
+              </ul>
+              <div class="stack-tags" aria-label="Stack">
+                <span class="tag">PHP 8</span><span class="tag">MySQL</span><span class="tag">PDO</span><span class="tag">Claude API</span><span class="tag">cron</span>
+              </div>
+              <div class="proj-links">
+                <a href="https://cubixmeow.com/ib/inventory/public/">Open the live dashboard</a>
+                <a href="https://cubixmeow.com/ib/inventory/public/ai_integration.php">Read the case study</a>
+              </div>
+            </div>
+
+            <figure class="demo">
+              <div class="demo-label mono">Live miniature — asset register</div>
+              <div class="tscroll">
+              <table class="mini">
+                <thead><tr><th>tag</th><th>model</th><th>status</th><th>assigned</th></tr></thead>
+                <tbody>
+                  <tr><td>IT-0139</td><td>Latitude 5440</td><td class="st-assigned">ASSIGNED</td><td>j.alvarez</td></tr>
+                  <tr class="flash"><td>IT-0142</td><td>EliteDesk 800</td><td class="st-transition">IN REPAIR&nbsp;→&nbsp;IN SERVICE</td><td>–</td></tr>
+                  <tr><td>IT-0157</td><td>ThinkPad T14</td><td>IN STOCK</td><td>–</td></tr>
+                </tbody>
+              </table>
+              </div>
+              <div class="logbox">
+                <pre>10:41:07  IT-0139 status: IN STOCK <span class="a">→</span> ASSIGNED by r.miller
+10:52:19  IT-0142 note: fan replaced by r.miller
+10:58:33  IT-0142 status: IN REPAIR <span class="g">→</span> IN SERVICE by r.miller</pre>
+              </div>
+              <figcaption>Live miniature of the real UI: the state machine advances IT-0142 from IN REPAIR to IN SERVICE, and the audit log appends the transition. Invalid transitions have no code path.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- PROJECT 2 -->
+        <article class="project">
+          <div class="proj-head">
+            <span class="proj-no mono">Project 02</span>
+            <h3>Service Request Tracker</h3>
+            <span class="stamp building">Building</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede">A trouble-ticket pipeline for IT service requests: intake, triage, assignment, resolution. Priorities and SLA timers are set by rules a human can read; escalation is a logged state change, not a Slack message someone hopes gets seen.</p>
+              <ul class="proj-points">
+                <li>The AI triage step is simulated in the demo and disclosed as simulated in the UI; the seam is designed now so a real model can slot in later without changing the trust boundary.</li>
+                <li>AI suggests a priority and category; a human confirms. The suggestion is stored beside the human decision, so the model's accuracy is auditable after the fact.</li>
+                <li>Every ticket carries its full state history: who moved it, when, and why.</li>
+              </ul>
+              <div class="stack-tags" aria-label="Stack">
+                <span class="tag">PHP 8</span><span class="tag">MySQL</span><span class="tag">PDO</span><span class="tag">cron</span>
+              </div>
+            </div>
+
+            <figure class="demo diagram" data-diagram>
+              <div class="demo-label mono">Triage pipeline — REQ-2214</div>
+              <svg viewBox="0 0 300 258" role="img" aria-label="State diagram: a request moves from NEW to TRIAGE to ASSIGNED to RESOLVED. Ticket REQ-2214 sits at TRIAGE, where the AI suggests HIGH priority as a disclosed, simulated seam that a human confirms and sets the final priority.">
+                <!-- vertical pipeline -->
+                <g>
+                  <rect class="dg-box fade-in"    x="40" y="8"   width="220" height="32" rx="2"/>
+                  <text class="dg-label fade-in"   x="56" y="28">NEW</text>
+                  <rect class="dg-box-active fade-in f2" x="40" y="54"  width="220" height="32" rx="2"/>
+                  <text class="dg-label fade-in f2" x="56" y="74">TRIAGE</text>
+                  <text class="dg-sub fade-in f2"   x="188" y="74">REQ-2214</text>
+                  <rect class="dg-box fade-in f3"  x="40" y="100" width="220" height="32" rx="2"/>
+                  <text class="dg-label fade-in f3" x="56" y="120">ASSIGNED</text>
+                  <rect class="dg-box fade-in f4"  x="40" y="146" width="220" height="32" rx="2"/>
+                  <text class="dg-label fade-in f4" x="56" y="166">RESOLVED</text>
+                </g>
+                <!-- arrows -->
+                <path class="dg-arrow draw"    style="--len:14" d="M150 40 V52"/>
+                <polygon class="dg-dot fade-in f2" points="150,54 145,46 155,46"/>
+                <path class="dg-arrow draw d2" style="--len:14" d="M150 86 V98"/>
+                <polygon class="dg-dot fade-in f3" points="150,100 145,92 155,92"/>
+                <path class="dg-arrow draw d3" style="--len:14" d="M150 132 V144"/>
+                <polygon class="dg-dot fade-in f4" points="150,146 145,138 155,138"/>
+                <!-- annotation: callout from TRIAGE down to a note block -->
+                <path class="dg-annot-line fade-in f5" d="M40 70 C22 70, 14 70, 14 96 L14 196"/>
+                <circle class="dg-dot fade-in f5" cx="40" cy="70" r="2.5"/>
+                <text class="dg-annot fade-in f5" x="24" y="204">ai suggests: HIGH</text>
+                <text class="dg-sub fade-in f5"   x="24" y="220">simulated seam, disclosed in the UI;</text>
+                <text class="dg-sub fade-in f5"   x="24" y="234">a human sets the final priority.</text>
+              </svg>
+              <figcaption>Triage pipeline: a request moves NEW → TRIAGE → ASSIGNED → RESOLVED. The AI-suggested priority is marked as a suggestion, simulated in the demo, disclosed in the UI, and always confirmed by a person.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- PROJECT 3 -->
+        <article class="project">
+          <div class="proj-head">
+            <span class="proj-no mono">Project 03</span>
+            <h3>LAMP Deployment Playbook</h3>
+            <span class="stamp planned">Planned</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede">A deployment procedure another technician can execute without calling the author. Documentation is a scored competency in the postings this page is built against, so it ships as a formal artifact: numbered steps, revision history, sign-off.</p>
+              <ul class="proj-points">
+                <li>Written to be executed, not admired: each step states the command, the expected output, and what to do when the output is wrong.</li>
+                <li>The restore drill is a first-class step with a timer, not a footnote.</li>
+              </ul>
+              <div class="stack-tags" aria-label="Stack">
+                <span class="tag">Apache</span><span class="tag">MySQL</span><span class="tag">PHP 8</span><span class="tag">Linux</span>
+              </div>
+            </div>
+
+            <figure class="demo">
+              <div class="sop">
+                <div class="sop-head mono">
+                  <span class="sop-id">SOP-DEPLOY-001</span>
+                  <span class="stamp draft">Rev 0.1 Draft</span>
+                  <span>Standard Operating Procedure: LAMP Deployment</span>
+                  <span>owner: Iain · cubixmeow.com</span>
+                </div>
+                <div class="sop-body">
+                  <table class="rev">
+                    <thead><tr><th>rev</th><th>date</th><th>change</th></tr></thead>
+                    <tbody>
+                      <tr><td>0.1</td><td>2026-06</td><td>Outline drafted; scope agreed</td></tr>
+                      <tr><td>0.2</td><td>planned</td><td>Full procedure, first timed drill</td></tr>
+                    </tbody>
+                  </table>
+                  <ol class="sop-steps">
+                    <li><strong>Provision &amp; harden</strong> — Non-root deploy user, SSH keys only, firewall default-deny.</li>
+                    <li><strong>Install &amp; pin the stack</strong> — Apache, PHP 8.x, MySQL 8, versions recorded in the revision log.</li>
+                    <li><strong>Deploy the application</strong> — Vhost, permissions, environment config; document root on /public.</li>
+                    <li><strong>Schedule backups</strong> — Nightly mysqldump, off-host copy, retention window stated.</li>
+                    <li><strong>Run the restore drill</strong> — Restore to a scratch database, time it, sign it off.</li>
+                  </ol>
+                </div>
+              </div>
+              <figcaption>Rendered as the artifact it will be: a standard operating procedure with a revision history, because a runbook that lives in one person's head is an outage waiting for a vacation.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- Peripheral systems appendix -->
+        <div class="appendix">
+          <div class="appendix-head mono">Appendix A — Peripheral systems / parts list</div>
+          <div class="parts-list">
+            <div class="part">
+              <h4><span class="pno">A1</span> AI Artwork from Songs</h4>
+              <p>Live web app turning a song into finished AI artwork. MySQL-backed job queue on shared hosting, Stripe billing reconciled against webhooks, refunds that fail closed.</p>
+            </div>
+            <div class="part">
+              <h4><span class="pno">A2</span> Multi-Platform Content Pipeline</h4>
+              <p>One canonical post published everywhere through per-platform adapters. OAuth token lifecycles, chunked uploads, bounded retries with a dead-letter state.</p>
+            </div>
+            <div class="part">
+              <h4><span class="pno">A3</span> Dashboard Tools</h4>
+              <p>Internal dashboards pulling scattered operational data into one read view. Server-side aggregation, cache-friendly queries, no SPA overhead.</p>
+            </div>
+            <div class="part">
+              <h4><span class="pno">A4</span> API Integrations</h4>
+              <p>Webhook receivers with signature verification, clients with retry and backoff, and the logging that keeps an integration debuggable six months later.</p>
+            </div>
+            <div class="part">
+              <h4><span class="pno">A5</span> Browser Games</h4>
+              <p>Canvas games in vanilla JavaScript: fixed-timestep loops, collision detection, input buffering. No engine, no build step.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 05 — AI INTEGRATION / THE GOVERNOR
+         ===================================================== -->
+    <section class="sheet" id="ai-integration" aria-labelledby="ai-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">05 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="ai-h">AI Integration</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>The governor</span></div>
+        </div>
+        <p class="sheet-intro">Systems of record stay deterministic. AI reads aggregates, writes recommendations, and never touches the data.</p>
+
+        <div class="governor">
+          <div class="gov-col does">
+            <div class="gov-head mono"><span class="mk" aria-hidden="true">✓</span>What the AI layer does</div>
+            <ul>
+              <li>Runs on a schedule, from cron</li>
+              <li>Reads pre-aggregated metrics, never the raw schema</li>
+              <li>Writes recommendations to its own reports table</li>
+              <li>Flags anomalies for a human to review</li>
+            </ul>
+          </div>
+          <div class="gov-col never">
+            <div class="gov-head mono"><span class="mk" aria-hidden="true">✕</span>What it never does</div>
+            <ul>
+              <li>Assign or modify assets</li>
+              <li>Delete or write records</li>
+              <li>Override business rules</li>
+              <li>Act without human review</li>
+            </ul>
+          </div>
+        </div>
+
+        <figure class="diagram wide" data-diagram>
+          <div class="demo-label mono" style="margin-bottom:14px">Data flow — one-way advisory boundary</div>
+          <svg viewBox="0 0 760 170" role="img" aria-label="Five-step data flow: inventory data feeds a scheduled job, which runs an AI review, which writes a stored report, from which a human decides. The AI branch reads across a one-way boundary and has no return path to the data.">
+            <!-- boundary label -->
+            <line class="dg-annot-line fade-in f5" x1="300" y1="14" x2="300" y2="156"/>
+            <text class="dg-annot fade-in f5" x="308" y="26">trust boundary · read-only</text>
+
+            <!-- Step boxes -->
+            <rect class="dg-box fade-in"    x="14"  y="60" width="120" height="44" rx="2"/>
+            <text class="dg-label fade-in"   x="26" y="80">inventory</text>
+            <text class="dg-label fade-in"   x="26" y="96">data</text>
+
+            <rect class="dg-box fade-in f2" x="170" y="60" width="120" height="44" rx="2"/>
+            <text class="dg-label fade-in f2" x="182" y="80">scheduled</text>
+            <text class="dg-label fade-in f2" x="182" y="96">job (cron)</text>
+
+            <rect class="dg-box-active fade-in f3" x="340" y="60" width="120" height="44" rx="2"/>
+            <text class="dg-label fade-in f3" x="352" y="86">AI review</text>
+
+            <rect class="dg-box fade-in f4" x="510" y="60" width="120" height="44" rx="2"/>
+            <text class="dg-label fade-in f4" x="522" y="80">stored</text>
+            <text class="dg-label fade-in f4" x="522" y="96">report</text>
+
+            <rect class="dg-box fade-in f5" x="640" y="60" width="106" height="44" rx="2"/>
+            <text class="dg-label fade-in f5" x="652" y="80">human</text>
+            <text class="dg-label fade-in f5" x="652" y="96">decides</text>
+
+            <!-- arrows -->
+            <path class="dg-arrow draw"    style="--len:40" d="M134 82 H170"/>
+            <polygon class="dg-dot fade-in f2" points="170,82 160,77 160,87"/>
+            <path class="dg-arrow draw d2" style="--len:52" d="M290 82 H340"/>
+            <polygon class="dg-dot fade-in f3" points="340,82 330,77 330,87"/>
+            <path class="dg-arrow draw d3" style="--len:52" d="M460 82 H510"/>
+            <polygon class="dg-dot fade-in f4" points="510,82 500,77 500,87"/>
+            <path class="dg-arrow draw d4" style="--len:12" d="M630 82 H640"/>
+            <polygon class="dg-dot fade-in f5" points="640,82 630,77 630,87"/>
+
+            <!-- no return path marker -->
+            <path class="dg-annot-line fade-in f5" d="M400 104 C400 140, 210 140, 80 116"/>
+            <text class="dg-annot fade-in f5" x="150" y="156">no write path back to data</text>
+          </svg>
+          <figcaption>inventory data → scheduled job → AI review → stored report → human decides. The AI branch reads across a one-way boundary; there is no return path to the record.</figcaption>
+        </figure>
+
+        <p class="gov-note">This pattern runs live in the Inventory Tracker. v1 proved the response contract by hand: export a brief, paste it into any model, import the JSON reply. v2 automated the same contract without moving the trust boundary. If the API is down, inventory operations continue; if leadership asks what AI changed, the answer is always <em>nothing, by design</em>. <a href="https://cubixmeow.com/ib/inventory/public/ai_integration.php">Read the case study</a>.</p>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 06 — THE ROUTE
+         ===================================================== -->
+    <section class="sheet" id="route" aria-labelledby="route-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">06 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="route-h">The Route</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>Career timeline</span></div>
+        </div>
+        <p class="sheet-intro">One line since the early 1990s: production work across startups and small companies, a founder chapter, a deliberate stability stop, and a return to building, several years of it AI-assisted.</p>
+
+        <ol class="timeline">
+          <li>
+            <span class="tl-when mono">Early 1990s</span>
+            <span class="tl-what">First systems</span>
+            <span class="tl-detail">learned on Windows and Unix servers · RPG games and apps in C · first web work</span>
+          </li>
+          <li>
+            <span class="tl-when mono">Mid 1990s</span>
+            <span class="tl-what">Santa Barbara Business Connections</span>
+            <span class="tl-detail">Santa Barbara startup · built a dynamic online business directory</span>
+          </li>
+          <li>
+            <span class="tl-when mono">Late 1990s</span>
+            <span class="tl-what">WebVIP</span>
+            <span class="tl-detail">Santa Barbara · several years of web development</span>
+          </li>
+          <li>
+            <span class="tl-when mono">~2000–2001</span>
+            <span class="tl-what">American Bio Dental Center</span>
+            <span class="tl-detail">Tijuana · ran the website and all IT operations</span>
+          </li>
+          <li>
+            <span class="tl-when mono">Early 2000s</span>
+            <span class="tl-what">Stone, Viglione and Parker Productions</span>
+            <span class="tl-detail">Beverly Hills · IT, front desk, and documentary work</span>
+          </li>
+          <li>
+            <span class="tl-when mono">Several years</span>
+            <span class="tl-what">Mobile Merchant</span>
+            <span class="tl-detail">mobile auction technology startup · several years in development</span>
+          </li>
+          <li>
+            <span class="tl-when mono">Palm Springs</span>
+            <span class="tl-what">Trinity Tech Media / Uronimo</span>
+            <span class="tl-detail">founder · startup through multiple rounds of investment</span>
+          </li>
+          <li>
+            <span class="tl-when mono">The stability decision</span>
+            <span class="tl-what">USPS</span>
+            <span class="tl-detail">chosen for steady income and benefits · building software independently</span>
+          </li>
+          <li class="current">
+            <span class="tl-when mono">Current line</span>
+            <span class="tl-what">Independent software development</span>
+            <span class="tl-detail">open to new roles</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SHEET 07 — CONTACT
+         ===================================================== -->
+    <section class="sheet" id="contact" aria-labelledby="contact-h">
+      <div class="wrap">
+        <div class="title-block">
+          <div class="tb-sheet"><span class="tb-label">Sheet</span><span class="tb-num">07 / 07</span></div>
+          <div class="tb-title"><span class="tb-name" id="contact-h">Contact</span></div>
+          <div class="tb-meta"><span>Rev</span><strong>1.0</strong><span>Title block</span></div>
+        </div>
+
+        <div class="contact-tags" aria-label="Competency recap">
+          <span class="tag">Ticketing</span>
+          <span class="tag">Asset Lifecycle</span>
+          <span class="tag">Documentation &amp; Runbooks</span>
+          <span class="tag">Backup &amp; DR</span>
+          <span class="tag">SQL Reporting</span>
+          <span class="tag">Scheduled Automation</span>
+        </div>
+
+        <p class="contact-status mono">[ all systems operational ] <span class="br">·</span> open to new roles</p>
+        <p class="contact-prompt">Hiring for a role where dependable, well-documented systems matter?</p>
+
+        <div class="contact-links">
+          <a href="mailto:hello@cubixmeow.com">
+            <span class="cl-label mono">Email</span>
+            <span class="cl-value">hello@cubixmeow.com</span>
+          </a>
+          <a href="https://cubixmeow.com/ib/landing/public/resume/">
+            <span class="cl-label mono">Résumé (print-ready)</span>
+            <span class="cl-value">cubixmeow.com/…/resume</span>
+          </a>
+          <a href="https://github.com/cubixmeow-commits">
+            <span class="cl-label mono">GitHub</span>
+            <span class="cl-value">github.com/cubixmeow-commits</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>© 2026 Iain · Plain PHP 8 + MySQL. No framework, no build step, no external requests; the page practices what it preaches. Set in Space Grotesk, IBM Plex Sans &amp; IBM Plex Mono, self-hosted.</p>
+      <span class="status-stamp foot-stamp">Status: available for new roles</span>
+    </div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
