@@ -12,7 +12,14 @@
   <meta property="og:url" content="https://cubixmeow.com">
   <link rel="preload" href="fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/ibm-plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Dev cache-buster: append a changing query string so the stylesheet is
+       re-fetched on every load. Mobile browsers cache CSS aggressively, so
+       without this, edits don't show up on reload. document.write blocks
+       parsing until the sheet loads, so there's no flash of unstyled content.
+       For production, replace this block with a plain
+       <link rel="stylesheet" href="css/style.css"> so the CSS caches normally. -->
+  <script>document.write('<link rel="stylesheet" href="css/style.css?t=' + Date.now() + '">');</script>
+  <noscript><link rel="stylesheet" href="css/style.css"></noscript>
   <script>document.documentElement.className += ' js';</script>
 </head>
 <body>
