@@ -97,7 +97,11 @@ final class CheckIn
                     [$points, $userId]
                 );
 
-                ActivityEvent::record($userId, 'checkin', $challengeId, null, ['streak' => $streak]);
+                $eventMeta = ['streak' => $streak];
+                if ($note !== null) {
+                    $eventMeta['note'] = $note;
+                }
+                ActivityEvent::record($userId, 'checkin', $challengeId, null, $eventMeta);
                 if ($milestone !== null) {
                     ActivityEvent::record($userId, 'streak_milestone', $challengeId, null, ['streak' => $streak]);
                 }

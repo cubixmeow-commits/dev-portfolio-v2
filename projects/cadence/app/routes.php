@@ -12,6 +12,8 @@ use Cadence\Controllers\AuthController;
 use Cadence\Controllers\ChallengeController;
 use Cadence\Controllers\CheckInController;
 use Cadence\Controllers\DashboardController;
+use Cadence\Controllers\FeedController;
+use Cadence\Controllers\LeaderboardController;
 use Cadence\Controllers\ProfileController;
 
 return static function (Router $router): void {
@@ -24,6 +26,11 @@ return static function (Router $router): void {
     $router->post('/challenges/{slug}/join', [ChallengeController::class, 'join']);
     $router->post('/challenges/{slug}/leave', [ChallengeController::class, 'leave']);
     $router->post('/challenges/{slug}/checkin', [CheckInController::class, 'store']);
+
+    // Community
+    $router->get('/feed', [FeedController::class, 'index']);
+    $router->get('/leaderboard', [LeaderboardController::class, 'index']);
+    $router->get('/u/{handle}', [ProfileController::class, 'show']);
 
     // Auth
     $router->get('/register', [AuthController::class, 'showRegister']);

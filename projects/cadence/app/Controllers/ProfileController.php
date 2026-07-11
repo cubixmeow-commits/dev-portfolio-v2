@@ -11,6 +11,47 @@ use Cadence\Models\User;
 
 final class ProfileController
 {
+    /* ---- Public profile ---- */
+
+    public function show(string $handle): void
+    {
+        $handle = mb_strtolower($handle);
+        $user = User::findByHandle($handle);
+
+        if ($user === null || str_starts_with((string) $user['handle'], 'deleted_')) {
+            http_response_code(404);
+            View::render('errors/404', ['title' => 'Profile not found']);
+            return;
+        }
+
+        $userId = (int) $user['id'];
+        $stats = \Cadence\Core\Database::fetch(
+            'SELECT COALESCE(MAX(longest_streak), 0) AS longest_streak,
+                    COALESCE(MAX(current_streak), 0) AS best_current_streak,
+                    COUNT(*) AS challenges_joined
+             FROM challenge_participants WHERE user_id = ?',
+            [$userId]
+        ) ?? ['longest_streak' => 0, 'best_current_streak' => 0, 'challenges_joined' => 0];
+        $totalCheckins = (int) \Cadence\Core\Database::fetchValue(
+            'SELECT COUNT(*) FROM check_ins WHERE user_id = ?',
+            [$userId]
+        );
+
+        View::render('profile/show', [
+            'title'         => (string) $user['display_name'],
+            'profile'       => $user,
+            'page_css'      => 'community',
+            'ring'          => \Cadence\Models\Participation::ringMap([$userId])[$userId] ?? null,
+            'stats'         => $stats,
+            'totalCheckins' => $totalCheckins,
+            'badges'        => \Cadence\Models\Badge::forUser($userId),
+            'active'        => '',
+            'activeChallenges' => \Cadence\Models\Participation::activeForUser($userId),
+            'events'        => \Cadence\Models\ActivityEvent::forUser($userId, 15),
+            'isSelf'        => Auth::id() === $userId,
+        ]);
+    }
+
     /* ---- Account settings ---- */
 
     public function settings(): void

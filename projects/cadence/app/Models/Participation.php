@@ -95,6 +95,51 @@ final class Participation
     }
 
     /**
+     * Ring fractions for a set of users in two queries, for feed and
+     * leaderboard pages full of avatars. Each user's "today" is
+     * computed in PHP from their own timezone, so no MySQL timezone
+     * tables are needed (shared hosting rarely has them loaded).
+     *
+     * @param list<int> $userIds
+     * @return array<int, float|null> user id => fraction or null (no active challenges)
+     */
+    public static function ringMap(array $userIds): array
+    {
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
+        if ($userIds === []) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+        $rows = Database::fetchAll(
+            "SELECT cp.user_id, u.timezone, cp.last_checkin_date
+             FROM challenge_participants cp
+             JOIN challenges c ON c.id = cp.challenge_id
+             JOIN users u ON u.id = cp.user_id
+             WHERE cp.user_id IN ($placeholders)
+               AND c.start_date <= CURDATE() AND c.end_date >= CURDATE()",
+            $userIds
+        );
+
+        $map = array_fill_keys($userIds, null);
+        $totals = [];
+        $done = [];
+        $todayByTz = [];
+        foreach ($rows as $row) {
+            $uid = (int) $row['user_id'];
+            $tz = (string) $row['timezone'];
+            $todayByTz[$tz] = $todayByTz[$tz] ?? CheckIn::todayFor($tz);
+            $totals[$uid] = ($totals[$uid] ?? 0) + 1;
+            if ($row['last_checkin_date'] === $todayByTz[$tz]) {
+                $done[$uid] = ($done[$uid] ?? 0) + 1;
+            }
+        }
+        foreach ($totals as $uid => $total) {
+            $map[$uid] = $total > 0 ? ($done[$uid] ?? 0) / $total : null;
+        }
+        return $map;
+    }
+
+    /**
      * Fraction of today's check-ins done across active challenges, for
      * the streak ring: 1.0 when every active challenge is checked in
      * today, null when the user has no active challenges.
