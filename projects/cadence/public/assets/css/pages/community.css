@@ -1,0 +1,229 @@
+/* Community surfaces: feed, leaderboard, public profiles. */
+
+/* ---- Tabs ---- */
+
+.tab-row {
+  display: inline-flex;
+  gap: var(--sp-1);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-1);
+}
+
+.tab {
+  padding: var(--sp-1) var(--sp-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.tab:hover {
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.tab-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---- Feed ---- */
+
+.feed-wrap {
+  max-width: 720px;
+}
+
+.feed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feed-row {
+  display: flex;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.feed-row:last-child {
+  border-bottom: 0;
+}
+
+.feed-row-body {
+  min-width: 0;
+}
+
+.feed-note {
+  margin-top: 2px;
+}
+
+.feed-more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-5);
+}
+
+/* ---- Leaderboard ---- */
+
+.leaderboard-wrap {
+  max-width: 720px;
+  /* Clears the pinned own-rank bar. */
+  padding-bottom: var(--sp-8);
+}
+
+.board-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: rank;
+}
+
+.board-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.board-row:last-child {
+  border-bottom: 0;
+}
+
+.board-row-self {
+  background: var(--accent-soft);
+}
+
+.board-rank {
+  width: 2em;
+  text-align: right;
+  color: var(--ink-soft);
+  flex: none;
+}
+
+/* Top three ranks get weight, not color. */
+.board-row:nth-child(-n+3) .board-rank {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.board-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.board-points {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.own-rank-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--card);
+  border-top: 1px solid var(--line);
+  box-shadow: var(--elevation-modal);
+  padding: var(--sp-3) 0;
+  z-index: 30;
+}
+
+.own-rank-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.own-rank-inner .muted {
+  margin-left: auto;
+}
+
+/* ---- Profile ---- */
+
+.profile-wrap {
+  max-width: 920px;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-top: var(--sp-7);
+  flex-wrap: wrap;
+}
+
+.profile-id {
+  flex: 1;
+  min-width: 200px;
+}
+
+.profile-bio {
+  margin-top: var(--sp-2);
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+@media (max-width: 640px) {
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.profile-columns {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+  align-items: start;
+}
+
+@media (max-width: 1023px) {
+  .profile-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-main,
+.profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.profile-challenge-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.profile-challenge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.profile-challenge-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+

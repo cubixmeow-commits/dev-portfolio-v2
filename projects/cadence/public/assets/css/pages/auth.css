@@ -1,0 +1,19 @@
+/* Auth pages: one centered card, nothing else competing. */
+
+.auth-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--sp-8);
+  padding-bottom: var(--sp-8);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+@media (max-width: 767px) {
+  .auth-wrap {
+    padding-top: var(--sp-5);
+  }
+}

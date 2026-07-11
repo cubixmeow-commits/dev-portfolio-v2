@@ -1,0 +1,12 @@
+# Real credentials live only in these local copies of the .example templates.
+config/config.php
+config/engine.properties
+
+# Runtime artifacts.
+storage/mail/*.eml
+storage/logs/
+
+# Engine build output. build.sh reproduces the jar; the vendored
+# MySQL Connector/J in engine/lib/ IS committed.
+engine/build/classes/
+engine/build/cadence-engine.jar

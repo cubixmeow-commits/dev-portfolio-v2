@@ -1,0 +1,154 @@
+/* Admin: analytics dashboard and ops tools. */
+
+.admin-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+}
+
+@media (max-width: 767px) {
+  .admin-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.admin-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+}
+
+.admin-charts section:first-child {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1023px) {
+  .admin-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-range {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--sp-2);
+}
+
+.dist-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.dist-label {
+  width: 1.5em;
+  text-align: right;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.dist-track {
+  flex: 1;
+  height: 16px;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dist-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  min-width: 2px;
+}
+
+.admin-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+}
+
+@media (max-width: 1023px) {
+  .admin-tables {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Ops tools ---- */
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+
+@media (max-width: 1023px) {
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-form {
+  margin-top: auto;
+}
+
+.tool-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+}
+
+.tool-fields .field {
+  margin-bottom: var(--sp-3);
+}
+
+.cli-fallback {
+  margin-top: var(--sp-3);
+  word-break: break-all;
+}
+
+.cli-fallback code {
+  font-size: var(--text-xs);
+}
+
+.output-panel {
+  margin-top: var(--sp-6);
+  overflow: hidden;
+}
+
+.output-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.output-head .btn {
+  margin-left: auto;
+}
+
+.output-log {
+  margin: 0;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--ink);
+  color: #D7DDE3;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * Common passwords rejected at registration and reset. Small on purpose:
+ * this catches the lazy choices that survive the length rule, not every
+ * breached credential. All entries are 10+ characters because shorter
+ * ones already fail the minimum length check.
+ */
+
+return [
+    '1234567890',
+    '12345678910',
+    'qwertyuiop',
+    'q1w2e3r4t5y6',
+    '1q2w3e4r5t6y',
+    'password12',
+    'password123',
+    'password1234',
+    'password12345',
+    'password!!',
+    'passw0rd123',
+    'p@ssword123',
+    'p@ssw0rd123',
+    'adminadmin',
+    'admin12345',
+    'administrator',
+    'welcome123',
+    'welcome1234',
+    'iloveyou12',
+    'iloveyou123',
+    'sunshine123',
+    'football123',
+    'baseball123',
+    'basketball',
+    'superman123',
+    'batman1234',
+    'trustno1234',
+    'letmein123',
+    'monkey12345',
+    'dragon12345',
+    'master12345',
+    'shadow12345',
+    'michael123',
+    'jennifer123',
+    'charlie123',
+    'jordan12345',
+    'liverpool1',
+    'chocolate1',
+    'princess123',
+    'qwerty123456',
+    'abcdefghij',
+    'abcd1234567',
+    'aaaaaaaaaa',
+    '0987654321',
+    '1111111111',
+    '1234512345',
+    'secret12345',
+    'changeme123',
+    'temp123456',
+    'default123',
+];
