@@ -20,4 +20,22 @@
     var target = document.querySelector(button.dataset.dismiss);
     if (target) target.remove();
   });
+
+  // Remembered dismissal (demo ribbon): hidden until we know the
+  // visitor has not dismissed it this session, so it never flashes.
+  var remembered = document.querySelectorAll('[data-dismiss-remember]');
+  remembered.forEach(function (button) {
+    var key = 'dismissed:' + button.dataset.dismissRemember;
+    var target = document.getElementById(button.dataset.dismissRemember);
+    if (!target) return;
+    var store;
+    try { store = window.sessionStorage; } catch (e) { store = null; }
+    if (!store || !store.getItem(key)) {
+      target.hidden = false;
+    }
+    button.addEventListener('click', function () {
+      target.remove();
+      if (store) store.setItem(key, '1');
+    });
+  });
 })();

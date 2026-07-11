@@ -24,7 +24,40 @@ final class DashboardController
         if (Auth::check()) {
             redirect('/dashboard');
         }
-        View::render('marketing/home', ['title' => '']);
+
+        // Live proof strips: the homepage is itself a demo, so these
+        // numbers come from the real tables on every load.
+        $weekCheckins = (int) Database::fetchValue(
+            'SELECT COUNT(*) FROM check_ins WHERE checkin_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)'
+        );
+        $longestStreak = Database::fetch(
+            "SELECT cp.current_streak, u.display_name, u.handle
+             FROM challenge_participants cp
+             JOIN challenges c ON c.id = cp.challenge_id
+             JOIN users u ON u.id = cp.user_id
+             WHERE c.start_date <= CURDATE() AND c.end_date >= CURDATE()
+               AND u.handle NOT LIKE 'deleted\\_%'
+             ORDER BY cp.current_streak DESC, cp.id ASC
+             LIMIT 1"
+        );
+        $topChallenge = Database::fetch(
+            'SELECT title, slug, participant_count FROM challenges
+             WHERE start_date <= CURDATE() AND end_date >= CURDATE()
+             ORDER BY participant_count DESC LIMIT 1'
+        );
+
+        $events = \Cadence\Models\ActivityEvent::feed(null, 8);
+        $rings = Participation::ringMap(array_column($events, 'user_id'));
+
+        View::render('marketing/home', [
+            'title'         => '',
+            'page_css'      => 'marketing',
+            'weekCheckins'  => $weekCheckins,
+            'longestStreak' => $longestStreak,
+            'topChallenge'  => $topChallenge,
+            'events'        => $events,
+            'rings'         => $rings,
+        ]);
     }
 
     public function index(): void

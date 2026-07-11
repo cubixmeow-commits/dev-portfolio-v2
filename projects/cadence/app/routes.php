@@ -42,6 +42,7 @@ return static function (Router $router): void {
     $router->get('/login', [AuthController::class, 'showLogin']);
     $router->post('/login', [AuthController::class, 'login']);
     $router->post('/logout', [AuthController::class, 'logout']);
+    $router->post('/demo-login', [AuthController::class, 'demoLogin']);
     $router->get('/verify/{token}', [AuthController::class, 'verify']);
     $router->post('/verify/resend', [AuthController::class, 'resendVerification']);
     $router->get('/forgot-password', [AuthController::class, 'showForgot']);

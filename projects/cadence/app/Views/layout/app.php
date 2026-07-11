@@ -31,6 +31,21 @@ if (!isset($ring_today) && $auth !== null) {
 
 <a class="visually-hidden" href="#main">Skip to content</a>
 
+<?php if ($auth === null): ?>
+  <div class="demo-ribbon" id="demo-ribbon" hidden>
+    <div class="container demo-ribbon-inner">
+      <span>This is a live demo. Explore freely; everything you see is real seeded data.</span>
+      <span class="demo-ribbon-actions">
+        <form method="post" action="<?= e(url('/demo-login')) ?>">
+          <?= Cadence\Core\Csrf::field() ?>
+          <button class="btn btn-primary" type="submit">Sign in as demo member</button>
+        </form>
+        <button class="btn btn-quiet" type="button" data-dismiss-remember="demo-ribbon" aria-label="Dismiss demo notice">Dismiss</button>
+      </span>
+    </div>
+  </div>
+<?php endif; ?>
+
 <nav class="nav" aria-label="Main">
   <div class="container nav-inner">
     <a class="wordmark" href="<?= e(url('/')) ?>"><span class="wordmark-dot" aria-hidden="true"></span>Cadence</a>

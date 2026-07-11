@@ -194,6 +194,31 @@ final class AuthController
         redirect('/');
     }
 
+    /**
+     * One-click demo sign-in: hiring managers will not register, so
+     * the ribbon logs them straight into the curated demo account.
+     */
+    public function demoLogin(): void
+    {
+        if (Auth::check()) {
+            redirect('/dashboard');
+        }
+        RateLimiter::guard('demo-login', 20, 900, '/');
+
+        $demo = Database::fetch(
+            'SELECT id FROM users WHERE email = ? AND is_demo = 1',
+            ['demo@cadence.demo']
+        );
+        if ($demo === null) {
+            Flash::set('error', 'The demo account is not set up yet. Run the reset tool first.');
+            redirect('/');
+        }
+
+        Auth::login((int) $demo['id']);
+        Flash::set('success', 'You are signed in as Sam, the demo member. Explore freely; a reset restores everything.');
+        redirect('/dashboard');
+    }
+
     /* ---- Password reset ---- */
 
     public function showForgot(): void

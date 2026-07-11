@@ -399,3 +399,29 @@
     margin-top: var(--sp-5);
   }
 }
+
+/* ---- Demo ribbon (global, signed-out) ---- */.demo-ribbon {
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--line);
+}
+
+.demo-ribbon-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  font-size: var(--text-sm);
+  flex-wrap: wrap;
+}
+
+.demo-ribbon-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.demo-ribbon .btn {
+  padding: 2px var(--sp-3);
+  font-size: var(--text-xs);
+}
