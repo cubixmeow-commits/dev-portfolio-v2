@@ -74,15 +74,6 @@
   border-radius: var(--radius-pill);
 }
 
-.cover-spruce { background: linear-gradient(135deg, #0A7C5C, #0F5E48); }
-.cover-dawn   { background: linear-gradient(135deg, #1F6FB2, #174E7C); }
-.cover-dusk   { background: linear-gradient(135deg, #7A4FB0, #533578); }
-.cover-ember  { background: linear-gradient(135deg, #B4552D, #8A3F20); }
-.cover-field  { background: linear-gradient(135deg, #8A6D1F, #6B5417); }
-.cover-tide   { background: linear-gradient(135deg, #2D7A8A, #1F5763); }
-.cover-bloom  { background: linear-gradient(135deg, #A03E62, #742C47); }
-.cover-moss   { background: linear-gradient(135deg, #4B6C2F, #364F21); }
-
 .challenge-body {
   padding: var(--sp-4) var(--sp-5) var(--sp-5);
   display: flex;
@@ -266,16 +257,3 @@
   font-size: var(--text-sm);
 }
 
-.mini-feed {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.mini-feed-row {
-  display: flex;
-  gap: var(--sp-3);
-  align-items: flex-start;
-}

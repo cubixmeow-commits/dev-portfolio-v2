@@ -70,65 +70,89 @@ public final class Main {
             fail(1, "--triggered-by must be cli or web");
         }
 
-        OpsRun run = null;
+        // Argument validation happens before any run row exists, so a
+        // usage error never leaves a phantom "running" entry behind.
+        if (tool.equals("reset") && !hasFlag(args, "--confirm")) {
+            fail(1, "reset wipes and rebuilds all demo data. Re-run with --confirm.");
+        }
+        if (tool.equals("report")) {
+            String type = opts.getOrDefault("type", "engagement");
+            if (!type.equals("engagement") && !type.equals("retention") && !type.equals("challenge-health")) {
+                fail(1, "Unknown report type: " + type + " (expected engagement, retention, or challenge-health)");
+            }
+        }
+        int users = 0;
+        int challenges = 0;
+        int historyDays = 0;
+        if (tool.equals("seed")) {
+            users = (int) parseLong(opts.getOrDefault("users", "500"), "--users");
+            challenges = (int) parseLong(opts.getOrDefault("challenges", "12"), "--challenges");
+            historyDays = (int) parseLong(opts.getOrDefault("history-days", "120"), "--history-days");
+            if (users < 1 || users > 20000 || challenges < 1 || challenges > 200
+                    || historyDays < 1 || historyDays > 730) {
+                fail(1, "Out of range: users 1-20000, challenges 1-200, history-days 1-730.");
+            }
+        }
+
         try {
             Db db = Db.fromConfig(opts.get("db-config"));
             try (Connection conn = db.connect()) {
-                switch (tool) {
-                    case "seed" -> {
-                        int users = (int) parseLong(opts.getOrDefault("users", "500"), "--users");
-                        int challenges = (int) parseLong(opts.getOrDefault("challenges", "12"), "--challenges");
-                        int historyDays = (int) parseLong(opts.getOrDefault("history-days", "120"), "--history-days");
-                        if (users < 1 || users > 20000 || challenges < 1 || challenges > 200
-                                || historyDays < 1 || historyDays > 730) {
-                            fail(1, "Out of range: users 1-20000, challenges 1-200, history-days 1-730.");
+                OpsRun run = null;
+                try {
+                    switch (tool) {
+                        case "seed" -> {
+                            String params = String.format(
+                                "{\"users\":%d,\"challenges\":%d,\"historyDays\":%d,\"rngSeed\":%d}",
+                                users, challenges, historyDays, rngSeed);
+                            run = OpsRun.start(conn, "seed", params, triggeredBy, runId);
+                            String summary = new SeedEngine(conn, rngSeed).run(users, challenges, historyDays);
+                            run.finish(true, summary);
                         }
-                        String params = String.format(
-                            "{\"users\":%d,\"challenges\":%d,\"historyDays\":%d,\"rngSeed\":%d}",
-                            users, challenges, historyDays, rngSeed);
-                        run = OpsRun.start(conn, "seed", params, triggeredBy, runId);
-                        String summary = new SeedEngine(conn, rngSeed).run(users, challenges, historyDays);
-                        run.finish(true, summary);
-                    }
-                    case "reset" -> {
-                        if (!hasFlag(args, "--confirm")) {
-                            fail(1, "reset wipes and rebuilds all demo data. Re-run with --confirm.");
+                        case "reset" -> {
+                            run = OpsRun.start(conn, "reset",
+                                String.format("{\"rngSeed\":%d}", rngSeed), triggeredBy, runId);
+                            String summary = new ResetEngine(conn, rngSeed).run();
+                            run.finish(true, summary);
                         }
-                        String params = String.format("{\"rngSeed\":%d}", rngSeed);
-                        run = OpsRun.start(conn, "reset", params, triggeredBy, runId);
-                        String summary = new ResetEngine(conn, rngSeed).run();
-                        run.finish(true, summary);
+                        case "report" -> {
+                            String type = opts.getOrDefault("type", "engagement");
+                            run = OpsRun.start(conn, "report",
+                                String.format("{\"type\":\"%s\"}", type), triggeredBy, runId);
+                            String output = new ReportEngine(conn).run(type);
+                            run.finish(true, output);
+                        }
+                        default -> throw new IllegalStateException(tool);
                     }
-                    case "report" -> {
-                        String type = opts.getOrDefault("type", "engagement");
-                        String params = String.format("{\"type\":\"%s\"}", type);
-                        run = OpsRun.start(conn, "report", params, triggeredBy, runId);
-                        String output = new ReportEngine(conn).run(type);
-                        run.finish(true, output);
-                    }
-                    default -> throw new IllegalStateException(tool);
+                } catch (Exception e) {
+                    // Finish the run row while the connection is still
+                    // open; the outer catch only reports and exits.
+                    finishQuietly(conn, run, e.toString());
+                    throw e;
                 }
                 if (!conn.getAutoCommit()) {
                     conn.commit();
                 }
             }
-        } catch (IllegalArgumentException e) {
-            finishQuietly(run, e.getMessage());
-            fail(1, e.getMessage());
         } catch (Exception e) {
-            finishQuietly(run, e.toString());
             System.err.println("Runtime failure: " + e);
             System.exit(2);
         }
     }
 
-    private static void finishQuietly(OpsRun run, String message) {
-        if (run != null) {
-            try {
-                run.finish(false, message);
-            } catch (Exception ignored) {
-                // The primary error is already being reported.
+    private static void finishQuietly(Connection conn, OpsRun run, String message) {
+        if (run == null) {
+            return;
+        }
+        try {
+            // A failed seed/reset leaves an open, aborted transaction;
+            // roll it back so the status update can commit.
+            if (!conn.getAutoCommit()) {
+                conn.rollback();
+                conn.setAutoCommit(true);
             }
+            run.finish(false, message);
+        } catch (Exception ignored) {
+            // The primary error is already being reported.
         }
     }
 

@@ -19,6 +19,12 @@ if (!isset($ring_today) && $auth !== null) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e(isset($title) && $title !== '' ? $title . ' · Cadence' : 'Cadence · Build habits together') ?></title>
   <meta name="description" content="Cadence is where habits get built together: join challenges, keep streaks, earn badges.">
+  <meta name="theme-color" content="#0A7C5C">
+  <meta property="og:site_name" content="Cadence">
+  <meta property="og:title" content="<?= e(isset($title) && $title !== '' ? $title . ' · Cadence' : 'Cadence · Build habits together') ?>">
+  <meta property="og:description" content="Join time-boxed challenges, log daily check-ins, grow streaks, and climb the leaderboard together.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
   <link rel="icon" href="<?= e(url('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
   <link rel="stylesheet" href="<?= e(url('/assets/css/tokens.css')) ?>">
   <link rel="stylesheet" href="<?= e(url('/assets/css/base.css')) ?>">

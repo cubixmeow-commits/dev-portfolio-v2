@@ -125,36 +125,3 @@
 .notif-title {
   font-weight: 500;
 }
-
-/* ---- Nav bell ---- */
-
-.bell {
-  position: relative;
-  display: inline-flex;
-  padding: var(--sp-2);
-  border-radius: var(--radius-control);
-  color: var(--ink-soft);
-}
-
-.bell:hover {
-  color: var(--ink);
-  background: var(--surface);
-}
-
-.bell-count {
-  position: absolute;
-  top: 2px;
-  right: 0;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-  display: grid;
-  place-items: center;
-  line-height: 1;
-}
