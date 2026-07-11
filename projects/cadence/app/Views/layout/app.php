@@ -43,6 +43,9 @@ if (!isset($ring_today) && $auth !== null) {
 
     <div class="nav-actions">
       <?php if ($auth !== null): ?>
+        <?php if ($auth['role'] === 'admin'): ?>
+          <a href="<?= e(url('/admin')) ?>" class="nav-link">Admin</a>
+        <?php endif; ?>
         <a href="<?= e(url('/dashboard')) ?>" class="nav-link"<?= $active === 'dashboard' ? ' aria-current="page"' : '' ?>>Today</a>
         <?php $unread = Cadence\Models\Notification::unreadCount((int) $auth['id']); ?>
         <a class="bell" href="<?= e(url('/notifications')) ?>" aria-label="Notifications<?= $unread > 0 ? ', ' . $unread . ' unread' : '' ?>">

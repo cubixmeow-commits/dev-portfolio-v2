@@ -8,6 +8,8 @@ declare(strict_types=1);
  */
 
 use Cadence\Core\Router;
+use Cadence\Controllers\AdminController;
+use Cadence\Controllers\AdminToolsController;
 use Cadence\Controllers\AuthController;
 use Cadence\Controllers\ChallengeController;
 use Cadence\Controllers\CheckInController;
@@ -46,6 +48,12 @@ return static function (Router $router): void {
     $router->post('/forgot-password', [AuthController::class, 'sendReset']);
     $router->get('/reset-password/{token}', [AuthController::class, 'showReset']);
     $router->post('/reset-password/{token}', [AuthController::class, 'reset']);
+
+    // Admin
+    $router->get('/admin', [AdminController::class, 'index']);
+    $router->get('/admin/tools', [AdminToolsController::class, 'index']);
+    $router->post('/admin/tools/run', [AdminToolsController::class, 'run']);
+    $router->get('/admin/tools/status/{id}', [AdminToolsController::class, 'status']);
 
     // Account settings
     $router->get('/settings', [ProfileController::class, 'settings']);
