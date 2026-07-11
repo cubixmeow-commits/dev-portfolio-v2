@@ -281,7 +281,7 @@
       <div class="wrap">
         <div class="sec-head">
           <h2 id="projects-h"><span class="h-hash mono" aria-hidden="true">##</span> Proof projects</h2>
-          <span class="sec-note mono">three systems, shown working</span>
+          <span class="sec-note mono">four systems, shown working</span>
         </div>
         <p class="sec-intro">One project per competency cluster, shown working rather than
           screenshotted. Every measurable claim here is inspectable in the live app or its case study.</p>
@@ -398,11 +398,58 @@
           </div>
         </article>
 
-        <!-- PROJECT 03 -->
+        <!-- PROJECT 03 — Helpdesk Ops Toolkit -->
         <article class="project">
           <div class="proj-head">
             <div class="proj-title">
               <span class="proj-no mono">project&nbsp;03</span>
+              <h3><span class="lang-dot lang-php" aria-hidden="true"></span>helpdesk-ops-toolkit</h3>
+            </div>
+            <span class="status status--open">OPEN · active</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede">A department-agnostic IT support system built to demonstrate government
+                support competencies end to end: public ticket intake, an agent queue with triage and
+                assignment, reporting, an asset tracker, and a plain-language knowledge base — on the same
+                stack that actually runs things.</p>
+              <ul class="proj-points">
+                <li>PHP 8 + MySQL web app: a public submit-a-ticket view and an auth-gated agent queue with filters, assignment, and logged resolution notes. PDO throughout, prepared statements, CSRF-guarded forms.</li>
+                <li>A Java (JDBC) CLI companion generates the weekly ops report from the same database — the same query logic delivered in two languages, the way real IT teams pair a web system with a support script.</li>
+                <li>Reporting is hand-rendered inline SVG, the asset tracker exports CSV, and the knowledge base renders Markdown — no framework, no external requests, its own civic design.</li>
+              </ul>
+              <div class="rc-labels" aria-label="Stack">
+                <span class="label label--lang">PHP 8</span><span class="label label--data">MySQL</span><span class="label label--data">PDO</span><span class="label label--lang">Java</span><span class="label label--data">JDBC</span>
+              </div>
+              <div class="proj-links">
+                <a class="btn" href="projects/helpdesk-ops-toolkit/web/">Open the live app <span aria-hidden="true">↗</span></a>
+                <a class="btn btn--ghost" href="https://github.com/cubixmeow-commits/dev-portfolio-v2/tree/main/projects/helpdesk-ops-toolkit">Source &amp; docs ↗</a>
+              </div>
+            </div>
+
+            <figure class="demo">
+              <div class="demo-label mono">live miniature — agent ticket queue</div>
+              <div class="tscroll">
+                <table class="mini">
+                  <thead><tr><th>ticket</th><th>summary</th><th>priority</th><th>status</th></tr></thead>
+                  <tbody>
+                    <tr class="flash"><td class="mono">#39</td><td>Bulk password resets after phishing test</td><td>High</td><td><span class="st st-transition">IN PROGRESS</span></td></tr>
+                    <tr><td class="mono">#24</td><td>Projector in conference room B fuzzy</td><td>Low</td><td><span class="st st-stock">OPEN</span></td></tr>
+                    <tr><td class="mono">#4</td><td>VPN disconnects every few minutes</td><td>High</td><td><span class="st st-assigned">RESOLVED</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <figcaption>The agent queue, plus a reporting dashboard, an asset tracker with CSV export, a
+                Markdown knowledge base, and a Java/JDBC weekly-report companion — all on one MySQL database.</figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- PROJECT 04 -->
+        <article class="project">
+          <div class="proj-head">
+            <div class="proj-title">
+              <span class="proj-no mono">project&nbsp;04</span>
               <h3><span class="lang-dot lang-infra" aria-hidden="true"></span>lamp-deployment-playbook</h3>
             </div>
             <span class="status status--draft">DRAFT · planned</span>
