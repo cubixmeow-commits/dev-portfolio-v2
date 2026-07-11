@@ -138,6 +138,16 @@ $badgeCount = (int) Database::fetchValue(
 check('day 7 pays the +5 milestone bonus (15 total)', $r['ok'] && $r['streak'] === 7 && $r['points'] === 15);
 check('day 7 writes exactly one streak_milestone event', $eventCount === 1);
 check('day 7 awards the Week One badge exactly once', $badgeCount === 1);
+$milestoneNotifs = (int) Database::fetchValue(
+    "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND type = 'streak_milestone'",
+    [(int) $s['user']['id']]
+);
+$badgeNotifs = (int) Database::fetchValue(
+    "SELECT COUNT(*) FROM notifications WHERE user_id = ? AND type = 'badge' AND title LIKE '%Week one%'",
+    [(int) $s['user']['id']]
+);
+check('day 7 sends exactly one milestone notification', $milestoneNotifs === 1);
+check('day 7 sends exactly one Week One badge notification', $badgeNotifs === 1);
 
 // Case 5: a gap resets the streak to 1.
 $s = scenario('gap');

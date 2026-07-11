@@ -19,6 +19,7 @@ use Cadence\Controllers\ProfileController;
 return static function (Router $router): void {
     $router->get('/', [DashboardController::class, 'home']);
     $router->get('/dashboard', [DashboardController::class, 'index']);
+    $router->get('/notifications', [DashboardController::class, 'notifications']);
 
     // Challenges and check-ins
     $router->get('/challenges', [ChallengeController::class, 'index']);

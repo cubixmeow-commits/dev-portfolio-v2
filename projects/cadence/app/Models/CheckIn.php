@@ -104,6 +104,13 @@ final class CheckIn
                 ActivityEvent::record($userId, 'checkin', $challengeId, null, $eventMeta);
                 if ($milestone !== null) {
                     ActivityEvent::record($userId, 'streak_milestone', $challengeId, null, ['streak' => $streak]);
+                    Notification::push(
+                        $userId,
+                        'streak_milestone',
+                        $streak . ' day streak in ' . $challenge['title'],
+                        'Milestone bonus: +' . self::MILESTONE_BONUS . ' points on top of today\'s check-in.',
+                        url('/challenges/' . $challenge['slug'])
+                    );
                 }
 
                 Badge::evaluateAfterCheckIn($userId, $challengeId, $streak);

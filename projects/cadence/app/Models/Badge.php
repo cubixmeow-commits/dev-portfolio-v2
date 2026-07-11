@@ -107,15 +107,12 @@ final class Badge
         }
 
         ActivityEvent::record($userId, 'badge', $challengeId, (int) $badge['id']);
-        Database::run(
-            'INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, ?, ?, ?, ?)',
-            [
-                $userId,
-                'badge',
-                'You earned ' . $badge['name'],
-                (string) $badge['description'],
-                url('/dashboard'),
-            ]
+        Notification::push(
+            $userId,
+            'badge',
+            'You earned ' . $badge['name'],
+            (string) $badge['description'],
+            url('/dashboard')
         );
         return true;
     }

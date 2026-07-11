@@ -44,6 +44,15 @@ if (!isset($ring_today) && $auth !== null) {
     <div class="nav-actions">
       <?php if ($auth !== null): ?>
         <a href="<?= e(url('/dashboard')) ?>" class="nav-link"<?= $active === 'dashboard' ? ' aria-current="page"' : '' ?>>Today</a>
+        <?php $unread = Cadence\Models\Notification::unreadCount((int) $auth['id']); ?>
+        <a class="bell" href="<?= e(url('/notifications')) ?>" aria-label="Notifications<?= $unread > 0 ? ', ' . $unread . ' unread' : '' ?>">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+          </svg>
+          <?php if ($unread > 0): ?><span class="bell-count"><?= $unread > 9 ? '9+' : $unread ?></span><?php endif; ?>
+        </a>
         <a href="<?= e(url('/u/' . $auth['handle'])) ?>" aria-label="Your profile">
           <?php Cadence\Core\View::partial('layout/avatar', ['user' => $auth, 'size' => 36, 'ring' => $ring_today ?? null]); ?>
         </a>
