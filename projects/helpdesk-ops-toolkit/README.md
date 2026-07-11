@@ -71,7 +71,21 @@ mysql -u USER -p helpdesk_ops < db/seed.sql
 
 ### 2. PHP app
 
-Connection settings are read from the environment (no credentials in the repo):
+Settings resolve in this order (later wins): built-in defaults →
+environment variables → a git-ignored `web/config.local.php`.
+
+**Shared hosting / any live deployment (recommended):** environment variables
+often don't reach PHP on shared hosts, so configure with a local file:
+
+```sh
+cp web/config.local.example.php web/config.local.php
+# then edit web/config.local.php: set db_dsn / db_user / db_pass, and 'debug' => false
+```
+
+`config.local.php` is git-ignored, so your credentials never get committed.
+Only the keys you set there override the defaults.
+
+**Local dev with a shell:** environment variables also work:
 
 ```sh
 export HOT_DB_DSN="mysql:host=127.0.0.1;dbname=helpdesk_ops;charset=utf8mb4"
@@ -82,7 +96,7 @@ php -S localhost:8000 -t web
 ```
 
 Agent sign-in for the demo: **`agent` / `demo123`** (shown on the login page;
-override with `HOT_AGENT_USER` / `HOT_AGENT_PASS`).
+override via `config.local.php` or `HOT_AGENT_USER` / `HOT_AGENT_PASS`).
 
 #### No MySQL handy? Local SQLite demo
 
