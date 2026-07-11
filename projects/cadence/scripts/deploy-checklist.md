@@ -7,7 +7,7 @@ Run top to bottom for every deploy to shared hosting. Details for each step live
 - [ ] `php -l` clean across `app/` and `public/` (`find . -name '*.php' -exec php -l {} \;`)
 - [ ] `php scripts/streak-tests.php` passes locally
 - [ ] `engine/build.sh` produces a fresh `cadence-engine.jar`
-- [ ] `grep -rn "—" .` returns nothing (repository formatting rule)
+- [ ] `grep -rPn "\x{2014}" .` returns nothing (no em dashes; repository formatting rule)
 - [ ] No credentials staged: only `.example` config files in git
 
 ## Upload
