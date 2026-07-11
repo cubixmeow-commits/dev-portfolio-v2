@@ -7,6 +7,10 @@
 use Cadence\Core\Flash;
 
 $active = $active ?? '';
+// Nav streak ring: today's check-in completion across active challenges.
+if (!isset($ring_today) && $auth !== null) {
+    $ring_today = Cadence\Models\Participation::ringToday((int) $auth['id'], (string) $auth['timezone']);
+}
 ?>
 <!doctype html>
 <html lang="en">

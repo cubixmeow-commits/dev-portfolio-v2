@@ -1,0 +1,281 @@
+/* Challenges: browse grid, covers, detail layout, check-in module. */
+
+/* ---- Filters ---- */
+
+.filters {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.filter-search {
+  flex: 2 1 220px;
+}
+
+.filter-select {
+  flex: 1 1 140px;
+  width: auto;
+}
+
+/* ---- Browse grid ---- */
+
+.challenge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+  margin-top: var(--sp-5);
+}
+
+@media (max-width: 1023px) {
+  .challenge-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .challenge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.challenge-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.challenge-card:hover {
+  text-decoration: none;
+  border-color: var(--ink-soft);
+}
+
+.challenge-card:hover h3 {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- Covers: named gradient combos, no stock photos.
+   Each carries the ring motif as a quiet echo of the streak ring. ---- */
+
+.challenge-cover {
+  height: 96px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-ring {
+  position: absolute;
+  right: -28px;
+  top: -40px;
+  width: 140px;
+  height: 140px;
+  border: 14px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+}
+
+.cover-spruce { background: linear-gradient(135deg, #0A7C5C, #0F5E48); }
+.cover-dawn   { background: linear-gradient(135deg, #1F6FB2, #174E7C); }
+.cover-dusk   { background: linear-gradient(135deg, #7A4FB0, #533578); }
+.cover-ember  { background: linear-gradient(135deg, #B4552D, #8A3F20); }
+.cover-field  { background: linear-gradient(135deg, #8A6D1F, #6B5417); }
+.cover-tide   { background: linear-gradient(135deg, #2D7A8A, #1F5763); }
+.cover-bloom  { background: linear-gradient(135deg, #A03E62, #742C47); }
+.cover-moss   { background: linear-gradient(135deg, #4B6C2F, #364F21); }
+
+.challenge-body {
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  flex: 1;
+}
+
+.challenge-meta {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.challenge-desc {
+  flex: 1;
+}
+
+.challenge-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-2);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin-top: var(--sp-6);
+}
+
+/* ---- Detail hero ---- */
+
+.challenge-hero {
+  color: #fff;
+  padding: var(--sp-7) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.challenge-hero::after {
+  content: '';
+  position: absolute;
+  right: -80px;
+  top: -120px;
+  width: 380px;
+  height: 380px;
+  border: 36px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+}
+
+.challenge-hero-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.challenge-hero h1 {
+  margin-top: var(--sp-3);
+  font-size: var(--text-2xl);
+  color: #fff;
+}
+
+.challenge-hero-stats {
+  display: flex;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-top: var(--sp-3);
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.pill-on-cover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ---- Detail layout ---- */
+
+.challenge-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--sp-5);
+  margin-top: var(--sp-6);
+  align-items: start;
+}
+
+@media (max-width: 1023px) {
+  .challenge-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.challenge-main,
+.challenge-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.challenge-actions {
+  margin-top: var(--sp-5);
+  display: flex;
+  gap: var(--sp-3);
+}
+
+/* ---- Check-in module ---- */
+
+.checkin-module {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+}
+
+.checkin-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 96px;
+}
+
+.streak-number {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Confirmation pulse on the streak number after a successful check-in. */
+@keyframes streak-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+.streak-pop {
+  animation: streak-pop var(--duration-slow) var(--ease-out);
+}
+
+/* ---- Leaderboard and mini feed ---- */
+
+.leader-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.leader-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.leader-rank {
+  width: 1.5em;
+  text-align: right;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  flex: none;
+}
+
+.leader-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.leader-points {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.mini-feed {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.mini-feed-row {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}

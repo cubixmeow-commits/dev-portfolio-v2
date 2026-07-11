@@ -9,12 +9,21 @@ declare(strict_types=1);
 
 use Cadence\Core\Router;
 use Cadence\Controllers\AuthController;
+use Cadence\Controllers\ChallengeController;
+use Cadence\Controllers\CheckInController;
 use Cadence\Controllers\DashboardController;
 use Cadence\Controllers\ProfileController;
 
 return static function (Router $router): void {
     $router->get('/', [DashboardController::class, 'home']);
     $router->get('/dashboard', [DashboardController::class, 'index']);
+
+    // Challenges and check-ins
+    $router->get('/challenges', [ChallengeController::class, 'index']);
+    $router->get('/challenges/{slug}', [ChallengeController::class, 'show']);
+    $router->post('/challenges/{slug}/join', [ChallengeController::class, 'join']);
+    $router->post('/challenges/{slug}/leave', [ChallengeController::class, 'leave']);
+    $router->post('/challenges/{slug}/checkin', [CheckInController::class, 'store']);
 
     // Auth
     $router->get('/register', [AuthController::class, 'showRegister']);
