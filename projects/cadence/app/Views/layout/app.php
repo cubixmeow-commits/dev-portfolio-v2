@@ -61,8 +61,19 @@ $active = $active ?? '';
     </div>
   <?php endif; ?>
 
+  <?php if ($auth !== null && $auth['email_verified_at'] === null && ($active ?? '') !== 'settings' && empty($hide_verify_banner)): ?>
+    <div class="container" style="margin-top: var(--sp-4)">
+      <div class="flash flash-info" style="display: flex; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap">
+        <span>Verify your email to secure your account. The link is in your inbox.</span>
+        <a href="<?= e(url('/settings')) ?>">Resend from settings</a>
+      </div>
+    </div>
+  <?php endif; ?>
+
   <?= $content ?>
 </main>
+
+<script src="<?= e(url('/assets/js/app.js')) ?>" defer></script>
 
 <footer class="footer">
   <div class="container footer-inner">
