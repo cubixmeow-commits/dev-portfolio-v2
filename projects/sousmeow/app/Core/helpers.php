@@ -20,6 +20,19 @@ function url(string $path = '/'): string
     return $base . '/' . ltrim($path, '/');
 }
 
+/**
+ * Static asset URL with a filemtime cache-buster so CSS/JS updates show up
+ * immediately after deploy (shared hosts often cache /assets for a day).
+ */
+function asset(string $path): string
+{
+    $publicRoot = dirname(__DIR__, 2) . '/public';
+    $file = $publicRoot . '/' . ltrim($path, '/');
+    $version = is_file($file) ? (string) filemtime($file) : '0';
+
+    return url($path) . '?v=' . $version;
+}
+
 /** Redirect to an app path and end the request. */
 function redirect(string $path): never
 {

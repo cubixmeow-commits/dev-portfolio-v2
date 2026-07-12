@@ -34,8 +34,9 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
         ChatGPT or Claude, paste the answer back, and approve what earns its place. By the last Recipe,
         you are holding a finished Project Kit, ready to publish.
       </p>
+    </div>
 
-      <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
+    <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
         <div class="dashboard-head">
           <div class="dashboard-head-main">
             <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Live from the kitchen</p>
@@ -98,32 +99,22 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
               </div>
             </div>
             <div class="heatmap-scroll">
-              <div class="heatmap-board" role="img" aria-label="Activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
-                <div class="heatmap-months" aria-hidden="true">
-                  <?php foreach ($heatmap['month_labels'] as $month): ?>
-                    <span class="heatmap-month" style="--col: <?= (int) $month['col'] ?>"><?= e($month['label']) ?></span>
+              <div class="heatmap-chart" role="img" aria-label="Activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
+                <div class="heatmap-weeks">
+                  <?php foreach ($heatmap['weeks'] as $week): ?>
+                    <div class="heatmap-week">
+                      <?php foreach ($week as $cell): ?>
+                        <?php if ($cell === null): ?>
+                          <span class="heatmap-cell heatmap-empty" aria-hidden="true"></span>
+                        <?php else: ?>
+                          <span
+                            class="heatmap-cell heatmap-level-<?= (int) $cell['level'] ?>"
+                            title="<?= e($cell['date'] . ': ' . $cell['count'] . ' actions') ?>"
+                          ></span>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    </div>
                   <?php endforeach; ?>
-                </div>
-                <div class="heatmap-grid">
-                  <div class="heatmap-dow" aria-hidden="true">
-                    <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
-                  </div>
-                  <div class="heatmap-weeks">
-                    <?php foreach ($heatmap['weeks'] as $week): ?>
-                      <div class="heatmap-week">
-                        <?php foreach ($week as $cell): ?>
-                          <?php if ($cell === null): ?>
-                            <span class="heatmap-cell heatmap-empty"></span>
-                          <?php else: ?>
-                            <span
-                              class="heatmap-cell heatmap-level-<?= (int) $cell['level'] ?>"
-                              title="<?= e($cell['date'] . ': ' . $cell['count'] . ' actions') ?>"
-                            ></span>
-                          <?php endif; ?>
-                        <?php endforeach; ?>
-                      </div>
-                    <?php endforeach; ?>
-                  </div>
                 </div>
               </div>
             </div>
@@ -189,6 +180,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
         </div>
       </section>
 
+    <div class="hero-inner">
       <div class="hero-actions">
         <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
           <?= $auth ? 'Open my Kitchen' : 'Start cooking free' ?>
