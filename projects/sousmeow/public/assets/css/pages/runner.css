@@ -1,0 +1,149 @@
+/* The Recipe Runner. Calm, focused, and fully usable at 390px. */
+
+.runner-page { max-width: 1160px; }
+
+/* ---------- Step rail ---------- */
+
+.runner-rail { padding: var(--space-4) var(--space-5); margin-bottom: var(--space-5); }
+.rail-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; align-items: center; gap: var(--space-2);
+  overflow-x: auto;
+}
+.rail-step { display: flex; align-items: center; flex-shrink: 0; }
+.rail-step:not(:last-child)::after {
+  content: ""; width: 1.6rem; height: 2px; margin: 0 var(--space-2);
+  background: var(--line-strong); border-radius: 2px;
+}
+.rail-link {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  text-decoration: none; color: var(--ink-soft);
+  padding: var(--space-1); border-radius: var(--radius-s);
+}
+.rail-link:hover .rail-title { color: var(--ink); }
+.rail-link.is-locked { cursor: not-allowed; opacity: 0.7; }
+.rail-title { font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.rail-step.is-current .rail-title { color: var(--terracotta-deep); }
+.rail-step-kit .rail-title { font-family: var(--font-mono); font-size: 0.8rem; }
+.rail-summary { margin: var(--space-2) 0 0; font-size: 0.82rem; color: var(--ink-faint); }
+
+/* ---------- Layout ---------- */
+
+.runner-grid { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--space-5); align-items: start; }
+.runner-main { display: grid; gap: var(--space-5); min-width: 0; }
+.runner-side { display: grid; gap: var(--space-4); position: sticky; top: 4.5rem; }
+
+@media (max-width: 900px) {
+  .runner-grid { grid-template-columns: 1fr; }
+  .runner-side { position: static; }
+}
+
+/* ---------- Recipe intro ---------- */
+
+.recipe-eyebrow {
+  text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem;
+  font-weight: 700; color: var(--terracotta); margin-bottom: var(--space-1);
+}
+.recipe-summary { color: var(--ink-soft); font-size: 1.02rem; }
+.recipe-why { margin-top: var(--space-4); font-size: 0.92rem; }
+.recipe-why p { margin-bottom: var(--space-2); }
+.recipe-unlocks { color: var(--sage-deep); font-weight: 500; }
+
+/* ---------- Step flags ---------- */
+
+.step-flag { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+.step-flag h2 { margin: 0; font-size: 1.25rem; }
+
+/* ---------- Prompt ---------- */
+
+.ingredient-swatch {
+  background: rgba(242, 194, 126, 0.35); color: #7A5316;
+  border-radius: 4px; padding: 0 0.25em; font-weight: 600;
+}
+.prompt-card .prompt-block { margin-top: var(--space-4); }
+.prompt-missing { margin-bottom: var(--space-3); border-left: 3px solid var(--amber); }
+.prompt-missing p { margin: 0; font-size: 0.9rem; }
+
+/* ---------- Paste ---------- */
+
+.paste-textarea { margin-bottom: var(--space-3); }
+.demo-divider {
+  display: flex; align-items: center; gap: var(--space-3);
+  margin: var(--space-5) 0 var(--space-4);
+  color: var(--ink-faint); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.demo-divider::before, .demo-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.demo-row { display: flex; gap: var(--space-4); align-items: flex-start; flex-wrap: wrap; }
+.demo-note { flex: 1; min-width: 14rem; font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+.demo-note .badge { margin-right: var(--space-1); }
+
+/* ---------- Response ---------- */
+
+.response-wrap { padding: var(--space-5); }
+.response-header { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.old-version-note { margin-bottom: var(--space-4); border-left: 3px solid var(--lilac); }
+.old-version-note p { font-size: 0.9rem; margin-bottom: var(--space-3); }
+.old-version-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+
+/* ---------- Revise ---------- */
+
+.revise-details > summary, .revise-option > summary {
+  cursor: pointer; font-weight: 600; color: var(--ink-soft);
+  padding: var(--space-1) 0;
+  transition: color var(--dur-fast) var(--ease-out);
+  list-style-position: outside;
+}
+.revise-details > summary:hover, .revise-option > summary:hover { color: var(--ink); }
+.revise-body { padding-top: var(--space-3); display: grid; gap: var(--space-3); }
+.revise-option { border: 1px solid var(--line); border-radius: var(--radius-m); padding: var(--space-3) var(--space-4); background: #fff; }
+.revise-option form { display: grid; gap: var(--space-3); justify-items: start; margin-top: var(--space-3); }
+.revise-textarea { width: 100%; }
+
+/* ---------- Quality Checks ---------- */
+
+.checks-lede { margin-bottom: var(--space-4); }
+.checks-fallback { margin-top: var(--space-3); }
+.js-on .checks-fallback { display: none; }
+.approve-form { margin-top: var(--space-5); border-top: 1px solid var(--line); padding-top: var(--space-5); display: grid; gap: var(--space-3); justify-items: start; }
+.approve-note { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
+
+/* ---------- Approved ---------- */
+
+.approved-card { border-color: #C4D6AE; }
+.approved-banner {
+  display: flex; gap: var(--space-4); align-items: center;
+  background: var(--sage-wash); border-bottom: 1px solid #C4D6AE;
+  padding: var(--space-5); border-radius: var(--radius-l) var(--radius-l) 0 0;
+}
+.approved-banner .mascot { width: 64px; height: 64px; color: var(--sage-deep); flex-shrink: 0; }
+.approved-banner h2 { color: var(--sage-deep); margin-bottom: var(--space-1); }
+.approved-banner p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.approved-actions {
+  display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+/* ---------- Sidebar ---------- */
+
+.side-card h3 { margin-bottom: var(--space-1); font-size: 1rem; }
+.side-sub { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: var(--space-3); }
+.loop-reminder { background: var(--card-sunken); }
+
+.ingredient-list { margin: 0 0 var(--space-4); display: grid; gap: var(--space-2); }
+.ingredient-row dt { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+.ingredient-row dd { margin: 0; font-size: 0.88rem; color: var(--ink); overflow-wrap: break-word; }
+
+.version-view { font-size: 0.82rem; }
+
+/* ---------- 390px assurance ---------- */
+
+@media (max-width: 480px) {
+  .runner-page { padding-left: var(--space-3); padding-right: var(--space-3); }
+  .response-wrap, .card-pad { padding: var(--space-4); }
+  .prompt-block pre { padding: var(--space-4); font-size: 0.8rem; max-height: 20rem; }
+  .copy-button { position: static; margin: 0 var(--space-3) var(--space-3); display: inline-flex; }
+  .approve-form .button { width: 100%; }
+  .paste-card .button-large { width: 100%; }
+  .rail-title { display: none; }
+  .rail-step.is-current .rail-title { display: inline; }
+}

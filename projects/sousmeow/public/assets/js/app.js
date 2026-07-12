@@ -57,6 +57,15 @@
     done();
   }
 
+  /* Destructive forms ask once before submitting. */
+  document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+    form.addEventListener("submit", function (event) {
+      if (!window.confirm(form.getAttribute("data-confirm"))) {
+        event.preventDefault();
+      }
+    });
+  });
+
   /* Submit buttons show a small working state so slow saves feel alive. */
   document.querySelectorAll("form[data-loading]").forEach(function (form) {
     form.addEventListener("submit", function () {

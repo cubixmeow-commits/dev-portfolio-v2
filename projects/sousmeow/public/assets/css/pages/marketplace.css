@@ -1,0 +1,67 @@
+/* Marketplace: the Cookbook shelf and detail pages. */
+
+.marketplace-header { margin-bottom: var(--space-5); max-width: 46rem; }
+
+.marketplace-search { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); max-width: 34rem; }
+.marketplace-search .input { flex: 1; }
+
+/* Accent hues per cookbook. */
+.accent-terracotta { --accent: var(--terracotta); --accent-wash: var(--terracotta-wash); }
+.accent-teal { --accent: var(--teal); --accent-wash: #DFEeea; }
+.accent-amber { --accent: var(--amber); --accent-wash: var(--amber-wash); }
+.accent-sage { --accent: var(--sage); --accent-wash: var(--sage-wash); }
+.accent-lilac { --accent: var(--lilac); --accent-wash: var(--lilac-wash); }
+
+.cookbook-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+.cookbook-card { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); overflow: hidden; }
+.cookbook-band {
+  height: 8px;
+  background: linear-gradient(90deg, var(--accent, var(--terracotta)), var(--accent-wash, var(--terracotta-wash)));
+}
+.cookbook-body { padding: var(--space-4) var(--space-4) var(--space-4); display: flex; flex-direction: column; flex: 1; }
+.cookbook-top { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-3); }
+.cookbook-title { font-size: 1.15rem; margin-bottom: var(--space-1); }
+.cookbook-card:hover .cookbook-title { color: var(--accent, var(--terracotta-deep)); }
+.cookbook-tagline { color: var(--ink-soft); font-size: 0.9rem; flex: 1; }
+.cookbook-meta {
+  display: flex; gap: var(--space-2); align-items: baseline;
+  font-size: 0.82rem; color: var(--ink-faint);
+  border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3);
+}
+.cookbook-price { margin-left: auto; font-weight: 700; color: var(--ink); font-size: 0.9rem; }
+
+.marketplace-honesty { margin-top: var(--space-6); font-size: 0.85rem; color: var(--ink-faint); max-width: 44rem; }
+
+/* ---------- Detail page ---------- */
+
+.detail-header { overflow: hidden; margin-bottom: var(--space-6); }
+.detail-band { height: 10px; }
+.detail-header-body { padding: var(--space-6); }
+.detail-tagline { font-size: 1.1rem; font-weight: 500; color: var(--ink-soft); }
+.detail-description { max-width: 46rem; color: var(--ink-soft); }
+.detail-facts {
+  display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  margin: var(--space-5) 0; padding: var(--space-4) 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.detail-facts dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: var(--ink-faint); margin-bottom: var(--space-1); }
+.detail-facts dd { margin: 0; font-size: 0.92rem; }
+.detail-cta-note { margin-top: var(--space-3); font-size: 0.88rem; color: var(--ink-soft); }
+.detail-honest { border-left: 3px solid var(--amber); max-width: 40rem; }
+.detail-honest p { margin: 0; font-size: 0.93rem; }
+
+.detail-recipes { margin-bottom: var(--space-7); }
+.detail-recipe-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.detail-recipe {
+  display: flex; gap: var(--space-4); align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+}
+.detail-recipe .step-dot { flex-shrink: 0; margin-top: 2px; }
+.detail-recipe h3 { margin-bottom: var(--space-1); font-size: 1.05rem; }
+.detail-recipe p { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: var(--space-1); }
+.detail-recipe-why { font-size: 0.85rem; color: var(--ink-faint); }
+.detail-recipe-badge { margin-left: auto; flex-shrink: 0; }
+
+.detail-pantry-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.detail-pantry-item { display: grid; gap: var(--space-1); font-size: 0.88rem; }
+.detail-pantry-item span { color: var(--ink-soft); }

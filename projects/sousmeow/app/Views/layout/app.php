@@ -65,7 +65,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
 </header>
 
 <?php if ($flash !== null): ?>
-  <div class="flash flash-<?= e($flash['type']) ?>" role="status" data-flash>
+  <div class="flash flash-<?= e($flash['type']) ?>" role="status" data-flash <?= $flash['type'] === 'celebrate' ? 'data-celebrate' : '' ?>>
     <div class="flash-inner">
       <span class="flash-message"><?= e($flash['message']) ?></span>
       <button type="button" class="flash-dismiss" data-flash-dismiss aria-label="Dismiss">&times;</button>

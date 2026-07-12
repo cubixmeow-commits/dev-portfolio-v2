@@ -24,6 +24,8 @@ return static function (Router $router): void {
     $router->get('/register', [AuthController::class, 'showRegister']);
     $router->post('/register', [AuthController::class, 'register']);
     $router->post('/logout', [AuthController::class, 'logout']);
+    $router->get('/account/password', [AuthController::class, 'showChangePassword']);
+    $router->post('/account/password', [AuthController::class, 'changePassword']);
 
     // Kitchen (the signed-in home).
     $router->get('/kitchen', [KitchenController::class, 'index']);

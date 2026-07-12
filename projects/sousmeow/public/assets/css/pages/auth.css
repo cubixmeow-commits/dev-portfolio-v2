@@ -1,0 +1,46 @@
+/* Auth pages: a warm split card that explains the product while the
+   visitor signs in. Nothing here is a blank form. */
+
+.auth-page { display: grid; place-items: center; }
+
+.auth-split {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  overflow: hidden;
+  width: min(56rem, 100%);
+}
+
+.auth-aside {
+  background:
+    radial-gradient(24rem 16rem at 0% 0%, rgba(217, 142, 43, 0.14), transparent 60%),
+    radial-gradient(20rem 16rem at 100% 100%, rgba(94, 126, 78, 0.13), transparent 60%),
+    var(--card-sunken);
+  border-right: 1px solid var(--line);
+  padding: var(--space-6);
+}
+.auth-aside .mascot { color: var(--ink); margin-bottom: var(--space-3); }
+.auth-aside h2 { font-size: 1.35rem; }
+.auth-aside p { color: var(--ink-soft); font-size: 0.95rem; }
+
+.auth-points, .auth-steps { margin: var(--space-4) 0 0; padding-left: 1.2rem; color: var(--ink-soft); font-size: 0.92rem; }
+.auth-points li, .auth-steps li { margin-bottom: var(--space-2); }
+.auth-steps strong { color: var(--ink); }
+.auth-aside-note {
+  margin-top: var(--space-4);
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--line-strong);
+  padding-top: var(--space-3);
+}
+
+.auth-form-col { padding: var(--space-6); }
+.auth-sub { color: var(--ink-soft); margin-bottom: var(--space-5); }
+.auth-footnote { margin-top: var(--space-5); font-size: 0.8rem; color: var(--ink-faint); }
+.auth-footnote code { font-size: 0.75rem; background: var(--card-sunken); padding: 0.1em 0.4em; border-radius: 4px; }
+
+.auth-single { width: min(30rem, 100%); }
+.auth-actions { display: flex; gap: var(--space-3); }
+
+@media (max-width: 760px) {
+  .auth-split { grid-template-columns: 1fr; }
+  .auth-aside { border-right: none; border-bottom: 1px solid var(--line); }
+}
