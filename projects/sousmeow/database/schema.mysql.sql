@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     email         VARCHAR(190) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     role          VARCHAR(20) NOT NULL DEFAULT 'user',
+    simulation    TINYINT(1) NOT NULL DEFAULT 0,
     created_at    DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -162,4 +163,11 @@ CREATE TABLE IF NOT EXISTS exports (
     artifact_count INT UNSIGNED NOT NULL DEFAULT 0,
     created_at     DATETIME NOT NULL,
     CONSTRAINT fk_exports_project FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS simulation_runs (
+    pacific_date   DATE NOT NULL PRIMARY KEY,
+    users_active   INT UNSIGNED NOT NULL DEFAULT 0,
+    actions_count  INT UNSIGNED NOT NULL DEFAULT 0,
+    executed_at    DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

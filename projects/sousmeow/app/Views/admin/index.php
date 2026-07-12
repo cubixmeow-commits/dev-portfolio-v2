@@ -1,6 +1,7 @@
 <?php
 /**
  * @var array{users:int, projects:int, completed:int, approved:int, exports:int} $stats
+ * @var array{sim_users:int, projects:int, completed:int, exports:int, approved:int, active_today_pt:int, last_run:?array<string,mixed>} $simulation
  * @var list<array<string, mixed>> $recentUsers
  * @var list<array<string, mixed>> $recentProjects
  */
@@ -8,32 +9,44 @@
 <div class="page admin-page">
   <header class="admin-header">
     <h1>Admin overview</h1>
-    <p class="section-sub">A read-only view of kitchen activity. Admin accounts are created only by
-       <code>php scripts/seed.php</code>; there is no web installer and no user-facing path to this role.</p>
+    <p class="section-sub">Kitchen activity including <strong>portfolio simulation</strong>
+       (<code>users.simulation = 1</code>). See <code>docs/SIMULATION.md</code> for the daily playbook.</p>
   </header>
 
   <section class="stat-grid">
     <div class="stat-card card card-pad">
       <span class="stat-value"><?= e(number_format($stats['users'])) ?></span>
-      <span class="stat-label">Accounts</span>
+      <span class="stat-label">All accounts</span>
     </div>
     <div class="stat-card card card-pad">
-      <span class="stat-value"><?= e(number_format($stats['projects'])) ?></span>
-      <span class="stat-label">Projects started</span>
+      <span class="stat-value"><?= e(number_format($simulation['sim_users'])) ?></span>
+      <span class="stat-label">Simulated chefs</span>
     </div>
     <div class="stat-card card card-pad">
-      <span class="stat-value"><?= e(number_format($stats['completed'])) ?></span>
-      <span class="stat-label">Cookbooks completed</span>
+      <span class="stat-value"><?= e(number_format($simulation['active_today_pt'])) ?></span>
+      <span class="stat-label">Active today (PT)</span>
     </div>
     <div class="stat-card card card-pad">
-      <span class="stat-value"><?= e(number_format($stats['approved'])) ?></span>
-      <span class="stat-label">Artifacts approved</span>
+      <span class="stat-value"><?= e(number_format($simulation['projects'])) ?></span>
+      <span class="stat-label">Sim projects</span>
     </div>
     <div class="stat-card card card-pad">
-      <span class="stat-value"><?= e(number_format($stats['exports'])) ?></span>
-      <span class="stat-label">Kits exported</span>
+      <span class="stat-value"><?= e(number_format($simulation['completed'])) ?></span>
+      <span class="stat-label">Sim completed</span>
+    </div>
+    <div class="stat-card card card-pad">
+      <span class="stat-value"><?= e(number_format($simulation['exports'])) ?></span>
+      <span class="stat-label">Sim kits exported</span>
     </div>
   </section>
+
+  <?php if ($simulation['last_run'] !== null): ?>
+    <p class="admin-sim-note section-sub">
+      Last simulated Pacific day: <strong><?= e((string) $simulation['last_run']['pacific_date']) ?></strong> —
+      <?= (int) $simulation['last_run']['users_active'] ?> active chefs,
+      <?= (int) $simulation['last_run']['actions_count'] ?> actions recorded.
+    </p>
+  <?php endif; ?>
 
   <div class="admin-columns">
     <section class="card card-pad">
@@ -55,7 +68,10 @@
               <?php foreach ($recentProjects as $p): ?>
                 <tr>
                   <td><?= e($p['title']) ?></td>
-                  <td><?= e($p['user_name']) ?></td>
+                  <td>
+                    <?= e($p['user_name']) ?>
+                    <?php if (!empty($p['simulation'])): ?><span class="badge badge-neutral">sim</span><?php endif; ?>
+                  </td>
                   <td><?= e($p['cookbook_title']) ?></td>
                   <td>
                     <?php if ($p['completed_at'] !== null): ?>

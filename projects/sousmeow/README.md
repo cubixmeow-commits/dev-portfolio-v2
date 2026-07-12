@@ -13,6 +13,20 @@ SousMeow deliberately never calls an AI itself. No API keys, no token
 markup, no black box. The product is structure, review discipline,
 versioning, and a finished deliverable.
 
+## Portfolio simulation (500 chefs)
+
+SousMeow can populate a **portfolio demonstration** with 500 simulated chefs,
+daily Pacific-time kitchen activity, and a public metrics dashboard. Full
+playbook for Claude Code and daily agent review: **`docs/SIMULATION.md`**.
+
+```sh
+php scripts/seed.php
+php scripts/simulate-users.php
+php scripts/simulate-day.php --date=yesterday   # run daily via cron
+```
+
+Demo login: `kitchen+1@demo.local` / `demo-kitchen-2026` (through `+500`).
+
 ## Try it in two minutes
 
 ```sh

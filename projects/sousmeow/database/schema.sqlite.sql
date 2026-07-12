@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     email         TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role          TEXT NOT NULL DEFAULT 'user',
+    simulation    INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT NOT NULL
 );
 
@@ -148,4 +149,11 @@ CREATE TABLE IF NOT EXISTS exports (
     file_size      INTEGER NOT NULL DEFAULT 0,
     artifact_count INTEGER NOT NULL DEFAULT 0,
     created_at     TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS simulation_runs (
+    pacific_date   TEXT NOT NULL PRIMARY KEY,
+    users_active   INTEGER NOT NULL DEFAULT 0,
+    actions_count  INTEGER NOT NULL DEFAULT 0,
+    executed_at    TEXT NOT NULL
 );
