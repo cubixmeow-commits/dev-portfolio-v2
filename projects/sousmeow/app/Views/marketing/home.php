@@ -1,10 +1,33 @@
 <?php
 use SousMeow\Core\Csrf;
+use SousMeow\Services\SiteStats;
 
 /**
  * @var array<string, mixed>|null  $featured
  * @var list<array<string, mixed>> $featuredRecipes
+ * @var array{chefs:int,kits:int,runs:int,rating:float,recipes:int,cookbooks:int} $stats
+ * @var list<array<string, mixed>> $popular
+ * @var list<array{kind:string,at:string,name:string,cookbook_title?:string,detail?:string}> $activity
  */
+$accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/', '', (string) $c['accent']);
+$activityBadge = static function (string $kind): string {
+    return match ($kind) {
+        'completed' => 'badge-sage',
+        'cooking'   => 'badge-terracotta',
+        'pantry'    => 'badge-amber',
+        'joined'    => 'badge-lilac',
+        default     => 'badge-neutral',
+    };
+};
+$activityLabel = static function (string $kind): string {
+    return match ($kind) {
+        'completed' => 'Kit ready',
+        'cooking'   => 'Cooking',
+        'pantry'    => 'Pantry stocked',
+        'joined'    => 'New chef',
+        default     => 'Active',
+    };
+};
 ?>
 <div class="marketing-home">
 
@@ -22,6 +45,98 @@ use SousMeow\Core\Csrf;
         ChatGPT or Claude, paste the answer back, and approve what earns its place. By the last Recipe,
         you are holding a finished Project Kit, ready to publish.
       </p>
+
+      <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
+        <div class="dashboard-head">
+          <div>
+            <p class="dashboard-eyebrow">Live from the kitchen</p>
+            <h2 id="dashboard-heading" class="dashboard-title">The stove is busy</h2>
+          </div>
+          <p class="dashboard-honesty">Portfolio demo — counts blend live activity with seeded cookbook metrics.</p>
+        </div>
+
+        <div class="dashboard-stats">
+          <div class="dash-stat">
+            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
+            <span class="dash-stat-label">Chefs cooking</span>
+          </div>
+          <div class="dash-stat">
+            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['kits'])) ?></span>
+            <span class="dash-stat-label">Project Kits packed</span>
+          </div>
+          <div class="dash-stat dash-stat-hero">
+            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['runs'])) ?>+</span>
+            <span class="dash-stat-label">Cookbook runs completed</span>
+          </div>
+          <div class="dash-stat">
+            <span class="dash-stat-value"><?= e(number_format($stats['rating'], 1)) ?><span class="dash-star" aria-hidden="true">&#9733;</span></span>
+            <span class="dash-stat-label">Average satisfaction</span>
+          </div>
+          <div class="dash-stat dash-stat-wide">
+            <span class="dash-stat-value"><?= e((string) $stats['cookbooks']) ?> Cookbooks · <?= e((string) $stats['recipes']) ?> Recipes</span>
+            <span class="dash-stat-label">Expert workflows on the shelf</span>
+          </div>
+        </div>
+
+        <div class="dashboard-panels">
+          <div class="dashboard-panel dashboard-activity card card-pad">
+            <div class="panel-heading">
+              <h3>Kitchen activity</h3>
+              <span class="panel-live" aria-hidden="true"><span class="live-dot"></span> Recent</span>
+            </div>
+            <?php if ($activity === []): ?>
+              <p class="panel-empty">Quiet for now. Start a Cookbook and this feed fills up.</p>
+            <?php else: ?>
+              <ul class="activity-feed">
+                <?php foreach ($activity as $event): $msg = SiteStats::activityMessage($event); ?>
+                  <li class="activity-item">
+                    <span class="badge <?= e($activityBadge($event['kind'])) ?> activity-badge"><?= e($activityLabel($event['kind'])) ?></span>
+                    <p class="activity-copy">
+                      <?= e($msg['prefix']) ?>
+                      <?php if ($msg['emphasis'] !== ''): ?>
+                        <strong><?= e($msg['emphasis']) ?></strong>
+                      <?php endif; ?>
+                      <?php if ($msg['suffix'] !== ''): ?>
+                        <span class="activity-detail">· <?= e($msg['suffix']) ?></span>
+                      <?php endif; ?>
+                    </p>
+                    <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php endif; ?>
+          </div>
+
+          <div class="dashboard-panel dashboard-popular card card-pad">
+            <div class="panel-heading">
+              <h3>Popular on the shelf</h3>
+            </div>
+            <ul class="popular-list">
+              <?php foreach ($popular as $cookbook):
+                $runs = (int) ($cookbook['display_runs'] ?? 0);
+                $rating = $cookbook['demo_avg_rating'] ?? null;
+              ?>
+                <li>
+                  <a class="popular-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
+                    <span class="popular-band" aria-hidden="true"></span>
+                    <span class="popular-body">
+                      <span class="popular-title"><?= e($cookbook['title']) ?></span>
+                      <span class="popular-meta">
+                        <?= e(SiteStats::formatCompact($runs)) ?> runs
+                        <?php if ($rating !== null): ?>
+                          · <?= e(number_format((float) $rating, 1)) ?> &#9733;
+                        <?php endif; ?>
+                        · <?= e(plural((int) $cookbook['recipe_count'], 'Recipe')) ?>
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <div class="hero-actions">
         <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
           <?= $auth ? 'Open my Kitchen' : 'Start cooking free' ?>

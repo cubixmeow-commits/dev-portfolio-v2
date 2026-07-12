@@ -13,6 +13,22 @@ SousMeow deliberately never calls an AI itself. No API keys, no token
 markup, no black box. The product is structure, review discipline,
 versioning, and a finished deliverable.
 
+## Portfolio demo dashboard
+
+Populate the marketing home page with hundreds of simulated chefs, projects,
+and exports. Safe to re-run; only touches `demo+*.local` accounts.
+
+```sh
+php scripts/seed.php
+php scripts/seed-demo.php --users=350        # default scale
+php scripts/seed-demo.php --fresh-demo       # replace demo users first
+php scripts/seed-demo.php --status           # read-only counts
+```
+
+Demo logins use `demo+1@kitchen.local` (through `demo+350@kitchen.local`) with
+password `demo-kitchen-2026`. The home page dashboard blends live database
+counts with seeded cookbook metrics and labels the section as a portfolio demo.
+
 ## Try it in two minutes
 
 ```sh
@@ -56,7 +72,7 @@ export, works without any AI at all; sample content is always labeled.
 
 ## Deliberate limits (v1 scope)
 
-One executable Cookbook; seven marketplace Cookbooks are presentation
+Five first-party Cookbooks: three are fully executable today; two are workflow
 previews with honest "coming soon" states and no checkout. No SMTP, no
 payment SDK, no Node build step, no Docker, no background workers.
 Password resets are an admin CLI action
