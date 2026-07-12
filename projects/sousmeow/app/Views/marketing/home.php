@@ -36,84 +36,92 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
 
       <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
         <div class="dashboard-head">
-          <div>
-            <p class="dashboard-eyebrow">Live from the kitchen</p>
+          <div class="dashboard-head-main">
+            <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Live from the kitchen</p>
             <h2 id="dashboard-heading" class="dashboard-title">The stove is busy today</h2>
           </div>
-          <p class="dashboard-honesty">Portfolio demonstration · simulated chefs and activity (Pacific time)</p>
+          <p class="dashboard-honesty">Portfolio demo · simulated activity · Pacific time</p>
         </div>
-        <div class="dashboard-stats">
-          <div class="dash-stat">
-            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
-            <span class="dash-stat-label">Chefs in the kitchen</span>
-          </div>
-          <div class="dash-stat">
-            <span class="dash-stat-value"><?= e((string) $stats['active_today']) ?></span>
-            <span class="dash-stat-label">Active today (PT)</span>
-          </div>
-          <div class="dash-stat dash-stat-hero">
+
+        <div class="dashboard-stats" role="list">
+          <div class="dash-stat dash-stat-hero" role="listitem">
             <span class="dash-stat-value"><?= e((string) $stats['kits_today']) ?></span>
             <span class="dash-stat-label">Kits packed today</span>
           </div>
-          <div class="dash-stat">
+          <div class="dash-stat" role="listitem">
+            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
+            <span class="dash-stat-label">Chefs</span>
+          </div>
+          <div class="dash-stat" role="listitem">
+            <span class="dash-stat-value"><?= e((string) $stats['active_today']) ?></span>
+            <span class="dash-stat-label">Active today</span>
+          </div>
+          <div class="dash-stat" role="listitem">
             <span class="dash-stat-value"><?= e(number_format($stats['rating'], 1)) ?><span class="dash-star" aria-hidden="true">&#9733;</span></span>
-            <span class="dash-stat-label">Cookbook satisfaction</span>
+            <span class="dash-stat-label">Satisfaction</span>
           </div>
-          <div class="dash-stat">
+          <div class="dash-stat dash-stat-muted" role="listitem">
             <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
-            <span class="dash-stat-label">Kits packed all time</span>
+            <span class="dash-stat-label">All-time kits</span>
           </div>
-          <div class="dash-stat dash-stat-wide">
-            <span class="dash-stat-value"><?= e((string) $stats['approved_today']) ?> approved today</span>
-            <span class="dash-stat-label"><?= e((string) $stats['cookbooks']) ?> Cookbooks · <?= e((string) $stats['recipes']) ?> Recipes on the shelf</span>
+          <div class="dash-stat dash-stat-muted" role="listitem">
+            <span class="dash-stat-value"><?= e((string) $stats['approved_today']) ?></span>
+            <span class="dash-stat-label">Approved today</span>
           </div>
         </div>
+
         <div class="dashboard-panels">
-          <div class="dashboard-panel dashboard-activity card card-pad">
+          <div class="dashboard-panel dashboard-activity">
             <div class="panel-heading">
-              <h3>Kitchen activity</h3>
-              <span class="panel-live" aria-hidden="true"><span class="live-dot"></span> Recent</span>
+              <h3>Kitchen pulse</h3>
+              <span class="panel-live">Updating</span>
             </div>
             <?php if ($activity === []): ?>
               <p class="panel-empty">Run <code>php scripts/simulate-day.php</code> to populate activity.</p>
             <?php else: ?>
               <ul class="activity-feed">
                 <?php foreach ($activity as $event): $msg = SiteStats::activityMessage($event); ?>
-                  <li class="activity-item">
-                    <span class="badge <?= e($activityBadge($event['kind'])) ?> activity-badge"><?= e($activityLabel($event['kind'])) ?></span>
+                  <li class="activity-card activity-<?= e($event['kind']) ?>">
+                    <div class="activity-card-top">
+                      <span class="badge <?= e($activityBadge($event['kind'])) ?>"><?= e($activityLabel($event['kind'])) ?></span>
+                      <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
+                    </div>
                     <p class="activity-copy">
                       <?= e($msg['prefix']) ?>
-                      <?php if ($msg['emphasis'] !== ''): ?><strong><?= e($msg['emphasis']) ?></strong><?php endif; ?>
-                      <?php if ($msg['suffix'] !== ''): ?><span class="activity-detail">· <?= e($msg['suffix']) ?></span><?php endif; ?>
+                      <?php if ($msg['emphasis'] !== ''): ?> <strong><?= e($msg['emphasis']) ?></strong><?php endif; ?>
+                      <?php if ($msg['suffix'] !== ''): ?><span class="activity-detail"><?= e($msg['suffix']) ?></span><?php endif; ?>
                     </p>
-                    <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
                   </li>
                 <?php endforeach; ?>
               </ul>
             <?php endif; ?>
           </div>
-          <div class="dashboard-panel dashboard-popular card card-pad">
+
+          <div class="dashboard-panel dashboard-popular">
             <div class="panel-heading"><h3>Trending today</h3></div>
-            <ul class="popular-list">
-              <?php foreach ($popular as $cookbook):
+            <ol class="trending-list">
+              <?php $rank = 1; foreach ($popular as $cookbook):
                 $today = (int) ($cookbook['activity_today'] ?? 0);
                 $rating = $cookbook['demo_avg_rating'] ?? null;
               ?>
                 <li>
-                  <a class="popular-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
-                    <span class="popular-band" aria-hidden="true"></span>
-                    <span class="popular-body">
-                      <span class="popular-title"><?= e($cookbook['title']) ?></span>
-                      <span class="popular-meta">
-                        <?= e((string) $today) ?> active today
-                        <?php if ($rating !== null): ?> · <?= e(number_format((float) $rating, 1)) ?> &#9733;<?php endif; ?>
-                        · <?= e(plural((int) $cookbook['recipe_count'], 'Recipe')) ?>
+                  <a class="trending-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
+                    <span class="trending-rank" aria-hidden="true"><?= $rank++ ?></span>
+                    <span class="trending-body">
+                      <span class="trending-title"><?= e($cookbook['title']) ?></span>
+                      <span class="trending-metrics">
+                        <span class="trending-metric"><?= e((string) $today) ?> active</span>
+                        <?php if ($rating !== null): ?>
+                          <span class="trending-metric trending-metric-star"><?= e(number_format((float) $rating, 1)) ?> &#9733;</span>
+                        <?php endif; ?>
+                        <span class="trending-metric"><?= e(plural((int) $cookbook['recipe_count'], 'Recipe')) ?></span>
                       </span>
                     </span>
+                    <span class="trending-chevron" aria-hidden="true">&#8250;</span>
                   </a>
                 </li>
               <?php endforeach; ?>
-            </ul>
+            </ol>
           </div>
         </div>
       </section>
