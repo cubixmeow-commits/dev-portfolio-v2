@@ -1,4 +1,6 @@
 <?php
+use SousMeow\Core\Csrf;
+
 /**
  * @var list<array<string, mixed>> $projects
  * @var array<string, mixed>|null  $continue
