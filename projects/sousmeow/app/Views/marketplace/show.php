@@ -82,8 +82,9 @@ foreach ($stages as $stage) {
           <div class="well detail-honest">
             <p><strong>Runner coming soon.</strong> This Cookbook is fully designed but not yet cookable in this build.
                Every Stage, Recipe, Pantry field, and Quality Check below is the real plan. In the meantime,
-               <a href="<?= e(url('/cookbooks/launch-day-kit')) ?>">Launch Day Kit</a> and
-               <a href="<?= e(url('/cookbooks/validate-saas-idea')) ?>">Validate a SaaS Idea</a> are open for cooking.</p>
+               <a href="<?= e(url('/cookbooks/launch-day-kit')) ?>">Launch Day Kit</a>,
+               <a href="<?= e(url('/cookbooks/validate-saas-idea')) ?>">Validate a SaaS Idea</a>, and
+               <a href="<?= e(url('/cookbooks/plan-youtube-video')) ?>">Plan a YouTube Video</a> are open for cooking.</p>
           </div>
         <?php endif; ?>
       </div>
@@ -209,12 +210,13 @@ foreach ($stages as $stage) {
     </div>
     <p class="detail-kit-copy">
       <?php if ($executable): ?>
-        One Markdown file per approved Recipe, numbered in cook order, plus a README manifest with your full Pantry snapshot and version provenance.
+        One Markdown file per approved Recipe, numbered in cook order, plus <code>kit.html</code> (open in any browser, works offline) and a README manifest with your full Pantry snapshot and version provenance.
       <?php else: ?>
         When this Cookbook ships, your Project Kit will bundle every approved Recipe as a numbered Markdown file plus a README with your Pantry snapshot. The Recipe list above is the export manifest.
       <?php endif; ?>
     </p>
     <ul class="detail-kit-list">
+      <li><code>kit.html</code> Offline HTML reader for every approved Recipe</li>
       <?php foreach ($recipes as $recipe): ?>
         <li><code><?= sprintf('%02d', (int) $recipe['position']) ?>-<?= e($recipe['slug']) ?>.md</code> <?= e($recipe['title']) ?></li>
       <?php endforeach; ?>

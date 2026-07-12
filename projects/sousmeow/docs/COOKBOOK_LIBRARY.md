@@ -9,7 +9,7 @@ Curated library of five first-party Cookbooks demonstrating distinct expert-guid
 | Launch Day Kit | Executable | 4 | 4 | 8 | Intermediate | 25 min | Sequential copy assembly | 3 checks per Recipe, fast approval | Deadline-driven campaign assembly; positioning becomes ground truth | Positioning, landing page, announcements, FAQ |
 | Validate a SaaS Idea | Executable | 5 | 12 | 10 | Advanced | 180 min | Evidence briefs, matrices, decision memos | 4 checks per Recipe, longer assumption review | Evidence gates ending in explicit go / revise / stop decision | Problem brief, ICP, competitor map, assumptions, MVP scope, experiment plan, decision memo |
 | Build a Professional Portfolio | Preview | 4 | 14 | 12 | Intermediate | 150 min | Strategic selection + polished writing | 3 checks per Recipe, recruiter-lens review | Modular case-study tracks converging into one site brief | Positioning, case structures, homepage copy, navigation plan, implementation brief |
-| Plan a YouTube Video | Preview | 3 | 10 | 6 | Beginner | 45 min | Rapid creative micro-deliverables | 3 checks per Recipe, immediate progress feel | Fast sequence of small visible outputs | Research brief, hooks, outline, titles, thumbnails, publishing checklist |
+| Plan a YouTube Video | Executable | 3 | 10 | 6 | Beginner | 45 min | Rapid creative micro-deliverables | 3 checks per Recipe, immediate progress feel | Fast sequence of small visible outputs | Research brief, hooks, outline, titles, thumbnails, publishing checklist |
 | Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | Exploratory decisions + continuity planning | 3 checks per Recipe, decision-heavy branching | Deep Pantry with world rules and continuity control | Premise, cast, world rules, conflict engine, act outline, chapter roadmap, continuity guide |
 
 No two Cookbooks share the same stage shape, recipe count, or review rhythm.
@@ -159,7 +159,7 @@ Fourteen numbered Markdown files plus README.
 ## 4. Plan a YouTube Video
 
 **Slug:** `plan-youtube-video`  
-**Availability:** Workflow preview (Runner coming soon)  
+**Availability:** Executable (Available now)  
 **Category:** Content | **Accent:** Sage | **Price:** Free  
 **Demo metrics:** 591 completed runs, 4.5 average rating
 

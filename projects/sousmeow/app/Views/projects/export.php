@@ -27,12 +27,17 @@ $total = count($recipes);
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
       <h1>Your Project Kit is ready</h1>
       <p class="section-sub">Every Recipe is approved. The kit is a zip of tidy Markdown files, one per Recipe,
-         plus a README manifest recording your Pantry and what was approved when. Yours to publish anywhere.</p>
+         a self-contained <code>kit.html</code> reader you can open in any browser, plus a README manifest
+         recording your Pantry and what was approved when. Yours to publish anywhere.</p>
     </header>
 
     <section class="card card-pad kit-contents">
       <h2>What is inside</h2>
       <ul class="kit-file-list">
+        <li class="kit-file">
+          <span class="kit-file-name mono">kit.html</span>
+          <span class="kit-file-desc">Offline HTML reader: every approved Recipe rendered in one page</span>
+        </li>
         <li class="kit-file">
           <span class="kit-file-name mono">README.md</span>
           <span class="kit-file-desc">Manifest: your Pantry, file list, and approval provenance</span>
