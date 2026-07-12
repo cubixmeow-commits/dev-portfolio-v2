@@ -6,6 +6,7 @@ use SousMeow\Services\SiteStats;
  * @var array<string, mixed>|null  $featured
  * @var list<array<string, mixed>> $featuredRecipes
  * @var array{chefs:int,kits_today:int,kits_total:int,approved_today:int,rating:float,cookbooks:int,recipes:int,active_today:int} $stats
+ * @var array{weeks:list<list<array{date:string,count:int,level:int}|null>>,max:int,total:int,end:string,month_labels:list<array{label:string,col:int}>} $heatmap
  * @var list<array<string, mixed>> $popular
  * @var list<array{kind:string,at:string,name:string,cookbook_title?:string,detail?:string}> $activity
  */
@@ -43,30 +44,89 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
           <p class="dashboard-honesty">Portfolio demo · simulated activity · Pacific time</p>
         </div>
 
-        <div class="dashboard-stats" role="list">
-          <div class="dash-stat dash-stat-hero" role="listitem">
-            <span class="dash-stat-value"><?= e((string) $stats['kits_today']) ?></span>
-            <span class="dash-stat-label">Kits packed today</span>
+        <div class="insights-hero" aria-labelledby="insights-heading">
+          <div class="insights-hero-glow" aria-hidden="true"></div>
+          <div class="insights-top">
+            <div class="insights-primary">
+              <p id="insights-heading" class="insights-eyebrow">Today in the kitchen</p>
+              <div class="insights-primary-value" aria-label="<?= e((string) $stats['kits_today']) ?> kits packed today">
+                <span class="insights-number"><?= e((string) $stats['kits_today']) ?></span>
+                <span class="insights-primary-label">kits packed</span>
+              </div>
+              <p class="insights-primary-meta">
+                <span class="insights-pill"><?= e((string) $stats['approved_today']) ?> approved</span>
+                <span class="insights-pill"><?= e((string) $stats['active_today']) ?> chefs cooking</span>
+              </p>
+            </div>
+
+            <div class="insights-kpis" role="list">
+              <div class="insight-kpi" role="listitem">
+                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
+                <span class="insight-kpi-label">Chefs</span>
+                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(($stats['chefs'] / 500) * 100)) ?>%"></span>
+              </div>
+              <div class="insight-kpi" role="listitem">
+                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
+                <span class="insight-kpi-label">All-time kits</span>
+                <span class="insight-kpi-bar insight-kpi-bar-sage" style="--fill: <?= min(100, max(8, (int) round(($stats['kits_total'] / max($stats['chefs'], 1)) * 100))) ?>%"></span>
+              </div>
+              <div class="insight-kpi" role="listitem">
+                <span class="insight-kpi-value"><?= e(number_format($stats['rating'], 1)) ?><span class="insight-star" aria-hidden="true">&#9733;</span></span>
+                <span class="insight-kpi-label">Satisfaction</span>
+                <span class="insight-kpi-bar insight-kpi-bar-amber" style="--fill: <?= min(100, (int) round(($stats['rating'] / 5) * 100)) ?>%"></span>
+              </div>
+              <div class="insight-kpi" role="listitem">
+                <span class="insight-kpi-value"><?= e((string) $stats['cookbooks']) ?></span>
+                <span class="insight-kpi-label">Cookbooks</span>
+                <span class="insight-kpi-bar insight-kpi-bar-teal" style="--fill: <?= min(100, $stats['cookbooks'] * 12) ?>%"></span>
+              </div>
+            </div>
           </div>
-          <div class="dash-stat" role="listitem">
-            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
-            <span class="dash-stat-label">Chefs</span>
-          </div>
-          <div class="dash-stat" role="listitem">
-            <span class="dash-stat-value"><?= e((string) $stats['active_today']) ?></span>
-            <span class="dash-stat-label">Active today</span>
-          </div>
-          <div class="dash-stat" role="listitem">
-            <span class="dash-stat-value"><?= e(number_format($stats['rating'], 1)) ?><span class="dash-star" aria-hidden="true">&#9733;</span></span>
-            <span class="dash-stat-label">Satisfaction</span>
-          </div>
-          <div class="dash-stat dash-stat-muted" role="listitem">
-            <span class="dash-stat-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
-            <span class="dash-stat-label">All-time kits</span>
-          </div>
-          <div class="dash-stat dash-stat-muted" role="listitem">
-            <span class="dash-stat-value"><?= e((string) $stats['approved_today']) ?></span>
-            <span class="dash-stat-label">Approved today</span>
+
+          <div class="insights-heatmap">
+            <div class="heatmap-head">
+              <div>
+                <h3 class="heatmap-title">Kitchen rhythm</h3>
+                <p class="heatmap-sub"><?= e(SiteStats::formatCompact($heatmap['total'])) ?> actions across <?= count($heatmap['weeks']) ?> weeks · Pacific time</p>
+              </div>
+              <div class="heatmap-legend" aria-hidden="true">
+                <span>Less</span>
+                <?php for ($lvl = 0; $lvl <= 4; $lvl++): ?>
+                  <span class="heatmap-cell heatmap-level-<?= $lvl ?>"></span>
+                <?php endfor; ?>
+                <span>More</span>
+              </div>
+            </div>
+            <div class="heatmap-scroll">
+              <div class="heatmap-board" role="img" aria-label="Activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
+                <div class="heatmap-months" aria-hidden="true">
+                  <?php foreach ($heatmap['month_labels'] as $month): ?>
+                    <span class="heatmap-month" style="--col: <?= (int) $month['col'] ?>"><?= e($month['label']) ?></span>
+                  <?php endforeach; ?>
+                </div>
+                <div class="heatmap-grid">
+                  <div class="heatmap-dow" aria-hidden="true">
+                    <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+                  </div>
+                  <div class="heatmap-weeks">
+                    <?php foreach ($heatmap['weeks'] as $week): ?>
+                      <div class="heatmap-week">
+                        <?php foreach ($week as $cell): ?>
+                          <?php if ($cell === null): ?>
+                            <span class="heatmap-cell heatmap-empty"></span>
+                          <?php else: ?>
+                            <span
+                              class="heatmap-cell heatmap-level-<?= (int) $cell['level'] ?>"
+                              title="<?= e($cell['date'] . ': ' . $cell['count'] . ' actions') ?>"
+                            ></span>
+                          <?php endif; ?>
+                        <?php endforeach; ?>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -82,15 +142,18 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
               <ul class="activity-feed">
                 <?php foreach ($activity as $event): $msg = SiteStats::activityMessage($event); ?>
                   <li class="activity-card activity-<?= e($event['kind']) ?>">
-                    <div class="activity-card-top">
-                      <span class="badge <?= e($activityBadge($event['kind'])) ?>"><?= e($activityLabel($event['kind'])) ?></span>
-                      <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
+                    <span class="activity-avatar" style="--avatar-hue: <?= e((string) SiteStats::avatarHue($event['name'])) ?>" aria-hidden="true"><?= e(SiteStats::initials($event['name'])) ?></span>
+                    <div class="activity-body">
+                      <div class="activity-card-top">
+                        <span class="badge <?= e($activityBadge($event['kind'])) ?>"><?= e($activityLabel($event['kind'])) ?></span>
+                        <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
+                      </div>
+                      <p class="activity-copy">
+                        <?= e($msg['prefix']) ?>
+                        <?php if ($msg['emphasis'] !== ''): ?> <strong><?= e($msg['emphasis']) ?></strong><?php endif; ?>
+                        <?php if ($msg['suffix'] !== ''): ?><span class="activity-detail"><?= e($msg['suffix']) ?></span><?php endif; ?>
+                      </p>
                     </div>
-                    <p class="activity-copy">
-                      <?= e($msg['prefix']) ?>
-                      <?php if ($msg['emphasis'] !== ''): ?> <strong><?= e($msg['emphasis']) ?></strong><?php endif; ?>
-                      <?php if ($msg['suffix'] !== ''): ?><span class="activity-detail"><?= e($msg['suffix']) ?></span><?php endif; ?>
-                    </p>
                   </li>
                 <?php endforeach; ?>
               </ul>
