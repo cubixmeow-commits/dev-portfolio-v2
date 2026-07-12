@@ -170,6 +170,143 @@ final class SiteStats
         return $parts[0] !== '' ? $parts[0] : 'Someone';
     }
 
+    public static function initials(string $fullName): string
+    {
+        $parts = array_values(array_filter(preg_split('/\s+/', trim($fullName)) ?: [], static fn(string $p): bool => $p !== ''));
+        if ($parts === []) {
+            return 'SM';
+        }
+        if (count($parts) >= 2) {
+            return strtoupper(mb_substr($parts[0], 0, 1) . mb_substr($parts[count($parts) - 1], 0, 1));
+        }
+        return strtoupper(mb_substr($parts[0], 0, 2));
+    }
+
+    /** Warm avatar hues consistent with the kitchen palette. */
+    public static function avatarHue(string $fullName): int
+    {
+        $hues = [18, 32, 42, 145, 168, 198, 268, 312];
+        return $hues[crc32($fullName) % count($hues)];
+    }
+
+    /**
+     * GitHub-style contribution grid: columns are weeks, rows are Sun–Sat.
+     *
+     * @return array{
+     *   weeks: list<list<array{date:string,count:int,level:int}|null>>,
+     *   max: int,
+     *   total: int,
+     *   end: string,
+     *   month_labels: list<array{label:string,col:int}>
+     * }
+     */
+    public static function activityHeatmap(int $weeks = 12): array
+    {
+        $weeks = max(4, min(26, $weeks));
+        $totalDays = $weeks * 7;
+        $pacific = Simulation::pacific();
+        $endDay = new \DateTimeImmutable('today', $pacific);
+        $startDay = $endDay->modify('-' . ($totalDays - 1) . ' days');
+
+        $counts = [];
+        for ($i = 0; $i < $totalDays; $i++) {
+            $counts[$startDay->modify('+' . $i . ' days')->format('Y-m-d')] = 0;
+        }
+
+        $runs = Database::fetchAll(
+            'SELECT pacific_date, actions_count FROM simulation_runs
+             WHERE pacific_date >= ? AND pacific_date <= ?',
+            [$startDay->format('Y-m-d'), $endDay->format('Y-m-d')]
+        );
+        $hasRun = [];
+        foreach ($runs as $row) {
+            $date = (string) $row['pacific_date'];
+            if (isset($counts[$date])) {
+                $counts[$date] = (int) $row['actions_count'];
+                $hasRun[$date] = true;
+            }
+        }
+
+        [$utcStart] = Simulation::pacificDayUtcRange($startDay->format('Y-m-d'));
+        $bucket = static function (string $at) use ($pacific, &$counts, $hasRun, $startDay, $endDay): void {
+            if ($at === '') {
+                return;
+            }
+            $date = (new \DateTimeImmutable($at, Simulation::utc()))
+                ->setTimezone($pacific)
+                ->format('Y-m-d');
+            if ($date < $startDay->format('Y-m-d') || $date > $endDay->format('Y-m-d') || isset($hasRun[$date])) {
+                return;
+            }
+            $counts[$date] = ($counts[$date] ?? 0) + 1;
+        };
+
+        $timestampQueries = [
+            'SELECT p.updated_at AS at FROM projects p JOIN users u ON u.id = p.user_id
+             WHERE u.simulation = 1 AND p.updated_at >= ?',
+            'SELECT e.created_at AS at FROM exports e
+             JOIN projects p ON p.id = e.project_id JOIN users u ON u.id = p.user_id
+             WHERE u.simulation = 1 AND e.created_at >= ?',
+            'SELECT p.pantry_saved_at AS at FROM projects p JOIN users u ON u.id = p.user_id
+             WHERE u.simulation = 1 AND p.pantry_saved_at IS NOT NULL AND p.pantry_saved_at >= ?',
+            'SELECT u.created_at AS at FROM users u WHERE u.simulation = 1 AND u.created_at >= ?',
+        ];
+        foreach ($timestampQueries as $sql) {
+            foreach (Database::fetchAll($sql, [$utcStart]) as $row) {
+                $bucket((string) ($row['at'] ?? ''));
+            }
+        }
+
+        $max = max($counts) ?: 1;
+        $total = array_sum($counts);
+        $levelFor = static fn(int $count): int => match (true) {
+            $count <= 0           => 0,
+            $count <= $max * 0.25 => 1,
+            $count <= $max * 0.5  => 2,
+            $count <= $max * 0.75 => 3,
+            default               => 4,
+        };
+
+        $gridStart = $startDay->modify('-' . (int) $startDay->format('w') . ' days');
+
+        $weekGrid = [];
+        $monthLabels = [];
+        $lastMonth = '';
+        $cursor = $gridStart;
+        $col = 0;
+
+        while ($cursor <= $endDay) {
+            $week = [];
+            for ($dow = 0; $dow < 7; $dow++) {
+                $dateStr = $cursor->format('Y-m-d');
+                if ($cursor < $startDay || $cursor > $endDay) {
+                    $week[] = null;
+                } else {
+                    $count = $counts[$dateStr] ?? 0;
+                    $week[] = ['date' => $dateStr, 'count' => $count, 'level' => $levelFor($count)];
+                }
+                if ($dow === 0 && $cursor >= $startDay && $cursor <= $endDay) {
+                    $month = $cursor->format('M');
+                    if ($month !== $lastMonth) {
+                        $monthLabels[] = ['label' => $month, 'col' => $col];
+                        $lastMonth = $month;
+                    }
+                }
+                $cursor = $cursor->modify('+1 day');
+            }
+            $weekGrid[] = $week;
+            $col++;
+        }
+
+        return [
+            'weeks'         => $weekGrid,
+            'max'           => $max,
+            'total'         => $total,
+            'end'           => $endDay->format('Y-m-d'),
+            'month_labels'  => $monthLabels,
+        ];
+    }
+
     /** @param array{kind:string, name:string, cookbook_title?:string, detail?:string} $event */
     public static function activityMessage(array $event): array
     {

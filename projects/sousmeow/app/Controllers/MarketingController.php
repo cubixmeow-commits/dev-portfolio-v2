@@ -22,6 +22,7 @@ final class MarketingController
             'featured'        => $featured,
             'featuredRecipes' => $featuredRecipes,
             'stats'           => SiteStats::hero(),
+            'heatmap'         => SiteStats::activityHeatmap(12),
             'popular'         => SiteStats::popularCookbooks(3),
             'activity'        => SiteStats::recentActivity(10),
         ]);
