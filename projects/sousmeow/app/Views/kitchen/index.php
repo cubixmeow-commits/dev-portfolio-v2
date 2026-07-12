@@ -1,6 +1,4 @@
 <?php
-use SousMeow\Core\Csrf;
-
 /**
  * @var list<array<string, mixed>> $projects
  * @var array<string, mixed>|null  $continue
@@ -62,8 +60,9 @@ $projectStatus = static function (array $p): array {
           </div>
           <p class="progress-label"><?= e(plural((int) $continue['approved_count'], 'Recipe')) ?> approved of <?= (int) $continue['recipe_count'] ?></p>
         </div>
-        <div class="continue-action">
+        <div class="continue-actions">
           <a class="button button-primary button-large" href="<?= e(url('/projects/' . $continue['id'])) ?>"><?= e($s['action']) ?></a>
+          <?php \SousMeow\Core\View::partial('partials/project-delete-form', ['projectId' => (int) $continue['id']]); ?>
         </div>
       </section>
     <?php endif; ?>
@@ -93,11 +92,7 @@ $projectStatus = static function (array $p): array {
               <?php if ($p['completed_at'] !== null): ?>
                 <a class="button button-ghost button-small" href="<?= e(url('/projects/' . $p['id'] . '/export')) ?>">Exports</a>
               <?php endif; ?>
-              <form method="post" action="<?= e(url('/projects/' . $p['id'] . '/delete')) ?>"
-                    data-confirm="Delete this Project and all its pasted responses? This cannot be undone.">
-                <?= Csrf::field() ?>
-                <button type="submit" class="link-button project-delete">Delete</button>
-              </form>
+              <?php \SousMeow\Core\View::partial('partials/project-delete-form', ['projectId' => (int) $p['id'], 'label' => 'Delete']); ?>
             </div>
           </article>
         <?php endforeach; ?>

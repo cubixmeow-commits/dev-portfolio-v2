@@ -21,6 +21,12 @@
 .continue-meta { color: var(--ink-soft); font-size: 0.92rem; display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
 .continue-hint { color: var(--ink-soft); font-size: 0.92rem; }
 .continue-card .progress-track { margin-top: var(--space-3); }
+.continue-actions {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: var(--space-2); min-width: 11rem;
+}
+.continue-actions .button-primary { text-align: center; }
+.continue-actions .project-delete-form { text-align: center; }
 
 .project-grid {
   display: grid; gap: var(--space-4);
@@ -35,12 +41,21 @@
 .project-cookbook { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: var(--space-3); }
 .project-card .progress-label { margin-bottom: 0; }
 .project-card-actions {
-  display: flex; align-items: center; gap: var(--space-3);
+  display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;
   border-top: 1px solid var(--line);
   padding: var(--space-3) var(--space-4);
 }
-.project-delete { font-size: 0.82rem; color: var(--ink-faint); margin-left: auto; }
-.project-delete:hover { color: var(--clay); }
+.project-card-actions .project-delete-form { margin-left: auto; }
+.project-delete {
+  color: var(--ink-faint);
+  border-color: transparent;
+  background: transparent;
+}
+.project-delete:hover {
+  color: var(--clay);
+  border-color: var(--line);
+  background: transparent;
+}
 
 .kitchen-start-new {
   margin-top: var(--space-7);
