@@ -2,10 +2,10 @@
 
 .marketplace-header { margin-bottom: var(--space-5); max-width: 46rem; }
 
-.marketplace-search { display: flex; gap: var(--space-2); margin-bottom: var(--space-6); max-width: 34rem; }
-.marketplace-search .input { flex: 1; }
+.marketplace-search { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); max-width: 34rem; }
+.marketplace-search .input { flex: 1; min-width: 12rem; }
 
-/* Accent hues per cookbook. */
+/* Accent hues per cookbook with distinct band treatments. */
 .accent-terracotta { --accent: var(--terracotta); --accent-wash: var(--terracotta-wash); }
 .accent-teal { --accent: var(--teal); --accent-wash: #DFEEEA; }
 .accent-amber { --accent: var(--amber); --accent-wash: var(--amber-wash); }
@@ -13,29 +13,59 @@
 .accent-lilac { --accent: var(--lilac); --accent-wash: var(--lilac-wash); }
 
 .cookbook-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
-.cookbook-card { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); overflow: hidden; }
+.cookbook-card { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); overflow: hidden; min-height: 100%; }
 .cookbook-band {
-  height: 8px;
+  height: 10px;
   background: linear-gradient(90deg, var(--accent, var(--terracotta)), var(--accent-wash, var(--terracotta-wash)));
 }
-.cookbook-body { padding: var(--space-4) var(--space-4) var(--space-4); display: flex; flex-direction: column; flex: 1; }
-.cookbook-top { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-3); }
-.cookbook-title { font-size: 1.15rem; margin-bottom: var(--space-1); }
+.accent-teal .cookbook-band {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--accent),
+    var(--accent) 6px,
+    var(--accent-wash) 6px,
+    var(--accent-wash) 12px
+  );
+}
+.accent-amber .cookbook-band {
+  background: radial-gradient(circle at 20% 50%, var(--accent-wash) 2px, transparent 2px),
+              radial-gradient(circle at 60% 50%, var(--accent) 2px, transparent 2px),
+              var(--accent-wash);
+  background-size: 14px 10px;
+}
+.accent-sage .cookbook-band {
+  background: linear-gradient(90deg, var(--accent-wash) 0%, var(--accent) 50%, var(--accent-wash) 100%);
+}
+.accent-lilac .cookbook-band {
+  background: linear-gradient(135deg, var(--accent) 25%, transparent 25%),
+              linear-gradient(225deg, var(--accent) 25%, transparent 25%),
+              var(--accent-wash);
+  background-size: 12px 12px;
+}
+.cookbook-body { padding: var(--space-4); display: flex; flex-direction: column; flex: 1; gap: var(--space-1); }
+.cookbook-top { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; margin-bottom: var(--space-2); }
+.cookbook-title { font-size: 1.15rem; margin-bottom: 0; line-height: 1.3; overflow-wrap: anywhere; }
 .cookbook-card:hover .cookbook-title { color: var(--accent, var(--terracotta-deep)); }
-.cookbook-tagline { color: var(--ink-soft); font-size: 0.9rem; flex: 1; }
+.cookbook-tagline { color: var(--ink-soft); font-size: 0.9rem; margin: 0; }
+.cookbook-outcome {
+  color: var(--ink-faint); font-size: 0.82rem; margin: var(--space-1) 0 0;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
 .cookbook-meta {
-  display: flex; gap: var(--space-2); align-items: baseline;
+  display: flex; gap: var(--space-2); align-items: baseline; flex-wrap: wrap;
   font-size: 0.82rem; color: var(--ink-faint);
-  border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: var(--space-3);
+  border-top: 1px solid var(--line); padding-top: var(--space-3); margin-top: auto;
 }
 .cookbook-price { margin-left: auto; font-weight: 700; color: var(--ink); font-size: 0.9rem; }
+.cookbook-rating { color: var(--amber); font-weight: 600; }
+.cookbook-difficulty { font-size: 0.72rem; }
 
 .marketplace-honesty { margin-top: var(--space-6); font-size: 0.85rem; color: var(--ink-faint); max-width: 44rem; }
 
 /* ---------- Detail page ---------- */
 
 .detail-header { overflow: hidden; margin-bottom: var(--space-6); }
-.detail-band { height: 10px; }
+.detail-band { height: 12px; }
 .detail-header-body { padding: var(--space-6); }
 .detail-tagline { font-size: 1.1rem; font-weight: 500; color: var(--ink-soft); }
 .detail-description { max-width: 46rem; color: var(--ink-soft); }
@@ -45,23 +75,75 @@
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
 }
 .detail-facts dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: var(--ink-faint); margin-bottom: var(--space-1); }
-.detail-facts dd { margin: 0; font-size: 0.92rem; }
+.detail-facts dd { margin: 0; font-size: 0.92rem; overflow-wrap: anywhere; }
 .detail-cta-note { margin-top: var(--space-3); font-size: 0.88rem; color: var(--ink-soft); }
 .detail-honest { border-left: 3px solid var(--amber); max-width: 40rem; }
 .detail-honest p { margin: 0; font-size: 0.93rem; }
 
+.detail-stages { margin-bottom: var(--space-6); }
+.detail-stage-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.detail-stage { padding: var(--space-4) var(--space-5); }
+.detail-stage-head { display: flex; gap: var(--space-4); align-items: flex-start; }
+.detail-stage-head h3 { margin-bottom: var(--space-1); font-size: 1.05rem; }
+.detail-stage-head p { color: var(--ink-soft); font-size: 0.9rem; margin: 0; }
+.detail-stage-count { margin-left: auto; flex-shrink: 0; }
+
 .detail-recipes { margin-bottom: var(--space-7); }
+.detail-recipe-stage { margin-bottom: var(--space-5); }
+.detail-recipe-stage-title {
+  font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--accent, var(--terracotta-deep)); margin-bottom: var(--space-3);
+}
 .detail-recipe-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
 .detail-recipe {
   display: flex; gap: var(--space-4); align-items: flex-start;
   padding: var(--space-4) var(--space-5);
 }
 .detail-recipe .step-dot { flex-shrink: 0; margin-top: 2px; }
-.detail-recipe h3 { margin-bottom: var(--space-1); font-size: 1.05rem; }
+.detail-recipe-body { flex: 1; min-width: 0; }
+.detail-recipe h4 { margin-bottom: var(--space-1); font-size: 1.05rem; }
 .detail-recipe p { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: var(--space-1); }
 .detail-recipe-why { font-size: 0.85rem; color: var(--ink-faint); }
-.detail-recipe-badge { margin-left: auto; flex-shrink: 0; }
+.detail-recipe-badge { margin-left: auto; flex-shrink: 0; align-self: flex-start; }
+
+.detail-check-list {
+  list-style: none; margin: var(--space-2) 0 0; padding: 0;
+  font-size: 0.82rem; color: var(--ink-faint);
+}
+.detail-check-list li { margin-bottom: var(--space-1); overflow-wrap: anywhere; }
+.detail-check-list strong { color: var(--ink-soft); font-weight: 600; }
+
+.detail-sample { margin-top: var(--space-2); font-size: 0.85rem; }
+.detail-sample summary { cursor: pointer; color: var(--teal-deep); font-weight: 600; }
+.detail-sample-pre {
+  margin-top: var(--space-2); padding: var(--space-3);
+  background: var(--card-sunken); border-radius: var(--radius-s);
+  font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere; max-height: 16rem; overflow-y: auto;
+}
 
 .detail-pantry-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
 .detail-pantry-item { display: grid; gap: var(--space-1); font-size: 0.88rem; }
 .detail-pantry-item span { color: var(--ink-soft); }
+
+.detail-kit { margin-bottom: var(--space-7); }
+.detail-kit-copy { color: var(--ink-soft); font-size: 0.92rem; max-width: 44rem; }
+.detail-kit-list {
+  list-style: none; margin: var(--space-3) 0 0; padding: 0;
+  display: grid; gap: var(--space-2); font-size: 0.88rem;
+}
+.detail-kit-list code {
+  font-family: var(--font-mono); font-size: 0.82rem;
+  background: var(--card-sunken); padding: 0.1em 0.35em; border-radius: 4px;
+}
+
+@media (max-width: 480px) {
+  .cookbook-grid { grid-template-columns: 1fr; }
+  .detail-header-body { padding: var(--space-4); }
+  .detail-recipe { flex-direction: column; gap: var(--space-2); }
+  .detail-recipe-badge { margin-left: 0; align-self: flex-start; }
+  .detail-stage-head { flex-wrap: wrap; }
+  .detail-stage-count { margin-left: 0; }
+  .cookbook-meta { font-size: 0.78rem; }
+  .cookbook-price { margin-left: 0; width: 100%; }
+}

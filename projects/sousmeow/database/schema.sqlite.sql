@@ -19,26 +19,39 @@ CREATE TABLE IF NOT EXISTS rate_events (
 CREATE INDEX IF NOT EXISTS idx_rate_events_key ON rate_events (event_key, created_at);
 
 CREATE TABLE IF NOT EXISTS cookbooks (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug           TEXT NOT NULL UNIQUE,
-    title          TEXT NOT NULL,
-    tagline        TEXT NOT NULL,
-    description    TEXT NOT NULL,
-    category       TEXT NOT NULL,
-    audience       TEXT NOT NULL,
-    outcome        TEXT NOT NULL,
-    price_cents    INTEGER,              -- NULL means free
-    is_executable  INTEGER NOT NULL DEFAULT 0,
-    status         TEXT NOT NULL DEFAULT 'coming_soon', -- 'available' | 'coming_soon'
-    accent         TEXT NOT NULL DEFAULT 'terracotta',
-    est_minutes    INTEGER NOT NULL DEFAULT 20,
-    sort_order     INTEGER NOT NULL DEFAULT 100,
-    created_at     TEXT NOT NULL
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug                 TEXT NOT NULL UNIQUE,
+    title                TEXT NOT NULL,
+    tagline              TEXT NOT NULL,
+    description          TEXT NOT NULL,
+    category             TEXT NOT NULL,
+    audience             TEXT NOT NULL,
+    outcome              TEXT NOT NULL,
+    price_cents          INTEGER,              -- NULL means free
+    is_executable        INTEGER NOT NULL DEFAULT 0,
+    status               TEXT NOT NULL DEFAULT 'coming_soon', -- 'available' | 'coming_soon'
+    accent               TEXT NOT NULL DEFAULT 'terracotta',
+    difficulty           TEXT NOT NULL DEFAULT 'Intermediate', -- Beginner | Intermediate | Advanced
+    est_minutes          INTEGER NOT NULL DEFAULT 20,
+    demo_completed_runs  INTEGER NOT NULL DEFAULT 0,
+    demo_avg_rating      REAL,
+    sort_order           INTEGER NOT NULL DEFAULT 100,
+    created_at           TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cookbook_stages (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    cookbook_id INTEGER NOT NULL REFERENCES cookbooks(id) ON DELETE CASCADE,
+    position    INTEGER NOT NULL,
+    title       TEXT NOT NULL,
+    summary     TEXT NOT NULL DEFAULT '',
+    UNIQUE (cookbook_id, position)
 );
 
 CREATE TABLE IF NOT EXISTS recipes (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     cookbook_id     INTEGER NOT NULL REFERENCES cookbooks(id) ON DELETE CASCADE,
+    stage_position  INTEGER,
     position        INTEGER NOT NULL,
     slug            TEXT NOT NULL,
     title           TEXT NOT NULL,

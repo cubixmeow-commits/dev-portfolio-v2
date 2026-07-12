@@ -6,6 +6,7 @@ namespace SousMeow\Controllers;
 
 use SousMeow\Core\View;
 use SousMeow\Models\Cookbook;
+use SousMeow\Models\CookbookStage;
 use SousMeow\Models\PantryField;
 use SousMeow\Models\Recipe;
 
@@ -31,12 +32,23 @@ final class MarketplaceController
             return;
         }
 
+        $recipes = Recipe::forCookbook((int) $cookbook['id']);
+        $recipeChecks = [];
+        foreach ($recipes as $recipe) {
+            $checks = Recipe::checks((int) $recipe['id']);
+            if ($checks !== []) {
+                $recipeChecks[(int) $recipe['id']] = $checks;
+            }
+        }
+
         View::render('marketplace/show', [
-            'title'    => (string) $cookbook['title'],
-            'pageCss'  => 'marketplace',
-            'cookbook' => $cookbook,
-            'recipes'  => Recipe::forCookbook((int) $cookbook['id']),
-            'fields'   => PantryField::forCookbook((int) $cookbook['id']),
+            'title'        => (string) $cookbook['title'],
+            'pageCss'      => 'marketplace',
+            'cookbook'     => $cookbook,
+            'stages'       => CookbookStage::forCookbook((int) $cookbook['id']),
+            'recipes'      => $recipes,
+            'recipeChecks' => $recipeChecks,
+            'fields'       => PantryField::forCookbook((int) $cookbook['id']),
         ]);
     }
 }

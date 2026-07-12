@@ -97,7 +97,7 @@ if ($options['fresh']) {
         exit(0);
     }
     $tables = ['artifact_checks', 'artifact_versions', 'artifacts', 'exports', 'pantry_values',
-               'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbooks',
+               'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbook_stages', 'cookbooks',
                'rate_events', 'users'];
     if ($driver === 'mysql') {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
@@ -130,84 +130,115 @@ $existing = (int) Database::fetchValue('SELECT COUNT(*) FROM cookbooks');
 if ($existing > 0) {
     echo "Content already seeded ({$existing} cookbooks), skipping.\n";
 } else {
-    /** @var array{executable: array<string, mixed>, marketplace: list<array<string, mixed>>} $content */
+    /** @var array{cookbooks: list<array<string, mixed>>} $content */
     $content = require __DIR__ . '/../database/seeds/content.php';
 
     Database::transaction(function () use ($content): void {
         $now = now_utc();
 
-        $insertCookbook = static function (array $book, bool $executable) use ($now): int {
+        $insertCookbook = static function (array $book) use ($now): int {
+            $executable = !empty($book['is_executable']);
             Database::run(
                 'INSERT INTO cookbooks (slug, title, tagline, description, category, audience, outcome,
-                                        price_cents, is_executable, status, accent, est_minutes, sort_order, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                        price_cents, is_executable, status, accent, difficulty, est_minutes,
+                                        demo_completed_runs, demo_avg_rating, sort_order, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $book['slug'], $book['title'], $book['tagline'], $book['description'],
                     $book['category'], $book['audience'], $book['outcome'],
-                    $book['price_cents'], $executable ? 1 : 0,
+                    $book['price_cents'] ?? null,
+                    $executable ? 1 : 0,
                     $executable ? 'available' : 'coming_soon',
-                    $book['accent'], $book['est_minutes'], $book['sort_order'], $now,
+                    $book['accent'],
+                    $book['difficulty'] ?? 'Intermediate',
+                    (int) ($book['est_minutes'] ?? 20),
+                    (int) ($book['demo_completed_runs'] ?? 0),
+                    $book['demo_avg_rating'] ?? null,
+                    (int) ($book['sort_order'] ?? 100),
+                    $now,
                 ]
             );
             return Database::lastInsertId();
         };
 
-        // The executable sample Cookbook, in full.
-        $book = $content['executable'];
-        $cookbookId = $insertCookbook($book, true);
+        $executableCount = 0;
+        $previewCount = 0;
 
-        foreach ($book['fields'] as $position => $field) {
-            Database::run(
-                'INSERT INTO pantry_fields (cookbook_id, position, field_key, label, type, help,
-                                            placeholder, options, required, sample_value)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [
-                    $cookbookId, $position + 1, $field['field_key'], $field['label'], $field['type'],
-                    $field['help'] ?? '', $field['placeholder'] ?? '',
-                    isset($field['options']) ? json_encode($field['options']) : null,
-                    $field['required'] ?? 1, $field['sample_value'] ?? '',
-                ]
-            );
-        }
-
-        foreach ($book['recipes'] as $position => $recipe) {
-            Database::run(
-                'INSERT INTO recipes (cookbook_id, position, slug, title, summary, why_it_matters,
-                                      unlocks_text, prompt_template, example_response, est_minutes)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [
-                    $cookbookId, $position + 1, $recipe['slug'], $recipe['title'], $recipe['summary'],
-                    $recipe['why_it_matters'], $recipe['unlocks_text'],
-                    $recipe['prompt_template'], $recipe['example_response'], $recipe['est_minutes'],
-                ]
-            );
-            $recipeId = Database::lastInsertId();
-            foreach ($recipe['checks'] as $checkPos => $check) {
-                Database::run(
-                    'INSERT INTO recipe_checks (recipe_id, position, label, help) VALUES (?, ?, ?, ?)',
-                    [$recipeId, $checkPos + 1, $check['label'], $check['help']]
-                );
+        foreach ($content['cookbooks'] as $book) {
+            $executable = !empty($book['is_executable']);
+            $cookbookId = $insertCookbook($book);
+            if ($executable) {
+                $executableCount++;
+            } else {
+                $previewCount++;
             }
-        }
 
-        // Marketplace shells: presentation-complete, intentionally
-        // non-executable (no prompts, no examples, no pantry).
-        foreach ($content['marketplace'] as $book) {
-            $cookbookId = $insertCookbook($book, false);
-            foreach ($book['recipes'] as $position => $recipe) {
+            foreach ($book['stages'] ?? [] as $position => $stage) {
                 Database::run(
-                    'INSERT INTO recipes (cookbook_id, position, slug, title, summary, why_it_matters,
-                                          unlocks_text, prompt_template, example_response, est_minutes)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?)',
+                    'INSERT INTO cookbook_stages (cookbook_id, position, title, summary)
+                     VALUES (?, ?, ?, ?)',
                     [
-                        $cookbookId, $position + 1, $recipe['slug'], $recipe['title'],
-                        $recipe['summary'], '', '', 5,
+                        $cookbookId,
+                        $position + 1,
+                        $stage['title'],
+                        $stage['summary'] ?? '',
                     ]
                 );
             }
+
+            foreach ($book['fields'] ?? [] as $position => $field) {
+                Database::run(
+                    'INSERT INTO pantry_fields (cookbook_id, position, field_key, label, type, help,
+                                                placeholder, options, required, sample_value)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        $cookbookId, $position + 1, $field['field_key'], $field['label'], $field['type'],
+                        $field['help'] ?? '', $field['placeholder'] ?? '',
+                        isset($field['options']) ? json_encode($field['options']) : null,
+                        $field['required'] ?? 1, $field['sample_value'] ?? '',
+                    ]
+                );
+            }
+
+            foreach ($book['recipes'] as $position => $recipe) {
+                $prompt = $executable ? ($recipe['prompt_template'] ?? null) : null;
+                $example = $recipe['example_response'] ?? null;
+                if (!$executable) {
+                    $prompt = null;
+                }
+
+                Database::run(
+                    'INSERT INTO recipes (cookbook_id, stage_position, position, slug, title, summary,
+                                          why_it_matters, unlocks_text, prompt_template, example_response,
+                                          est_minutes)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [
+                        $cookbookId,
+                        $recipe['stage_position'] ?? null,
+                        $position + 1,
+                        $recipe['slug'],
+                        $recipe['title'],
+                        $recipe['summary'],
+                        $recipe['why_it_matters'] ?? '',
+                        $recipe['unlocks_text'] ?? '',
+                        $prompt,
+                        $example,
+                        (int) ($recipe['est_minutes'] ?? 5),
+                    ]
+                );
+                $recipeId = Database::lastInsertId();
+
+                foreach ($recipe['checks'] ?? [] as $checkPos => $check) {
+                    Database::run(
+                        'INSERT INTO recipe_checks (recipe_id, position, label, help) VALUES (?, ?, ?, ?)',
+                        [$recipeId, $checkPos + 1, $check['label'], $check['help'] ?? '']
+                    );
+                }
+            }
         }
+
+        echo "Seeded {$executableCount} executable and {$previewCount} preview cookbooks.\n";
     });
-    echo "Seeded 1 executable cookbook and " . count($content['marketplace']) . " marketplace cookbooks.\n";
 }
 
 // 3. Admin account, created once. The temporary password is printed

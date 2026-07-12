@@ -19,26 +19,40 @@ CREATE TABLE IF NOT EXISTS rate_events (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS cookbooks (
-    id             INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    slug           VARCHAR(120) NOT NULL UNIQUE,
-    title          VARCHAR(190) NOT NULL,
-    tagline        VARCHAR(255) NOT NULL,
-    description    TEXT NOT NULL,
-    category       VARCHAR(60) NOT NULL,
-    audience       VARCHAR(255) NOT NULL,
-    outcome        VARCHAR(255) NOT NULL,
-    price_cents    INT UNSIGNED NULL,
-    is_executable  TINYINT(1) NOT NULL DEFAULT 0,
-    status         VARCHAR(20) NOT NULL DEFAULT 'coming_soon',
-    accent         VARCHAR(20) NOT NULL DEFAULT 'terracotta',
-    est_minutes    INT UNSIGNED NOT NULL DEFAULT 20,
-    sort_order     INT UNSIGNED NOT NULL DEFAULT 100,
-    created_at     DATETIME NOT NULL
+    id                   INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug                 VARCHAR(120) NOT NULL UNIQUE,
+    title                VARCHAR(190) NOT NULL,
+    tagline              VARCHAR(255) NOT NULL,
+    description          TEXT NOT NULL,
+    category             VARCHAR(60) NOT NULL,
+    audience             VARCHAR(255) NOT NULL,
+    outcome              VARCHAR(255) NOT NULL,
+    price_cents          INT UNSIGNED NULL,
+    is_executable        TINYINT(1) NOT NULL DEFAULT 0,
+    status               VARCHAR(20) NOT NULL DEFAULT 'coming_soon',
+    accent               VARCHAR(20) NOT NULL DEFAULT 'terracotta',
+    difficulty           VARCHAR(20) NOT NULL DEFAULT 'Intermediate',
+    est_minutes          INT UNSIGNED NOT NULL DEFAULT 20,
+    demo_completed_runs  INT UNSIGNED NOT NULL DEFAULT 0,
+    demo_avg_rating      DECIMAL(2,1) NULL,
+    sort_order           INT UNSIGNED NOT NULL DEFAULT 100,
+    created_at           DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cookbook_stages (
+    id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    cookbook_id INT UNSIGNED NOT NULL,
+    position    INT UNSIGNED NOT NULL,
+    title       VARCHAR(190) NOT NULL,
+    summary     VARCHAR(255) NOT NULL DEFAULT '',
+    UNIQUE KEY uq_stages_pos (cookbook_id, position),
+    CONSTRAINT fk_stages_cookbook FOREIGN KEY (cookbook_id) REFERENCES cookbooks(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS recipes (
     id               INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     cookbook_id      INT UNSIGNED NOT NULL,
+    stage_position   INT UNSIGNED NULL,
     position         INT UNSIGNED NOT NULL,
     slug             VARCHAR(120) NOT NULL,
     title            VARCHAR(190) NOT NULL,
