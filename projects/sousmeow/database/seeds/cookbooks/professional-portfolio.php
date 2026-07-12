@@ -1,0 +1,376 @@
+<?php
+
+declare(strict_types=1);
+
+$positioningExample = <<<'MD'
+## Positioning statement
+
+Mira Chen is a product UX designer who turns messy operational workflows into calm, confident software for B2B teams that cannot afford a full design department. She works with seed-stage startups that have real revenue and real user pain, shipping research-backed flows in weeks, not quarters. Her portfolio shows the decisions behind the screens: what she learned, what she cut, and what changed for the people using it every day.
+
+## The one-sentence version
+
+Mira Chen designs B2B product workflows that busy operators actually finish.
+
+## Who she is for
+
+Hiring managers at seed-to-Series A B2B startups who need a senior IC designer without agency overhead. They care less about Dribbble polish and more about whether a designer can sit in a customer call on Tuesday and ship a better settings flow by Friday.
+
+## Why she wins
+
+1. **She starts with the workflow, not the mockup.** Every case study leads with the messy reality: who does what, where they get stuck, and what success looks like in their week.
+2. **She ships in tight loops.** Three of her last four projects went from first research session to live UI in under six weeks, with documented tradeoffs at each gate.
+3. **She speaks both languages.** Engineers get annotated flows and edge cases; executives get one-page before/after stories tied to activation or support load.
+4. **Her work survives contact with production.** She has shipped in React and Rails codebases, not just Figma files that quietly rot in a shared drive.
+
+## What she deliberately does not claim
+
+Mira does not do brand identity, marketing site illustration, or long-term design system stewardship as a primary offering. She is a product UX hire, not a full-service agency replacement.
+MD;
+
+return [
+    'slug'                => 'build-professional-portfolio',
+    'title'               => 'Build a Professional Portfolio',
+    'tagline'             => 'Modular case-study tracks that converge into one site brief you can actually build.',
+    'description'         => "Most portfolios fail because they try to tell every story at once. This Cookbook splits the work into four tracks: lock your positioning, choose the projects that prove it, write each case study on a repeatable skeleton, then assemble a site brief a recruiter can scan in ninety seconds. Stock the Pantry once with your real projects and career facts; every Recipe builds on the last until you leave with homepage copy, two case study drafts, a navigation plan, and an implementation brief ready for your platform of choice.",
+    'category'            => 'Career',
+    'audience'            => 'Designers, developers, and product people rebuilding a portfolio for their next role',
+    'outcome'             => 'Positioning statement, prioritized case studies, homepage and case copy, navigation plan, and a build-ready site brief',
+    'price_cents'         => null,
+    'is_executable'       => false,
+    'accent'              => 'amber',
+    'difficulty'          => 'Intermediate',
+    'est_minutes'         => 150,
+    'demo_completed_runs' => 428,
+    'demo_avg_rating'     => 4.9,
+    'sort_order'          => 3,
+    'stages' => [
+        ['title' => 'Position', 'summary' => 'Decide what you are selling before you pick a font.'],
+        ['title' => 'Select Projects', 'summary' => 'Choose the work that proves the positioning, not the work you like most.'],
+        ['title' => 'Write Cases', 'summary' => 'Draft homepage copy and two case studies on a shared structure.'],
+        ['title' => 'Assemble Site', 'summary' => 'Turn approved copy into navigation, build notes, and a recruiter scan test.'],
+    ],
+    'fields' => [
+        [
+            'field_key'    => 'full_name',
+            'label'        => 'Full name',
+            'type'         => 'text',
+            'help'         => 'Spelled exactly as it should appear on your site and in your byline.',
+            'placeholder'  => 'e.g. Mira Chen',
+            'sample_value' => 'Mira Chen',
+        ],
+        [
+            'field_key'    => 'professional_title',
+            'label'        => 'Professional title',
+            'type'         => 'text',
+            'help'         => 'The title you want hiring managers to remember, not every title you have ever held.',
+            'placeholder'  => 'e.g. Product UX Designer',
+            'sample_value' => 'Product UX Designer',
+        ],
+        [
+            'field_key'    => 'years_experience',
+            'label'        => 'Years of experience',
+            'type'         => 'number',
+            'help'         => 'Whole years in roles relevant to the portfolio you are building.',
+            'placeholder'  => '7',
+            'sample_value' => '7',
+        ],
+        [
+            'field_key'    => 'target_roles',
+            'label'        => 'Target roles',
+            'type'         => 'multiselect',
+            'help'         => 'Pick the job titles you are actively pursuing. Recipes tune emphasis and vocabulary to these roles.',
+            'options'      => ['Product Designer', 'UX Designer', 'UI Designer', 'Design Lead', 'Senior Product Designer', 'Staff Designer', 'Frontend Developer', 'Full Stack Developer'],
+            'sample_value' => 'Product Designer, UX Designer, Senior Product Designer',
+        ],
+        [
+            'field_key'    => 'strongest_skills',
+            'label'        => 'Strongest skills',
+            'type'         => 'textarea',
+            'help'         => 'One skill per line. These become proof points in your positioning and skills matrix.',
+            'placeholder'  => "One skill per line",
+            'sample_value' => "User research and synthesis\nWorkflow and information architecture\nPrototyping in Figma\nDesign-engineering handoff\nB2B onboarding and admin UX",
+        ],
+        [
+            'field_key'    => 'career_goal',
+            'label'        => 'Career goal',
+            'type'         => 'textarea',
+            'help'         => 'Two or three sentences on the kind of team, problem, and impact you want next.',
+            'placeholder'  => 'What kind of work do you want more of?',
+            'sample_value' => "Join a seed-to-Series A B2B startup as a senior IC designer where I can own end-to-end product flows, sit in customer calls, and ship improvements weekly. I want a team that treats research as a habit, not a phase.",
+        ],
+        [
+            'field_key'    => 'project_one',
+            'label'        => 'Project one',
+            'type'         => 'textarea',
+            'help'         => 'Your strongest project: client or employer, your role, the problem, and one outcome number if you have it.',
+            'placeholder'  => 'Name, context, your role, and what changed',
+            'sample_value' => "Fleetboard onboarding redesign for a logistics SaaS startup. Sole designer on a team of six engineers. Cut new-user setup from 45 minutes to 12 and reduced week-one support tickets by 34 percent.",
+        ],
+        [
+            'field_key'    => 'project_two',
+            'label'        => 'Project two',
+            'type'         => 'textarea',
+            'help'         => 'A second project that shows a different skill or industry, still tied to your target roles.',
+            'placeholder'  => 'Name, context, your role, and what changed',
+            'sample_value' => "Permissions and roles admin for a healthcare compliance platform. Led two research sprints with ops managers, shipped a role builder that replaced a spreadsheet workflow used by 200 clinic admins.",
+        ],
+        [
+            'field_key'    => 'project_three',
+            'label'        => 'Project three',
+            'type'         => 'textarea',
+            'help'         => 'Optional third project. Include it even if rough; the shortlist Recipe decides whether it makes the cut.',
+            'placeholder'  => 'Name, context, your role, and what changed',
+            'sample_value' => "Internal analytics dashboard for a fintech ops team. Partnered with a data engineer to redesign drill-down flows; average time-to-answer for support escalations dropped from 20 minutes to under 5.",
+        ],
+        [
+            'field_key'    => 'design_tone',
+            'label'        => 'Design tone',
+            'type'         => 'select',
+            'help'         => 'How the site should feel visually and verbally. Every copy Recipe writes in this voice.',
+            'options'      => ['Clean and minimal', 'Warm and approachable', 'Bold and editorial', 'Quiet and precise', 'Technical and direct'],
+            'sample_value' => 'Quiet and precise',
+        ],
+        [
+            'field_key'    => 'portfolio_platform',
+            'label'        => 'Portfolio platform',
+            'type'         => 'select',
+            'help'         => 'Where you plan to build. The implementation brief Recipe respects platform constraints.',
+            'options'      => ['Custom site (code)', 'Framer', 'Webflow', 'Squarespace', 'Notion public page', 'PDF case study deck'],
+            'sample_value' => 'Framer',
+        ],
+        [
+            'field_key'    => 'contact_preference',
+            'label'        => 'Contact preference',
+            'type'         => 'select',
+            'help'         => 'How you want recruiters to reach you. Homepage and navigation Recipes place this consistently.',
+            'options'      => ['Email link', 'LinkedIn profile', 'Calendly or booking link', 'Contact form', 'Email and LinkedIn both'],
+            'sample_value' => 'Email and LinkedIn both',
+        ],
+    ],
+    'recipes' => [
+        [
+            'stage_position'   => 1,
+            'slug'             => 'positioning-statement',
+            'title'            => 'Positioning Statement',
+            'summary'          => 'Write the professional story every later Recipe quotes as ground truth.',
+            'why_it_matters'   => 'Recruiters decide in seconds whether you fit the role they have open. A positioning statement that names your audience, proof, and honest limits keeps every case study from sounding like a different person wrote it.',
+            'unlocks_text'     => 'Approve it and the Capability Inventory Recipe maps your skills to this story.',
+            'est_minutes'      => 12,
+            'prompt_template'  => null,
+            'example_response' => $positioningExample,
+            'checks' => [
+                ['label' => 'It names a specific hiring audience', 'help' => 'A recruiter reading this knows which team and problem you are aiming at, not "anyone who needs design."'],
+                ['label' => 'Proof points come from your real work', 'help' => 'Every claim ties back to projects or skills in your Pantry, not generic superlatives.'],
+                ['label' => 'Honest limits build trust', 'help' => 'The "do not claim" section admits what you are not selling, which makes the rest more believable.'],
+            ],
+        ],
+        [
+            'stage_position'   => 1,
+            'slug'             => 'capability-inventory',
+            'title'            => 'Capability Inventory',
+            'summary'          => 'Sort your skills into what you lead, what you contribute, and what you are still building.',
+            'why_it_matters'   => 'Most portfolios list every tool ever touched. An inventory tied to your positioning shows depth where it matters and keeps you from overselling skills a technical interviewer will test.',
+            'unlocks_text'     => 'Approve it and Audience Targeting sharpens who should care about each capability.',
+            'est_minutes'      => 10,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Skills map to target roles', 'help' => 'Each leading capability connects to at least one role you selected in the Pantry.'],
+                ['label' => 'Lead vs contribute is honest', 'help' => 'You can defend every "lead" skill in an interview without reaching for team credit.'],
+                ['label' => 'Gaps are named, not hidden', 'help' => 'Skills you are building appear separately from skills you would stake a project on.'],
+            ],
+        ],
+        [
+            'stage_position'   => 1,
+            'slug'             => 'audience-targeting',
+            'title'            => 'Audience Targeting',
+            'summary'          => 'Profile the hiring managers and teams your portfolio must convince.',
+            'why_it_matters'   => 'The same project reads differently to a startup founder and an enterprise design director. Naming your primary and secondary audiences keeps later copy from trying to please everyone and pleasing no one.',
+            'unlocks_text'     => 'Approve it and Select Projects starts with a shortlist scored against these readers.',
+            'est_minutes'      => 10,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Primary audience is one person, not a category', 'help' => 'You can describe their week, their pressure, and what they scan for on a portfolio.'],
+                ['label' => 'Secondary audience is truly secondary', 'help' => 'You know which reader gets the default story and which gets a lighter thread.'],
+                ['label' => 'Scan priorities match your goal', 'help' => 'What they look for first (process, outcomes, visuals, code) aligns with your career goal.'],
+            ],
+        ],
+        [
+            'stage_position'   => 2,
+            'slug'             => 'project-shortlist',
+            'title'            => 'Project Shortlist',
+            'summary'          => 'Score your projects against positioning and pick the ones worth a full case study.',
+            'why_it_matters'   => 'Three strong cases beat seven thin ones. This Recipe forces a ranked shortlist with explicit keep-cut reasons so you do not waste writing time on work that does not prove your story.',
+            'unlocks_text'     => 'Approve it and Case Study Priority assigns depth and order to each keeper.',
+            'est_minutes'      => 11,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Every keeper proves the positioning', 'help' => 'Each selected project supports a specific claim from your positioning statement.'],
+                ['label' => 'Cuts have honest reasons', 'help' => 'Projects you drop are named with a reason (NDA, weak outcome, off-story), not silently forgotten.'],
+                ['label' => 'Variety without sprawl', 'help' => 'The shortlist shows more than one skill or context without repeating the same story twice.'],
+            ],
+        ],
+        [
+            'stage_position'   => 2,
+            'slug'             => 'case-study-priority',
+            'title'            => 'Case Study Priority',
+            'summary'          => 'Decide which case gets the homepage spotlight and how deep each write-up goes.',
+            'why_it_matters'   => 'Your best project should not be buried as case study three. Priority order drives homepage hero choice, navigation weight, and how much research detail each story earns.',
+            'unlocks_text'     => 'Approve it and the Skills Matrix Recipe maps proof to each prioritized case.',
+            'est_minutes'      => 10,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Hero case matches recruiter scan order', 'help' => 'The first case you write is the one your primary audience would click if they had time for only one.'],
+                ['label' => 'Depth tiers are explicit', 'help' => 'Each case is labeled flagship, standard, or light, with word-count or section targets.'],
+                ['label' => 'Order tells a career arc', 'help' => 'Reading cases in priority order shows growing scope or skill, not random chronology.'],
+            ],
+        ],
+        [
+            'stage_position'   => 2,
+            'slug'             => 'skills-matrix',
+            'title'            => 'Skills Matrix',
+            'summary'          => 'Map each prioritized project to the skills your target roles ask for.',
+            'why_it_matters'   => 'Job descriptions are skill checklists. A matrix that links real project moments to each skill gives you quotable proof for cover letters, interviews, and homepage feature lines.',
+            'unlocks_text'     => 'Approve it and Gap Analysis surfaces missing proof before you start writing.',
+            'est_minutes'      => 11,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Every target skill has a project anchor', 'help' => 'No skill row is empty; each points to a specific moment or deliverable in your work.'],
+                ['label' => 'No project carries the whole matrix alone', 'help' => 'Proof is distributed so one case is not doing all the heavy lifting.'],
+                ['label' => 'Role emphasis is visible', 'help' => 'Skills weighted for your primary target role are marked as lead proof, not buried equally.'],
+            ],
+        ],
+        [
+            'stage_position'   => 2,
+            'slug'             => 'gap-analysis',
+            'title'            => 'Gap Analysis',
+            'summary'          => 'Find proof holes in your portfolio story and decide how to fill or frame them.',
+            'why_it_matters'   => 'Every candidate has gaps: missing metrics, NDAs, or junior-era work that does not fit the senior story. Naming gaps early lets you address them in copy or interviews instead of hoping nobody asks.',
+            'unlocks_text'     => 'Approve it and Write Cases begins with homepage copy grounded in your strongest proof.',
+            'est_minutes'      => 10,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Gaps tie to real job requirements', 'help' => 'Each gap references something target roles actually ask for, not imaginary perfection.'],
+                ['label' => 'Mitigations are actionable', 'help' => 'Every gap has a plan: reframe, add a sidebar, gather a metric, or acknowledge in interview.'],
+                ['label' => 'No fake projects invented', 'help' => 'Mitigations use honest framing of existing work, not fabricated case studies.'],
+            ],
+        ],
+        [
+            'stage_position'   => 3,
+            'slug'             => 'homepage-copy',
+            'title'            => 'Homepage Copy',
+            'summary'          => 'Draft the hero, proof strip, and call to action recruiters see first.',
+            'why_it_matters'   => 'Most portfolio homepages open with a vague tagline and a grid of thumbnails. This Recipe writes a homepage that states your positioning, surfaces your best proof, and tells the reader where to click next.',
+            'unlocks_text'     => 'Approve it and Case Study Structure A drafts your flagship project on the shared skeleton.',
+            'est_minutes'      => 11,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Hero states role and value in one glance', 'help' => 'A recruiter skimming for five seconds knows your title, audience, and strongest outcome.'],
+                ['label' => 'Proof strip uses real numbers or outcomes', 'help' => 'Metrics and results come from your Pantry projects, not placeholder praise.'],
+                ['label' => 'Contact matches your preference', 'help' => 'The primary call to action uses the contact method you chose in the Pantry.'],
+            ],
+        ],
+        [
+            'stage_position'   => 3,
+            'slug'             => 'case-study-structure-a',
+            'title'            => 'Case Study Structure A',
+            'summary'          => 'Write your flagship case study: context, challenge, process, outcome, reflection.',
+            'why_it_matters'   => 'Flagship cases need room to breathe. Structure A is the long form: enough process to satisfy a design manager, enough outcome to satisfy a hiring founder, and a reflection that shows judgment.',
+            'unlocks_text'     => 'Approve it and Case Study Structure B applies the lighter template to your second project.',
+            'est_minutes'      => 14,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Challenge is a user or business problem', 'help' => 'The case opens with stakes for real people, not "the client wanted a redesign."'],
+                ['label' => 'Process shows decisions, not just screens', 'help' => 'At least two moments explain what you tried, cut, or changed based on evidence.'],
+                ['label' => 'Outcome is specific and attributed', 'help' => 'Results name a metric, behavior change, or shipped artifact you can defend.'],
+            ],
+        ],
+        [
+            'stage_position'   => 3,
+            'slug'             => 'case-study-structure-b',
+            'title'            => 'Case Study Structure B',
+            'summary'          => 'Write your second case on a tighter skeleton that complements the flagship.',
+            'why_it_matters'   => 'Two cases that use the same long template feel repetitive. Structure B is shorter and angled to show a different skill or context so the portfolio reads as range, not copy-paste.',
+            'unlocks_text'     => 'Approve it and Professional Summary ties both cases into a cohesive about narrative.',
+            'est_minutes'      => 14,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Different angle from Structure A', 'help' => 'This case leads with a different skill, industry, or collaboration shape than your flagship.'],
+                ['label' => 'Shorter without feeling thin', 'help' => 'Sections are compressed but still include challenge, one process beat, and outcome.'],
+                ['label' => 'Cross-links feel natural', 'help' => 'A line or two connects this story to your positioning without repeating the homepage hero.'],
+            ],
+        ],
+        [
+            'stage_position'   => 3,
+            'slug'             => 'professional-summary',
+            'title'            => 'Professional Summary',
+            'summary'          => 'Write the about section that connects your cases into one career narrative.',
+            'why_it_matters'   => 'Case studies prove craft; the about section proves you as a colleague. This Recipe writes a summary that hiring managers can paste mentally into a team Slack channel after viewing your work.',
+            'unlocks_text'     => 'Approve it and Assemble Site begins with a navigation plan for all approved copy.',
+            'est_minutes'      => 10,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Sounds like you, not a template', 'help' => 'Voice matches your design tone and uses details only you would know.'],
+                ['label' => 'Bridges cases to career goal', 'help' => 'The summary explains why this body of work points toward the role you want next.'],
+                ['label' => 'No resume duplication', 'help' => 'It adds context and motivation, not a bullet list of every job title.'],
+            ],
+        ],
+        [
+            'stage_position'   => 4,
+            'slug'             => 'navigation-plan',
+            'title'            => 'Navigation Plan',
+            'summary'          => 'Map pages, labels, and reading order for the full site.',
+            'why_it_matters'   => 'Bad navigation hides good writing. This Recipe produces a sitemap with primary and footer links, case study order, and mobile considerations matched to how recruiters actually browse.',
+            'unlocks_text'     => 'Approve it and Portfolio Implementation Brief translates the plan into build steps for your platform.',
+            'est_minutes'      => 9,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Primary nav has five items or fewer', 'help' => 'Top-level choices are scannable; deeper pages live in sensible submenus or footers.'],
+                ['label' => 'Case order matches priority', 'help' => 'Navigation order reflects your case study priority, not alphabetical or chronological default.'],
+                ['label' => 'Contact is reachable from every page', 'help' => 'Your contact preference appears in header, footer, or persistent CTA without hunting.'],
+            ],
+        ],
+        [
+            'stage_position'   => 4,
+            'slug'             => 'portfolio-implementation-brief',
+            'title'            => 'Portfolio Implementation Brief',
+            'summary'          => 'Turn approved copy into a build checklist for your chosen platform.',
+            'why_it_matters'   => 'Writers finish and builders stall when there is no handoff. This Recipe outputs section-by-section build notes, asset lists, and platform-specific constraints so you or a developer can ship without re-deciding structure.',
+            'unlocks_text'     => 'Approve it and Recruiter Scan Test validates the plan against a ninety-second read-through.',
+            'est_minutes'      => 13,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Platform constraints are respected', 'help' => 'Build notes reference real limits of your chosen platform, not a generic custom site.'],
+                ['label' => 'Every page has a content source', 'help' => 'Each section maps to an approved Recipe artifact, not placeholder copy.'],
+                ['label' => 'Asset list is concrete', 'help' => 'Images, logos, and screenshots needed are named with suggested dimensions or formats.'],
+            ],
+        ],
+        [
+            'stage_position'   => 4,
+            'slug'             => 'recruiter-scan-test',
+            'title'            => 'Recruiter Scan Test',
+            'summary'          => 'Simulate a ninety-second recruiter pass and fix whatever they would miss.',
+            'why_it_matters'   => 'You are not the audience. This final Recipe walks through a timed scan: title clarity, proof visibility, case discoverability, and contact friction, with a punch list of fixes before you publish.',
+            'unlocks_text'     => 'Approve it and the Cookbook is complete; export your Project Kit when this Cookbook ships.',
+            'est_minutes'      => 5,
+            'prompt_template'  => null,
+            'example_response' => null,
+            'checks' => [
+                ['label' => 'Role and level clear in ten seconds', 'help' => 'A recruiter knows your title, seniority, and target role without scrolling.'],
+                ['label' => 'Best proof visible without clicking a case', 'help' => 'At least one outcome or testimonial appears on the homepage or proof strip.'],
+                ['label' => 'Punch list items are specific fixes', 'help' => 'Each issue names a page, element, and concrete change, not vague "improve UX."'],
+            ],
+        ],
+    ],
+];
