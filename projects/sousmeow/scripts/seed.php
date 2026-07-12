@@ -20,6 +20,9 @@ declare(strict_types=1);
  *   php scripts/seed.php --fresh                  Drop all tables first.
  *                                                 Destroys data; asks for
  *                                                 confirmation.
+ *   php scripts/seed.php --status                 Print cookbook catalog health
+ *                                                 (no writes). Use after deploy
+ *                                                 to confirm sync worked.
  *
  * Content sync is safe to re-run: cookbooks, stages, pantry fields, recipes,
  * and quality checks are upserted from database/seeds/content.php. User
@@ -41,6 +44,7 @@ array_shift($args);
 
 $options = [
     'fresh'          => false,
+    'status'         => false,
     'admin_email'    => 'chef@sousmeow.example',
     'reset_password' => null,
 ];
@@ -48,6 +52,9 @@ for ($i = 0; $i < count($args); $i++) {
     switch ($args[$i]) {
         case '--fresh':
             $options['fresh'] = true;
+            break;
+        case '--status':
+            $options['status'] = true;
             break;
         case '--admin-email':
             $options['admin_email'] = $args[++$i] ?? $options['admin_email'];
@@ -96,17 +103,44 @@ function ensure_column(PDO $pdo, string $driver, string $table, string $column, 
     if (in_array($column, table_columns($pdo, $driver, $table), true)) {
         return;
     }
-    $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$column} {$definition}");
-    echo "Migrated {$table}.{$column}\n";
+    try {
+        $pdo->exec("ALTER TABLE {$table} ADD COLUMN {$column} {$definition}");
+        echo "Migrated {$table}.{$column}\n";
+    } catch (\PDOException $e) {
+        fwrite(STDERR, "Migration failed for {$table}.{$column}: {$e->getMessage()}\n");
+        throw $e;
+    }
+}
+
+/** Column DDL matched to schema.mysql.sql / schema.sqlite.sql per driver. */
+function column_definition(string $driver, string $column): string
+{
+    if ($driver === 'mysql') {
+        return match ($column) {
+            'difficulty'          => "VARCHAR(20) NOT NULL DEFAULT 'Intermediate'",
+            'demo_completed_runs' => 'INT UNSIGNED NOT NULL DEFAULT 0',
+            'demo_avg_rating'     => 'DECIMAL(2,1) NULL',
+            'stage_position'      => 'INT UNSIGNED NULL',
+            default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
+        };
+    }
+
+    return match ($column) {
+        'difficulty'          => "TEXT NOT NULL DEFAULT 'Intermediate'",
+        'demo_completed_runs' => 'INTEGER NOT NULL DEFAULT 0',
+        'demo_avg_rating'     => 'REAL',
+        'stage_position'      => 'INTEGER',
+        default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
+    };
 }
 
 /** Apply additive schema changes on existing databases. */
 function migrate_schema(PDO $pdo, string $driver): void
 {
-    ensure_column($pdo, $driver, 'cookbooks', 'difficulty', "TEXT NOT NULL DEFAULT 'Intermediate'");
-    ensure_column($pdo, $driver, 'cookbooks', 'demo_completed_runs', 'INTEGER NOT NULL DEFAULT 0');
-    ensure_column($pdo, $driver, 'cookbooks', 'demo_avg_rating', 'REAL');
-    ensure_column($pdo, $driver, 'recipes', 'stage_position', 'INTEGER');
+    ensure_column($pdo, $driver, 'cookbooks', 'difficulty', column_definition($driver, 'difficulty'));
+    ensure_column($pdo, $driver, 'cookbooks', 'demo_completed_runs', column_definition($driver, 'demo_completed_runs'));
+    ensure_column($pdo, $driver, 'cookbooks', 'demo_avg_rating', column_definition($driver, 'demo_avg_rating'));
+    ensure_column($pdo, $driver, 'recipes', 'stage_position', column_definition($driver, 'stage_position'));
 
     $hasStages = (int) Database::fetchValue(
         $driver === 'mysql'
@@ -220,6 +254,7 @@ function sync_content(array $content): array
             sync_stages($cookbookId, $book['stages'] ?? []);
             sync_pantry_fields($cookbookId, $book['fields'] ?? []);
             sync_recipes($cookbookId, $book['recipes'], $executable);
+            echo "  Synced {$slug} (" . ($executable ? 'executable' : 'preview') . ", " . count($book['recipes']) . " recipes)\n";
         }
 
         $stats['removed'] = prune_orphan_cookbooks($seedSlugs);
@@ -446,6 +481,126 @@ function prune_orphan_cookbooks(array $seedSlugs): int
     return count($orphans);
 }
 
+/** @return list<string> Expected cookbook seed filenames from content.php. */
+function expected_seed_files(): array
+{
+    return [
+        'launch-day-kit.php',
+        'validate-saas-idea.php',
+        'professional-portfolio.php',
+        'plan-youtube-video.php',
+        'plan-a-novel.php',
+    ];
+}
+
+/** Abort early when deploy is missing seed files (common partial-upload mistake). */
+function verify_seed_files(): void
+{
+    $dir = __DIR__ . '/../database/seeds/cookbooks';
+    $missing = [];
+    foreach (expected_seed_files() as $file) {
+        if (!is_file($dir . '/' . $file)) {
+            $missing[] = $file;
+        }
+    }
+    if ($missing !== []) {
+        fwrite(STDERR, "Missing seed files in database/seeds/cookbooks/:\n");
+        foreach ($missing as $file) {
+            fwrite(STDERR, "  - {$file}\n");
+        }
+        fwrite(STDERR, "Deploy the full projects/sousmeow folder, then re-run seed.\n");
+        exit(1);
+    }
+}
+
+/**
+ * @param array{cookbooks: list<array<string, mixed>>} $content
+ * @return list<string> Problem lines; empty means healthy.
+ */
+function cookbook_health_issues(array $content): array
+{
+    $issues = [];
+    foreach ($content['cookbooks'] as $book) {
+        $slug = (string) $book['slug'];
+        $shouldRun = !empty($book['is_executable']);
+        $row = Database::fetch(
+            'SELECT id, is_executable, status FROM cookbooks WHERE slug = ?',
+            [$slug]
+        );
+        if ($row === null) {
+            $issues[] = "{$slug}: missing from database (sync did not insert it)";
+            continue;
+        }
+        $cookbookId = (int) $row['id'];
+        $recipeTotal = (int) Database::fetchValue(
+            'SELECT COUNT(*) FROM recipes WHERE cookbook_id = ?',
+            [$cookbookId]
+        );
+        $promptCount = (int) Database::fetchValue(
+            'SELECT COUNT(*) FROM recipes WHERE cookbook_id = ? AND prompt_template IS NOT NULL AND LENGTH(prompt_template) > 0',
+            [$cookbookId]
+        );
+        $expectedRecipes = count($book['recipes']);
+        $isExec = (int) $row['is_executable'] === 1;
+
+        if ($shouldRun && !$isExec) {
+            $issues[] = "{$slug}: seed expects executable but database has is_executable=0 (status={$row['status']})";
+        }
+        if ($recipeTotal !== $expectedRecipes) {
+            $issues[] = "{$slug}: expected {$expectedRecipes} recipes, database has {$recipeTotal}";
+        }
+        if ($shouldRun && $promptCount < $expectedRecipes) {
+            $issues[] = "{$slug}: expected {$expectedRecipes} prompts, database has {$promptCount}";
+        }
+    }
+
+    $dbCount = (int) Database::fetchValue('SELECT COUNT(*) FROM cookbooks');
+    $seedCount = count($content['cookbooks']);
+    if ($dbCount !== $seedCount) {
+        $issues[] = "catalog count mismatch: seed defines {$seedCount} cookbooks, database has {$dbCount}";
+    }
+
+    return $issues;
+}
+
+/**
+ * @param array{cookbooks: list<array<string, mixed>>} $content
+ */
+function print_cookbook_status(array $content): void
+{
+    echo "Cookbook catalog (driver: " . Database::driver() . ")\n";
+    foreach ($content['cookbooks'] as $book) {
+        $slug = (string) $book['slug'];
+        $shouldRun = !empty($book['is_executable']);
+        $row = Database::fetch(
+            'SELECT id, is_executable, status FROM cookbooks WHERE slug = ?',
+            [$slug]
+        );
+        if ($row === null) {
+            echo "  [MISSING] {$slug} (seed wants " . ($shouldRun ? 'executable' : 'preview') . ")\n";
+            continue;
+        }
+        $promptCount = (int) Database::fetchValue(
+            'SELECT COUNT(*) FROM recipes WHERE cookbook_id = ? AND prompt_template IS NOT NULL AND prompt_template != \'\'',
+            [(int) $row['id']]
+        );
+        $recipeTotal = (int) Database::fetchValue(
+            'SELECT COUNT(*) FROM recipes WHERE cookbook_id = ?',
+            [(int) $row['id']]
+        );
+        $flag = (int) $row['is_executable'] === 1 ? 'executable' : 'preview';
+        $ok = (!$shouldRun || ((int) $row['is_executable'] === 1 && $promptCount === count($book['recipes'])));
+        echo '  ' . ($ok ? '[OK]' : '[!!]') . " {$slug}: db={$flag}, status={$row['status']}, recipes={$recipeTotal}, prompts={$promptCount}\n";
+    }
+    $extra = Database::fetchAll(
+        'SELECT slug FROM cookbooks WHERE slug NOT IN (' . implode(',', array_fill(0, count($content['cookbooks']), '?')) . ')',
+        array_map(static fn(array $b): string => (string) $b['slug'], $content['cookbooks'])
+    );
+    foreach ($extra as $row) {
+        echo "  [EXTRA] {$row['slug']} (not in current seed; prune runs when it has no projects)\n";
+    }
+}
+
 // --reset-password: standalone maintenance action.
 if ($options['reset_password'] !== null) {
     $email = strtolower(trim($options['reset_password']));
@@ -501,9 +656,25 @@ echo "Schema ready ({$driver}).\n";
 
 migrate_schema($pdo, $driver);
 
-// 2. Content sync (upsert; safe to re-run).
+verify_seed_files();
 /** @var array{cookbooks: list<array<string, mixed>>} $content */
 $content = require __DIR__ . '/../database/seeds/content.php';
+
+if ($options['status']) {
+    print_cookbook_status($content);
+    $issues = cookbook_health_issues($content);
+    if ($issues !== []) {
+        echo "\nProblems found:\n";
+        foreach ($issues as $issue) {
+            echo "  - {$issue}\n";
+        }
+        exit(1);
+    }
+    echo "\nCatalog health: OK\n";
+    exit(0);
+}
+
+// 2. Content sync (upsert; safe to re-run).
 $stats = sync_content($content);
 echo sprintf(
     "Content synced: %d inserted, %d updated, %d orphan cookbooks removed (%d executable, %d preview in seed).\n",
@@ -513,6 +684,18 @@ echo sprintf(
     $stats['executable'],
     $stats['preview']
 );
+
+print_cookbook_status($content);
+$issues = cookbook_health_issues($content);
+if ($issues !== []) {
+    echo "\nSeed sync finished but catalog health checks failed:\n";
+    foreach ($issues as $issue) {
+        echo "  - {$issue}\n";
+    }
+    fwrite(STDERR, "\nRe-run from the projects/sousmeow directory after confirming deploy includes database/seeds/cookbooks/.\n");
+    exit(1);
+}
+echo "Catalog health: OK\n";
 
 // 3. Admin account, created once. The temporary password is printed
 // exactly once and never stored in plain text.

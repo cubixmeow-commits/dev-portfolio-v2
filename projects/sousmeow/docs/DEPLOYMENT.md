@@ -33,16 +33,27 @@ Edit `config/config.php`:
 
 ## 3. Seed
 
-Run once over SSH from the `sousmeow` directory:
+Run from the `sousmeow` directory (not the repo root):
 
 ```sh
+cd ~/domains/yourdomain.tld/sousmeow   # or wherever you uploaded it
 php scripts/seed.php --admin-email you@yourdomain.tld
 ```
 
-This creates the schema for the configured driver, seeds the Cookbooks,
-and prints the admin's temporary password exactly once. Change it right
-after signing in (My Kitchen, Change password). The script is CLI-only;
-requesting it over HTTP returns 404 because it sits outside `public/`.
+This applies the schema, **syncs** cookbook content (upsert by slug; safe to
+re-run after deploys), and prints the admin's temporary password exactly once.
+Change it right after signing in (My Kitchen, Change password). The script is
+CLI-only; requesting it over HTTP returns 404 because it sits outside `public/`.
+
+After every deploy, confirm the catalog updated:
+
+```sh
+php scripts/seed.php --status
+```
+
+You should see `[OK] plan-youtube-video: db=executable ... prompts=10`. If it
+shows `[!!]` or `MISSING`, run `php scripts/seed.php` again and read the health
+output. Use `--fresh` only when you intend to wipe all projects and exports.
 
 To rotate a forgotten password later:
 
