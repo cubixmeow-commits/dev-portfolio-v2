@@ -121,6 +121,7 @@ function column_definition(string $driver, string $column): string
             'demo_completed_runs' => 'INT UNSIGNED NOT NULL DEFAULT 0',
             'demo_avg_rating'     => 'DECIMAL(2,1) NULL',
             'stage_position'      => 'INT UNSIGNED NULL',
+            'simulation'          => 'TINYINT(1) NOT NULL DEFAULT 0',
             default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
         };
     }
@@ -130,6 +131,7 @@ function column_definition(string $driver, string $column): string
         'demo_completed_runs' => 'INTEGER NOT NULL DEFAULT 0',
         'demo_avg_rating'     => 'REAL',
         'stage_position'      => 'INTEGER',
+        'simulation'          => 'INTEGER NOT NULL DEFAULT 0',
         default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
     };
 }
@@ -141,6 +143,7 @@ function migrate_schema(PDO $pdo, string $driver): void
     ensure_column($pdo, $driver, 'cookbooks', 'demo_completed_runs', column_definition($driver, 'demo_completed_runs'));
     ensure_column($pdo, $driver, 'cookbooks', 'demo_avg_rating', column_definition($driver, 'demo_avg_rating'));
     ensure_column($pdo, $driver, 'recipes', 'stage_position', column_definition($driver, 'stage_position'));
+    ensure_column($pdo, $driver, 'users', 'simulation', column_definition($driver, 'simulation'));
 
     $hasStages = (int) Database::fetchValue(
         $driver === 'mysql'
@@ -173,6 +176,34 @@ CREATE TABLE cookbook_stages (
 SQL);
         }
         echo "Migrated cookbook_stages table\n";
+    }
+
+    $hasSimRuns = (int) Database::fetchValue(
+        $driver === 'mysql'
+            ? "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'simulation_runs'"
+            : "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'simulation_runs'"
+    ) > 0;
+    if (!$hasSimRuns) {
+        if ($driver === 'mysql') {
+            $pdo->exec(<<<'SQL'
+CREATE TABLE simulation_runs (
+    pacific_date   DATE NOT NULL PRIMARY KEY,
+    users_active   INT UNSIGNED NOT NULL DEFAULT 0,
+    actions_count  INT UNSIGNED NOT NULL DEFAULT 0,
+    executed_at    DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL);
+        } else {
+            $pdo->exec(<<<'SQL'
+CREATE TABLE simulation_runs (
+    pacific_date   TEXT NOT NULL PRIMARY KEY,
+    users_active   INTEGER NOT NULL DEFAULT 0,
+    actions_count  INTEGER NOT NULL DEFAULT 0,
+    executed_at    TEXT NOT NULL
+)
+SQL);
+        }
+        echo "Migrated simulation_runs table\n";
     }
 }
 
@@ -629,7 +660,7 @@ if ($options['fresh']) {
     }
     $tables = ['artifact_checks', 'artifact_versions', 'artifacts', 'exports', 'pantry_values',
                'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbook_stages', 'cookbooks',
-               'rate_events', 'users'];
+               'simulation_runs', 'rate_events', 'users'];
     if ($driver === 'mysql') {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
     }
