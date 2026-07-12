@@ -82,7 +82,7 @@ $formatRuns = static function (int $n): string {
       <?php endforeach; ?>
     </div>
     <p class="marketplace-honesty">
-      SousMeow is a portfolio demonstration: two Cookbooks are fully cookable today; three show complete workflow
+      SousMeow is a portfolio demonstration: three Cookbooks are fully cookable today; two show complete workflow
       previews with honest "Runner coming soon" labels. No checkout exists, deliberately.
     </p>
   <?php endif; ?>

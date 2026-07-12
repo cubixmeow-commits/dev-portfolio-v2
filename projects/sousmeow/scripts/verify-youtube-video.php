@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * CLI smoke test: Launch Day Kit end-to-end without a browser.
- * Usage: php scripts/verify-launch-day-kit.php
+ * CLI smoke test: Plan a YouTube Video end-to-end without a browser.
+ * Usage: php scripts/verify-youtube-video.php
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -21,24 +21,18 @@ use SousMeow\Models\Project;
 use SousMeow\Models\Recipe;
 use SousMeow\Services\ProjectKit;
 
-$cookbook = Cookbook::findBySlug('launch-day-kit');
+$cookbook = Cookbook::findBySlug('plan-youtube-video');
 if ($cookbook === null || (int) $cookbook['is_executable'] !== 1) {
-    fwrite(STDERR, "FAIL: Launch Day Kit not executable\n");
+    fwrite(STDERR, "FAIL: Plan a YouTube Video not executable\n");
     exit(1);
 }
 
 $userId = (int) Database::fetchValue('SELECT id FROM users LIMIT 1');
-$projectId = Project::create($userId, (int) $cookbook['id'], 'Driftlog launch test');
+$projectId = Project::create($userId, (int) $cookbook['id'], 'One-pan pasta video test');
 $fields = PantryField::forCookbook((int) $cookbook['id']);
 $values = [];
 foreach ($fields as $field) {
-    $sample = (string) $field['sample_value'];
-    if ($field['type'] === 'multiselect') {
-        $picked = array_map('trim', explode(',', $sample));
-        $values[(int) $field['id']] = json_encode($picked);
-    } else {
-        $values[(int) $field['id']] = $sample;
-    }
+    $values[(int) $field['id']] = (string) $field['sample_value'];
 }
 Project::savePantry($projectId, $values);
 Project::markPantrySaved($projectId);
@@ -49,6 +43,10 @@ foreach ($recipes as $recipe) {
     $content = (string) $recipe['example_response'];
     if ($content === '') {
         fwrite(STDERR, "FAIL: missing example for {$recipe['slug']}\n");
+        exit(1);
+    }
+    if ($recipe['prompt_template'] === null || $recipe['prompt_template'] === '') {
+        fwrite(STDERR, "FAIL: missing prompt for {$recipe['slug']}\n");
         exit(1);
     }
     $artifactId = Artifact::addVersion($projectId, $recipeId, $content, 'example');
@@ -84,7 +82,7 @@ if ($zip->open($zipPath) !== true) {
     fwrite(STDERR, "FAIL: cannot open zip\n");
     exit(1);
 }
-$expected = count($recipes) + 2; // README.md + kit.html
+$expected = count($recipes) + 2;
 if ($zip->numFiles < $expected) {
     fwrite(STDERR, "FAIL: zip has {$zip->numFiles} files, expected at least {$expected}\n");
     exit(1);
@@ -93,7 +91,13 @@ if ($zip->locateName('kit.html') === false) {
     fwrite(STDERR, "FAIL: kit.html missing from zip\n");
     exit(1);
 }
+$html = $zip->getFromName('kit.html');
 $zip->close();
 
-echo "OK: Launch Day Kit export at {$zipPath}\n";
+if ($html === false || !str_contains($html, '<!DOCTYPE html>') || !str_contains($html, 'Research Brief')) {
+    fwrite(STDERR, "FAIL: kit.html is invalid or missing recipe content\n");
+    exit(1);
+}
+
+echo "OK: YouTube Video kit export at {$zipPath}\n";
 exit(0);

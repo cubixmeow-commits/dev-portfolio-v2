@@ -58,7 +58,7 @@ final class ExportController
         $exportId = Export::record($projectId, $kit['filename'], $kit['size'], $kit['count']);
         Project::touch($projectId);
 
-        Flash::set('celebrate', 'Project Kit packed: ' . $kit['count'] . ' files plus a manifest. Download it below.');
+        Flash::set('celebrate', 'Project Kit packed: ' . $kit['count'] . ' files, kit.html reader, and a manifest. Download it below.');
         redirect('/projects/' . $projectId . '/export#export-' . $exportId);
     }
 

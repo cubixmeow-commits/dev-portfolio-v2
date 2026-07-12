@@ -5,11 +5,11 @@ declare(strict_types=1);
 /**
  * Seed content loader for SousMeow first-party Cookbook library.
  *
- * Five curated Cookbooks:
+ * Five curated Cookbooks (three executable, two preview):
  * - Launch Day Kit (executable)
  * - Validate a SaaS Idea (executable)
  * - Build a Professional Portfolio (preview)
- * - Plan a YouTube Video (preview)
+ * - Plan a YouTube Video (executable)
  * - Plan a Novel (preview)
  *
  * Each Cookbook is defined in database/seeds/cookbooks/{slug}.php.
