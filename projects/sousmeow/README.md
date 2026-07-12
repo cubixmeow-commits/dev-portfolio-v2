@@ -17,8 +17,9 @@ versioning, and a finished deliverable.
 
 ```sh
 cd projects/sousmeow
-php scripts/seed.php          # creates the SQLite schema, seeds content,
-                              # prints a one-time admin password
+php scripts/seed.php          # creates the SQLite schema, syncs seed content
+                              # (upsert by slug; safe to re-run), prints a
+                              # one-time admin password. Use --fresh to wipe all data.
 php -S localhost:8090 -t public public/index.php
 ```
 
