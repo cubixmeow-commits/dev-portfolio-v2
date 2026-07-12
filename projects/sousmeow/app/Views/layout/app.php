@@ -20,7 +20,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="SousMeow guides you through proven AI workflows, recipe by recipe. Copy the prompt, run it in your own AI, paste the result, and ship a finished Project Kit.">
+<meta name="description" content="SousMeow turns big writing jobs into short, guided Recipes. Copy a ready-made prompt, run it in your own AI, paste the answer back, approve it, and export a finished Project Kit.">
 <link rel="icon" href="<?= e(url('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(url('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(url('/assets/css/base.css')) ?>">

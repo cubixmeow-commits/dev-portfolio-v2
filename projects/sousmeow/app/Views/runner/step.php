@@ -112,8 +112,8 @@ foreach ($recipes as $r) {
             <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
             <div>
               <h2>Approved and in the kit</h2>
-              <p>This Recipe's result is locked into your Project Kit exactly as shown below.
-                 <?= $nextRecipe !== null ? 'The next Recipe cooks with it.' : 'It was the final Recipe.' ?></p>
+              <p>This result is locked into your Project Kit exactly as it reads below.
+                 <?= $nextRecipe !== null ? 'The next Recipe cooks with it from here.' : 'It was the final Recipe; the kit is complete.' ?></p>
             </div>
           </div>
           <div class="response-wrap">
@@ -231,8 +231,8 @@ foreach ($recipes as $r) {
               </button>
               <p class="approve-note" data-approve-note>
                 <?= $allConfirmed
-                    ? 'Approving locks v' . (int) $latest['version_no'] . ' into your Project Kit' . ($nextRecipe !== null ? ' and unlocks the next Recipe.' : ' and completes the Cookbook.')
-                    : 'Confirm every check to approve. ' . ($recipe['unlocks_text'] !== '' ? e($recipe['unlocks_text']) : '') ?>
+                    ? 'Everything is confirmed. Approving locks v' . (int) $latest['version_no'] . ' into your Project Kit' . ($nextRecipe !== null ? ' and unlocks the next Recipe.' : ' and completes the Cookbook.')
+                    : 'The approve button wakes up when every check is confirmed. ' . ($recipe['unlocks_text'] !== '' ? e($recipe['unlocks_text']) : '') ?>
               </p>
             </form>
           </section>
@@ -243,8 +243,8 @@ foreach ($recipes as $r) {
         <section class="card card-pad prompt-card rise-in">
           <div class="step-flag"><span class="step-dot is-active">1</span><h2>Copy this prompt</h2></div>
           <p class="section-sub">
-            Built from your Pantry just now; the <span class="ingredient-swatch">highlighted parts</span> are your
-            ingredients, so you can see exactly what information is used. Nothing else is sent anywhere.
+            Built from your Pantry just now. The <span class="ingredient-swatch">highlighted parts</span> are your
+            ingredients, so you can see exactly what information this prompt uses; nothing else is sent anywhere.
           </p>
           <?php if ($prompt['missing'] !== []): ?>
             <div class="well prompt-missing">
@@ -268,7 +268,7 @@ foreach ($recipes as $r) {
           <div class="step-flag"><span class="step-dot is-active">2</span><h2>Run it in your own AI</h2></div>
           <p class="section-sub">
             Open the assistant you already use (Claude, ChatGPT, Gemini, anything that chats), paste the prompt,
-            and let it cook. SousMeow never calls an AI itself: your subscription, your data, your model choice.
+            and let it cook. SousMeow never calls an AI itself: your subscription, your data, your choice of model.
           </p>
         </section>
 
@@ -292,7 +292,7 @@ foreach ($recipes as $r) {
             </form>
             <p class="demo-note">
               <span class="badge badge-sample">Sample data</span>
-              A realistic response for a fictional product (Driftlog), so you can walk the whole loop right now.
+              A realistic response for Driftlog, a fictional product, so you can finish this Recipe right now.
               It stays marked as sample data everywhere it appears.
             </p>
           </div>
@@ -349,8 +349,8 @@ foreach ($recipes as $r) {
 
       <section class="card card-pad side-card loop-reminder">
         <h3>Where this is going</h3>
-        <p class="side-sub">Approve all <?= $total ?> Recipes and this Project exports as a Project Kit: a zip of tidy
-           Markdown files (one per Recipe) plus a manifest of your Pantry. Yours to publish anywhere.</p>
+        <p class="side-sub">Approve all <?= $total ?> Recipes and this Project becomes a Project Kit: a zip of clean
+           Markdown files, one per Recipe, plus a manifest of your Pantry. Publish it anywhere; it is entirely yours.</p>
       </section>
     </aside>
   </div>

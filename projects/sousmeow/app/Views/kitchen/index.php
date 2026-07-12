@@ -31,10 +31,12 @@ $projectStatus = static function (array $p): array {
   <?php if ($projects === []): ?>
     <section class="empty-state kitchen-empty rise-in">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
-      <h2>No Projects yet, and that is the fun part</h2>
-      <p>A Project is one run through a Cookbook: you stock a Pantry with facts about <em>your</em> product, cook each Recipe by
-         copying a prompt into the AI you already use, paste the result back, and approve it. Finished Projects export as a kit of ready-to-publish files.</p>
-      <p>The Launch Day Kit is free, takes about 25 minutes, and includes sample responses so you can try the whole loop without opening an AI at all.</p>
+      <h2>Nothing on the stove yet</h2>
+      <p>A Project is one run through a Cookbook. Stock the Pantry with facts about <em>your</em> product, cook each
+         Recipe by running a ready-made prompt in your own AI, and approve what comes back. Approved work exports
+         as a Project Kit: files you can actually publish.</p>
+      <p>The Launch Day Kit is free and takes about 25 minutes. No AI open right now? Sample responses carry you
+         through the whole loop.</p>
       <div class="empty-actions">
         <?php if ($featured !== null): ?>
           <form method="post" action="<?= e(url('/projects')) ?>" data-loading>

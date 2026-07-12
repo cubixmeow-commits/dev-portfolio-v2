@@ -9,8 +9,8 @@ $accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/
   <header class="marketplace-header">
     <div>
       <h1>The Cookbook shelf</h1>
-      <p class="section-sub">Each Cookbook is a guided workflow: a Pantry of inputs, a handful of Recipes, and a finished
-         kit at the end. One is open for cooking today; the rest are on the shelf so you can see where this kitchen is heading.</p>
+      <p class="section-sub">Each Cookbook is a guided workflow: a Pantry of inputs, a handful of Recipes, and a
+         finished kit at the end. One is open for cooking today; the rest show where this kitchen is headed.</p>
     </div>
   </header>
 
@@ -25,8 +25,8 @@ $accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/
     <div class="empty-state">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'searching']); ?>
       <h2>No Cookbooks match "<?= e($query) ?>"</h2>
-      <p>The shelf holds eight Cookbooks across marketing, content, research, career, branding, sales, and product.
-         Try a broader word (like "launch" or "writing"), or clear the search to browse everything.</p>
+      <p>The shelf covers marketing, content, research, career, branding, sales, and product work. Try a broader
+         word, like "launch" or "interview", or browse the whole shelf; it is only eight Cookbooks deep.</p>
       <div class="empty-actions">
         <a class="button button-primary" href="<?= e(url('/marketplace')) ?>">Show all Cookbooks</a>
       </div>
