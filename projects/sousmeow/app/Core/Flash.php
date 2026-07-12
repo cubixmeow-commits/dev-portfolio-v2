@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SousMeow\Core;
+
+/**
+ * One-shot flash messages carried across a redirect. Types used:
+ * 'success', 'notice', 'error', and 'celebrate' (success with the
+ * completion animation).
+ */
+final class Flash
+{
+    public static function set(string $type, string $message): void
+    {
+        $_SESSION['_flash'] = ['type' => $type, 'message' => $message];
+    }
+
+    /** @return array{type: string, message: string}|null */
+    public static function pull(): ?array
+    {
+        $flash = $_SESSION['_flash'] ?? null;
+        unset($_SESSION['_flash']);
+        return is_array($flash) ? $flash : null;
+    }
+}

@@ -1,0 +1,19 @@
+/* Pantry form. */
+
+.crumbs { font-size: 0.85rem; color: var(--ink-faint); margin-bottom: var(--space-4); display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.crumbs a { color: var(--ink-soft); text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+
+.pantry-header { margin-bottom: var(--space-5); }
+.pantry-lede { color: var(--ink-soft); max-width: 44rem; }
+
+.sample-note { margin-bottom: var(--space-5); display: flex; gap: var(--space-3); align-items: flex-start; flex-wrap: wrap; }
+.sample-note p { margin: 0; font-size: 0.92rem; color: var(--ink-soft); }
+.sample-note .badge { margin-top: 2px; }
+
+.pantry-form .field:last-of-type { margin-bottom: var(--space-5); }
+.field-optional { font-size: 0.78rem; font-weight: 500; color: var(--ink-faint); margin-left: var(--space-1); }
+.input-number { max-width: 11rem; }
+
+.pantry-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: var(--space-5); }
+.pantry-next-note { margin-top: var(--space-3); font-size: 0.85rem; color: var(--ink-faint); }

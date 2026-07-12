@@ -1,0 +1,51 @@
+/* Kitchen dashboard. */
+
+.kitchen-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-6);
+}
+
+.kitchen-empty { margin-top: var(--space-4); }
+
+.continue-card {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-6); flex-wrap: wrap;
+  margin-bottom: var(--space-7);
+  border-left: 4px solid var(--terracotta);
+}
+.continue-eyebrow {
+  text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem;
+  font-weight: 700; color: var(--terracotta); margin-bottom: var(--space-1);
+}
+.continue-info { flex: 1; min-width: 16rem; }
+.continue-meta { color: var(--ink-soft); font-size: 0.92rem; display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+.continue-hint { color: var(--ink-soft); font-size: 0.92rem; }
+.continue-card .progress-track { margin-top: var(--space-3); }
+
+.project-grid {
+  display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+}
+.project-card { display: flex; flex-direction: column; }
+.project-card-body { padding: var(--space-4) var(--space-4) var(--space-3); flex: 1; }
+.project-card-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+.project-updated { font-size: 0.78rem; color: var(--ink-faint); }
+.project-title-link { color: var(--ink); text-decoration: none; }
+.project-title-link:hover { color: var(--terracotta-deep); }
+.project-cookbook { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: var(--space-3); }
+.project-card .progress-label { margin-bottom: 0; }
+.project-card-actions {
+  display: flex; align-items: center; gap: var(--space-3);
+  border-top: 1px solid var(--line);
+  padding: var(--space-3) var(--space-4);
+}
+.project-delete { font-size: 0.82rem; color: var(--ink-faint); margin-left: auto; }
+.project-delete:hover { color: var(--clay); }
+
+.kitchen-start-new {
+  margin-top: var(--space-7);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-4); flex-wrap: wrap;
+}
+.kitchen-start-new h3 { margin-bottom: var(--space-1); }
+.kitchen-start-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }

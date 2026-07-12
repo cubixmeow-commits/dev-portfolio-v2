@@ -1,0 +1,72 @@
+/* Marketing homepage: the 30-second pitch. */
+
+.marketing-home { overflow-x: clip; }
+
+/* ---------- Hero ---------- */
+
+.hero { position: relative; padding: var(--space-8) var(--space-4) var(--space-7); }
+.hero-wash { position: absolute; inset: 0; overflow: hidden; }
+.hero-inner { position: relative; max-width: 46rem; margin: 0 auto; text-align: center; }
+.hero-eyebrow {
+  text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.76rem; font-weight: 700;
+  color: var(--terracotta); margin-bottom: var(--space-3);
+}
+.hero h1 { font-size: clamp(2rem, 5.4vw, 3.1rem); margin-bottom: var(--space-4); }
+.hero-lede { font-size: 1.08rem; color: var(--ink-soft); max-width: 40rem; margin: 0 auto var(--space-5); }
+.hero-actions { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
+.hero-footnote { margin-top: var(--space-4); font-size: 0.85rem; color: var(--ink-faint); max-width: 34rem; margin-left: auto; margin-right: auto; }
+
+/* ---------- Loop ---------- */
+
+.loop-section { padding: var(--space-7) var(--space-4); }
+.loop-inner { max-width: var(--content-max); margin: 0 auto; text-align: center; }
+.loop-sub { margin-bottom: var(--space-6); }
+.loop-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  text-align: left; counter-reset: none;
+}
+.loop-step { padding: var(--space-5); }
+.loop-step .step-dot { margin-bottom: var(--space-3); }
+.loop-step h3 { margin-bottom: var(--space-1); font-size: 1.05rem; }
+.loop-step p { color: var(--ink-soft); font-size: 0.9rem; margin: 0; }
+
+/* ---------- Featured cookbook ---------- */
+
+.featured-section { padding: var(--space-6) var(--space-4); }
+.featured-inner {
+  max-width: var(--content-max); margin: 0 auto;
+  display: grid; grid-template-columns: 1.6fr 1fr; gap: var(--space-6);
+  padding: var(--space-7);
+  border-left: 4px solid var(--terracotta);
+}
+.featured-tagline { font-size: 1.05rem; color: var(--ink-soft); font-weight: 500; }
+.featured-recipes { list-style: none; margin: var(--space-4) 0 var(--space-5); padding: 0; display: grid; gap: var(--space-3); }
+.featured-recipes li { display: flex; align-items: baseline; gap: var(--space-3); }
+.featured-recipes .step-dot { width: 1.6rem; height: 1.6rem; font-size: 0.75rem; flex-shrink: 0; align-self: center; }
+.featured-recipe-sub { color: var(--ink-faint); font-size: 0.88rem; }
+.featured-art { display: grid; place-items: center; }
+.featured-art .mascot { width: 150px; height: 150px; color: var(--ink); }
+
+@media (max-width: 800px) {
+  .featured-inner { grid-template-columns: 1fr; padding: var(--space-5); }
+  .featured-art { order: -1; }
+  .featured-art .mascot { width: 100px; height: 100px; }
+}
+
+/* ---------- Honesty ---------- */
+
+.honesty-section { padding: var(--space-7) var(--space-4); background: rgba(244, 234, 217, 0.55); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.honesty-inner { max-width: var(--content-max); margin: 0 auto; }
+.honesty-inner h2 { text-align: center; margin-bottom: var(--space-6); }
+.honesty-grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.honesty-item h3 { font-size: 1.02rem; color: var(--terracotta-deep); }
+.honesty-item p { color: var(--ink-soft); font-size: 0.92rem; }
+
+/* ---------- Final CTA ---------- */
+
+.final-cta { padding: var(--space-7) var(--space-4) var(--space-8); }
+.final-cta-inner { max-width: 40rem; margin: 0 auto; text-align: center; }
+.final-cta-inner .mascot { color: var(--ink); }
+.final-cta-inner .section-sub { margin-bottom: var(--space-5); }
