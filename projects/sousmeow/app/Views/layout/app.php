@@ -21,12 +21,12 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
 <meta name="description" content="SousMeow turns big writing jobs into short, guided Recipes. Copy a ready-made prompt, run it in your own AI, paste the answer back, approve it, and export a finished Project Kit.">
-<link rel="icon" href="<?= e(url('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
-<link rel="stylesheet" href="<?= e(url('/assets/css/tokens.css')) ?>">
-<link rel="stylesheet" href="<?= e(url('/assets/css/base.css')) ?>">
-<link rel="stylesheet" href="<?= e(url('/assets/css/components.css')) ?>">
+<link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/components.css')) ?>">
 <?php foreach ($pageCssList as $css): ?>
-<link rel="stylesheet" href="<?= e(url('/assets/css/pages/' . $css . '.css')) ?>">
+<link rel="stylesheet" href="<?= e(asset('/assets/css/pages/' . $css . '.css')) ?>">
 <?php endforeach; ?>
 <meta name="csrf-token" content="<?= e(Csrf::token()) ?>">
 </head>
@@ -92,9 +92,9 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
   </div>
 </footer>
 
-<script src="<?= e(url('/assets/js/app.js')) ?>" defer></script>
+<script src="<?= e(asset('/assets/js/app.js')) ?>" defer></script>
 <?php if (!empty($pageJs)): foreach ((array) $pageJs as $js): ?>
-<script src="<?= e(url('/assets/js/' . $js . '.js')) ?>" defer></script>
+<script src="<?= e(asset('/assets/js/' . $js . '.js')) ?>" defer></script>
 <?php endforeach; endif; ?>
 </body>
 </html>

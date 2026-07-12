@@ -12,7 +12,7 @@ Options -Indexes
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType font/woff2 "access plus 30 days"
-  ExpiresByType text/css "access plus 1 day"
+  ExpiresByType text/css "access plus 1 hour"
   ExpiresByType application/javascript "access plus 1 day"
   ExpiresByType image/svg+xml "access plus 7 days"
 </IfModule>
