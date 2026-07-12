@@ -18,9 +18,9 @@ use SousMeow\Core\Csrf;
       <p class="hero-eyebrow">Your sous-chef for AI work</p>
       <h1>Great AI results are a recipe,<br>not a lucky prompt.</h1>
       <p class="hero-lede">
-        SousMeow walks you through proven workflows, one Recipe at a time. You copy a carefully built prompt,
-        run it in the AI you already use, paste the answer back, and approve it against real quality checks.
-        At the end: a finished, publish-ready Project Kit.
+        SousMeow turns a big writing job into short, guided Recipes. Copy a ready-made prompt, run it in
+        ChatGPT or Claude, paste the answer back, and approve what earns its place. By the last Recipe,
+        you are holding a finished Project Kit, ready to publish.
       </p>
       <div class="hero-actions">
         <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
@@ -28,7 +28,7 @@ use SousMeow\Core\Csrf;
         </a>
         <a class="button button-ghost button-large" href="<?= e(url('/marketplace')) ?>">Browse Cookbooks</a>
       </div>
-      <p class="hero-footnote">Bring your own AI (Claude, ChatGPT, Gemini, anything). SousMeow never calls one for you, and you can tour the whole product with built-in sample responses.</p>
+      <p class="hero-footnote">Works with the AI you already use: Claude, ChatGPT, Gemini, anything that chats. SousMeow never calls one for you, and built-in sample responses let you tour the whole loop without opening an AI at all.</p>
     </div>
   </section>
 
@@ -40,32 +40,32 @@ use SousMeow\Core\Csrf;
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">1</span>
           <h3>Stock the Pantry</h3>
-          <p>Answer a short set of questions about your project, once. These facts feed every prompt.</p>
+          <p>Tell SousMeow about your project once. Every prompt is built from those facts and nothing else.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">2</span>
           <h3>Copy the prompt</h3>
-          <p>Each Recipe builds a precise prompt from your Pantry, with your ingredients highlighted.</p>
+          <p>Each Recipe hands you a precise, ready-to-run prompt with your own ingredients highlighted inside it.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">3</span>
           <h3>Cook in your AI</h3>
-          <p>Run it in the assistant you already pay for and trust. Your data goes where you put it, nowhere else.</p>
+          <p>Run it in the assistant you already pay for. Your data goes where you put it, nowhere else.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">4</span>
           <h3>Paste and review</h3>
-          <p>Paste the answer back. Walk the Recipe's Quality Checks: your judgement, recorded, never automated.</p>
+          <p>Paste the answer back and walk the Recipe's Quality Checks. Your judgement, recorded, never automated.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">5</span>
           <h3>Approve or revise</h3>
-          <p>Approve to lock it in and unlock the next Recipe, or revise: every version is kept, nothing is lost.</p>
+          <p>Approve to lock it in and unlock the next Recipe. Every version is kept, so revising costs nothing.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-done">&check;</span>
           <h3>Export the kit</h3>
-          <p>Finish every Recipe and export a Project Kit: clean Markdown files plus a manifest, ready to publish.</p>
+          <p>Finish the last Recipe and download your Project Kit: clean Markdown files plus a manifest, ready to publish.</p>
         </li>
       </ol>
     </div>
@@ -78,7 +78,9 @@ use SousMeow\Core\Csrf;
         <p class="hero-eyebrow">Free starter Cookbook</p>
         <h2 id="featured-heading"><?= e($featured['title']) ?></h2>
         <p class="featured-tagline"><?= e($featured['tagline']) ?></p>
-        <p><?= e($featured['outcome']) ?>. For <?= e(strtolower((string) $featured['audience'])) ?>, in about <?= (int) $featured['est_minutes'] ?> minutes.</p>
+        <p>By the end you have <?= e($featured['outcome']) ?>, exported as one kit and sounding like you on
+           your best day. Built for <?= e(strtolower((string) $featured['audience'])) ?>; about
+           <?= (int) $featured['est_minutes'] ?> minutes of your attention.</p>
         <ul class="featured-recipes">
           <?php foreach ($featuredRecipes as $recipe): ?>
             <li><span class="step-dot"><?= (int) $recipe['position'] ?></span> <strong><?= e($recipe['title']) ?></strong> <span class="featured-recipe-sub"><?= e($recipe['summary']) ?></span></li>
@@ -110,15 +112,15 @@ use SousMeow\Core\Csrf;
       <div class="honesty-grid">
         <div class="honesty-item">
           <h3>It never calls an AI for you</h3>
-          <p>No API keys, no markup on tokens, no surprise bills. You run prompts in the assistant you already use, and the quality of your model is yours to choose.</p>
+          <p>No API keys, no markup on tokens, no surprise bills. You run each prompt in the assistant you already use, on the model you already trust.</p>
         </div>
         <div class="honesty-item">
           <h3>It never grades your work</h3>
-          <p>Quality Checks are questions only you can answer ("does this sound like us?"). SousMeow records your judgement; it does not fake having one.</p>
+          <p>Quality Checks are questions only you can answer, like "does this sound like us?" SousMeow records your judgement; it does not fake having one.</p>
         </div>
         <div class="honesty-item">
           <h3>It never loses a version</h3>
-          <p>Raw responses are immutable. Every edit and re-paste stacks as a new version, so the exact text your AI produced is always one click away.</p>
+          <p>Pasted responses are kept exactly as pasted, forever. Edits stack on top as new versions, so the original is always one click away.</p>
         </div>
       </div>
     </div>
@@ -128,7 +130,7 @@ use SousMeow\Core\Csrf;
     <div class="final-cta-inner card card-pad">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
       <h2>Ten minutes to your first kit</h2>
-      <p class="section-sub">The Launch Day Kit is free and includes sample responses, so you can finish a whole Cookbook before deciding if the loop is for you.</p>
+      <p class="section-sub">The Launch Day Kit is free, and every Recipe includes a sample response. Finish an entire Cookbook first; decide if the loop is for you after.</p>
       <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
         <?= $auth ? 'Open my Kitchen' : 'Start cooking free' ?>
       </a>

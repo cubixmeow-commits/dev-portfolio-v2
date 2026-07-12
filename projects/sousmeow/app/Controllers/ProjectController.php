@@ -200,10 +200,10 @@ final class ProjectController
         }
 
         if ($firstSave) {
-            Flash::set('success', 'Pantry stocked. Time to cook the first Recipe.');
+            Flash::set('success', 'Pantry stocked. Recipe 1 is ready to cook.');
             redirect('/projects/' . $projectId . '/run/1');
         }
-        Flash::set('success', 'Pantry updated. New prompts will use the fresh ingredients.');
+        Flash::set('success', 'Pantry updated. New prompts will cook from the fresh ingredients.');
         redirect('/projects/' . $projectId . '/run/' . $this->nextPosition(Project::findForUser($projectId, (int) Auth::id()) ?? $project));
     }
 

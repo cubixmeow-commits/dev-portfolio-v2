@@ -4,10 +4,10 @@
     <aside class="auth-aside">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
       <h2>Back to the kitchen</h2>
-      <p>Your Projects, Pantry, and approved Artifacts are exactly where you left them. Sign in to pick up the next Recipe.</p>
+      <p>Everything is where you left it. Sign in and pick up the next Recipe.</p>
       <ul class="auth-points">
         <li>Projects resume at the exact step you stopped at</li>
-        <li>Every pasted response is versioned, nothing is lost</li>
+        <li>Every pasted response is versioned; nothing is ever lost</li>
         <li>Finished Cookbooks export as a Project Kit</li>
       </ul>
     </aside>

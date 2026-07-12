@@ -106,7 +106,7 @@ final class RunnerController
 
         Artifact::addVersion((int) $project['id'], (int) $recipe['id'], $content, 'pasted');
         Project::touch((int) $project['id']);
-        Flash::set('success', 'Response saved. Nothing ships until you review it, so walk the Quality Checks below.');
+        Flash::set('success', 'Response saved. Nothing enters your kit unreviewed, so walk the Quality Checks below.');
         redirect('/projects/' . $project['id'] . '/run/' . $position);
     }
 
@@ -121,7 +121,7 @@ final class RunnerController
         }
         Artifact::addVersion((int) $project['id'], (int) $recipe['id'], $example, 'example');
         Project::touch((int) $project['id']);
-        Flash::set('success', 'Example response pasted (marked as sample data). Review it like a real one.');
+        Flash::set('success', 'Example response pasted and marked as sample data. Review it exactly like a real one.');
         redirect('/projects/' . $project['id'] . '/run/' . $position);
     }
 
@@ -188,7 +188,7 @@ final class RunnerController
         Project::touch($projectId);
 
         if (Project::markCompleteIfDone($projectId)) {
-            Flash::set('celebrate', 'Cookbook complete! Every Recipe is approved. Your Project Kit is ready to export.');
+            Flash::set('celebrate', 'Cookbook complete! Every Recipe approved, nothing left to cook. Pack your Project Kit below.');
             redirect('/projects/' . $projectId . '/export');
         }
 
@@ -201,7 +201,7 @@ final class RunnerController
             }
         }
         if ($hasNext) {
-            Flash::set('celebrate', $recipe['title'] . ' approved and locked into your kit. Next Recipe unlocked.');
+            Flash::set('celebrate', $recipe['title'] . ' is approved and locked into your kit. The next Recipe is ready when you are.');
             redirect('/projects/' . $projectId . '/run/' . $next);
         }
         redirect('/projects/' . $projectId . '/export');

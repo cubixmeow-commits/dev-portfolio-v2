@@ -56,7 +56,7 @@ $landingExample = <<<'MD'
 Timers fail the moment you forget them. Driftlog captures your working time passively from your design tools, browser, and files, so a deep-focus afternoon never disappears from the record.
 
 ### 2. Review a day in under a minute
-Open the day review, and your raw activity is already grouped into draft entries. Tap to approve, drag to adjust, done. The log stays accurate because keeping it accurate costs almost nothing.
+Open the day review and your raw activity is already grouped into draft entries. Tap to approve, drag to adjust, done. Keeping the log honest costs about a minute a day, which is exactly why it stays honest.
 
 ### 3. Summaries your clients actually read
 Send a weekly summary as a clean link: hours by project, what moved, what is next. It looks professional because it is generated from real activity, not memory.
@@ -119,10 +119,10 @@ No. Driftlog is built for you, not your boss. Activity is captured locally, stay
 Which applications and documents you were actively working in, and for how long. It does not record your screen, your keystrokes, or the content of your files.
 
 **What does it cost?**
-9 dollars a month. You can run a full week free first, so your decision is based on your own real data rather than a demo.
+9 dollars a month, cancel whenever. You run a full week free first, so the decision is made on your own real data, not a demo.
 
 **Does it work offline?**
-Yes. Capture and day review work fully offline; summaries sync when you are back online. Cafe wifi is not a data-loss event.
+Yes. Capture and day review work fully offline; summaries sync when you are back online. A dropped cafe connection costs you nothing.
 
 **I already use a timer app. Why switch?**
 If your timer log is complete and accurate, do not switch. Driftlog exists for people whose timers are full of forgotten starts and 9-hour "lunch" entries.
@@ -143,11 +143,11 @@ return [
     'executable' => [
         'slug'        => 'launch-day-kit',
         'title'       => 'Launch Day Kit',
-        'tagline'     => 'Turn your product notes into a complete, honest launch kit.',
-        'description' => "Launching is mostly writing: positioning, a landing page, announcement posts, and answers to the questions people will actually ask. This Cookbook walks you through all four, one Recipe at a time. You stock the Pantry once with the facts about your product; every Recipe builds its prompt from those facts, so nothing gets invented and everything sounds like you. At the end you export a Project Kit with every approved piece, ready to publish.",
+        'tagline'     => 'Turn plain product notes into everything you publish on launch day.',
+        'description' => "Launch day is a writing day: the positioning that explains you, the landing page that sells you, the announcements that bring people in, and honest answers for the questions that follow. This Cookbook walks you through all four, one Recipe at a time. Stock the Pantry once with the plain facts about your product; every prompt cooks from those facts and is told to invent nothing. What you approve is what you ship: a kit of ready-to-publish files that sound like you on your best day.",
         'category'    => 'Marketing',
         'audience'    => 'Indie makers and small teams shipping a v1',
-        'outcome'     => 'Positioning, landing page copy, channel announcements, and a FAQ, exported as one kit',
+        'outcome'     => 'positioning, landing page copy, announcements for your channels, and an honest FAQ',
         'price_cents' => null,
         'accent'      => 'terracotta',
         'est_minutes' => 25,
@@ -157,7 +157,7 @@ return [
                 'field_key'    => 'product_name',
                 'label'        => 'Product name',
                 'type'         => 'text',
-                'help'         => 'Used everywhere your product is named. Exact spelling and capitalization.',
+                'help'         => 'Spelled and capitalized exactly as it should appear everywhere.',
                 'placeholder'  => 'e.g. Driftlog',
                 'sample_value' => 'Driftlog',
             ],
@@ -165,7 +165,7 @@ return [
                 'field_key'    => 'one_liner',
                 'label'        => 'One-line description',
                 'type'         => 'text',
-                'help'         => 'One sentence: what it is and who it serves. Recipes sharpen it; they never replace it.',
+                'help'         => 'One sentence: what it is and who it serves. The Recipes sharpen this; they never replace it.',
                 'placeholder'  => 'e.g. Effortless time logging for freelance designers',
                 'sample_value' => 'Effortless time logging for freelance designers',
             ],
@@ -173,7 +173,7 @@ return [
                 'field_key'    => 'audience',
                 'label'        => 'Who is it for?',
                 'type'         => 'textarea',
-                'help'         => 'Describe the person, their situation, and the pain they feel today. Two or three sentences beat a demographic list.',
+                'help'         => 'Describe the person and the pain they feel today. Two honest sentences beat a demographic list.',
                 'placeholder'  => 'Who are they? What do they struggle with right now?',
                 'sample_value' => "Freelance designers and small studios who bill by the hour but hate timers. They juggle several clients a week, forget to track as they go, and reconstruct their week from memory every Friday.",
             ],
@@ -181,7 +181,7 @@ return [
                 'field_key'    => 'key_features',
                 'label'        => 'Key features',
                 'type'         => 'textarea',
-                'help'         => 'One feature per line. Recipes quote from this list and are instructed never to invent capabilities.',
+                'help'         => 'One feature per line. Every Recipe quotes this list and is told to invent nothing beyond it.',
                 'placeholder'  => "One feature per line",
                 'sample_value' => "Passive time capture from the apps you already use\nOne-tap day review that turns activity into clean entries\nClient-ready weekly summaries you can send as a link\nWorks offline, syncs when you are back",
             ],
@@ -197,7 +197,7 @@ return [
                 'field_key'    => 'channels',
                 'label'        => 'Launch channels',
                 'type'         => 'multiselect',
-                'help'         => 'Pick where you will announce. The announcements Recipe writes one post per channel, shaped for that channel.',
+                'help'         => 'Pick where you will announce. The announcements Recipe writes one native post per channel you choose.',
                 'options'      => ['Product Hunt', 'X (Twitter)', 'LinkedIn', 'Email newsletter', 'Indie Hackers'],
                 'sample_value' => 'Product Hunt, X (Twitter), Email newsletter',
             ],
@@ -205,7 +205,7 @@ return [
                 'field_key'    => 'price_usd',
                 'label'        => 'Monthly price (USD)',
                 'type'         => 'number',
-                'help'         => 'Stated plainly in the FAQ and objection handling. Enter 0 if it is free.',
+                'help'         => 'Stated plainly in the FAQ, exactly as entered here. Enter 0 if it is free.',
                 'placeholder'  => '9',
                 'sample_value' => '9',
             ],
@@ -213,7 +213,7 @@ return [
                 'field_key'    => 'website_url',
                 'label'        => 'Website URL',
                 'type'         => 'url',
-                'help'         => 'Where every announcement should point. Include https://.',
+                'help'         => 'Every announcement points here. Include the https://.',
                 'placeholder'  => 'https://',
                 'sample_value' => 'https://driftlog.example',
             ],
@@ -223,8 +223,8 @@ return [
                 'slug'    => 'position-the-dish',
                 'title'   => 'Position the Dish',
                 'summary' => 'Nail what your product is, who it serves, and why it wins.',
-                'why_it_matters' => 'Every later Recipe quotes this positioning. Ten minutes here saves an hour of inconsistent copy later, and it is the piece most products skip.',
-                'unlocks_text'   => 'Approving this unlocks the Landing Page Recipe, which reuses this positioning word for word.',
+                'why_it_matters' => 'Every later Recipe quotes this positioning word for word. Ten focused minutes here is why the whole kit will sound like one person wrote it; skipping this step is why most launch copy sounds like four.',
+                'unlocks_text'   => 'Approve it and the Landing Page Recipe starts cooking with it immediately.',
                 'est_minutes'    => 6,
                 'prompt_template' => <<<'TXT'
 You are a positioning-focused product marketer. Write positioning for a product using only the facts below. Do not invent features, statistics, customers, or claims.
@@ -266,7 +266,7 @@ TXT,
                 'slug'    => 'plate-the-landing-page',
                 'title'   => 'Plate the Landing Page',
                 'summary' => 'Write the hero, feature blocks, and call to action for your landing page.',
-                'why_it_matters' => 'Your landing page is where every announcement sends people. This Recipe turns the approved positioning into copy with one job: make the next click obvious.',
+                'why_it_matters' => 'Every announcement you post will send people to this one page, and it has one job: make the next click obvious. This Recipe turns your approved positioning into a page that does that job.',
                 'unlocks_text'   => 'Approving this unlocks the Announcements Recipe, which links people to this page.',
                 'est_minutes'    => 6,
                 'prompt_template' => <<<'TXT'
@@ -308,7 +308,7 @@ TXT,
                 'slug'    => 'serve-the-announcements',
                 'title'   => 'Serve the Announcements',
                 'summary' => 'Write a launch post shaped for each channel you picked.',
-                'why_it_matters' => 'A launch that is one paragraph pasted into five places reads as spam five times. Each channel has its own etiquette; this Recipe writes for each one you chose.',
+                'why_it_matters' => 'One paragraph pasted into five channels reads as spam five times. Each channel has its own etiquette, and this Recipe writes a native post for every one you picked.',
                 'unlocks_text'   => 'Approving this unlocks the final Recipe: the FAQ your announcements will generate questions for.',
                 'est_minutes'    => 7,
                 'prompt_template' => <<<'TXT'
@@ -343,8 +343,8 @@ TXT,
                 'slug'    => 'answer-the-table',
                 'title'   => 'Answer the Table',
                 'summary' => 'Prepare honest answers for the questions and objections launch day brings.',
-                'why_it_matters' => 'Launch day comments decide how your product is perceived. Answering fast and honestly beats answering perfectly; this Recipe prepares both the questions and the honest answers in advance.',
-                'unlocks_text'   => 'Approving this completes the Cookbook and unlocks your Project Kit export.',
+                'why_it_matters' => 'Launch day is mostly answering comments, and answering fast beats answering perfectly. This Recipe prepares the hard questions and your honest answers in advance, so tomorrow you paste instead of scramble.',
+                'unlocks_text'   => 'Approving this completes the Cookbook and opens your Project Kit export.',
                 'est_minutes'    => 6,
                 'prompt_template' => <<<'TXT'
 You are preparing a founder for launch day questions. Using only the facts below, write a FAQ and objection-handling section. Honesty is the strategy: when the product has a real limit, state it and say who the product is not for.
@@ -383,8 +383,8 @@ TXT,
         [
             'slug'        => 'cold-outreach-kit',
             'title'       => 'Cold Outreach Kit',
-            'tagline'     => 'Outreach that gets replies because it respects the reader.',
-            'description' => 'A five-Recipe path from "who exactly am I writing to" through a first email that earns a reply, a follow-up ladder that is persistent without being creepy, and honest replies to the brush-offs you will get.',
+            'tagline'     => 'Outreach that earns replies because it respects the reader.',
+            'description' => 'Cold email fails when it reads like it was sent to a hundred people, because it was. This Cookbook starts with one specific reader and works outward: a ninety-word first email that earns a reply, a follow-up ladder that adds value instead of just bumping, and graceful answers to "not now", "too expensive", and silence.',
             'category'    => 'Sales',
             'audience'    => 'Freelancers and founders doing their own outbound',
             'outcome'     => 'A prospect profile, first email, follow-up sequence, and objection replies',
@@ -404,7 +404,7 @@ TXT,
             'slug'        => 'case-study-kitchen',
             'title'       => 'Case Study Kitchen',
             'tagline'     => 'Turn one happy customer into your best sales page.',
-            'description' => 'From interview questions that get real quotes, through a story skeleton, a full write-up, and a one-page version for people who will never read the long one.',
+            'description' => 'You already have the proof; it is sitting in a happy customer\'s head. This Cookbook gets it out: interview questions that surface numbers and quotable moments, a story skeleton, the full write-up told in the customer\'s own words, and a one-pager for the decision-maker who will never read the long version.',
             'category'    => 'Marketing',
             'audience'    => 'Consultants and product teams with at least one happy customer',
             'outcome'     => 'Interview kit, full case study, pull quotes, and a one-pager',
@@ -423,8 +423,8 @@ TXT,
         [
             'slug'        => 'blog-batch-prep',
             'title'       => 'Blog Batch Prep',
-            'tagline'     => 'Plan and draft a month of posts in one honest sitting.',
-            'description' => 'Batch the thinking, then batch the drafting. A topic pantry built from questions your audience already asks, outlines for four posts, focused draft sprints, and an edit pass that respects your voice.',
+            'tagline'     => 'A month of posts, drafted in one honest sitting.',
+            'description' => 'The blog you keep meaning to write dies in the gap between "I should post" and "about what?" This Cookbook closes the gap: build a topic backlog from questions your readers already ask, outline four posts in one pass, draft them fast and ugly, then edit in three deliberate passes. You leave with a month of publishable posts and a backlog for the month after.',
             'category'    => 'Content',
             'audience'    => 'Solo builders who keep meaning to blog',
             'outcome'     => 'Four outlined and drafted posts plus a reusable topic backlog',
@@ -461,8 +461,8 @@ TXT,
         [
             'slug'        => 'job-hunt-mise-en-place',
             'title'       => 'Job Hunt Mise en Place',
-            'tagline'     => 'Everything prepped before the applications start.',
-            'description' => 'Get your ingredients ready first: a full experience inventory, a resume tailored to one real posting, a cover letter base you can adapt in minutes, and an interview story bank in the shape interviewers actually ask for.',
+            'tagline'     => 'Prep everything once. Then apply fast, everywhere.',
+            'description' => 'Most job hunts stall because every application starts from zero. This Cookbook does the prep once, properly: inventory every project, number, and save-the-day story you have; tailor a resume to one real posting; build a cover letter base that adapts in five minutes; and shape eight interview stories the way interviewers actually ask for them. After that, applying is assembly, not writing.',
             'category'    => 'Career',
             'audience'    => 'Developers and designers preparing a focused search',
             'outcome'     => 'Experience inventory, tailored resume, letter base, and story bank',
@@ -500,7 +500,7 @@ TXT,
             'slug'        => 'ux-microcopy-pantry',
             'title'       => 'UX Microcopy Pantry',
             'tagline'     => 'The small words that make software feel cared for.',
-            'description' => 'Calibrate your product voice once, then batch-write the copy nobody plans for: error messages that help instead of blame, empty states that teach, and onboarding nudges that respect attention.',
+            'description' => 'Nobody budgets time for error messages, which is why most of them blame the user. This Cookbook batches the copy nobody plans for: calibrate your product voice once, then write errors that say what to do next, empty states that teach the feature, and onboarding nudges that respect attention.',
             'category'    => 'Product',
             'audience'    => 'Developers shipping products without a writer on the team',
             'outcome'     => 'A voice guide plus batches of errors, empty states, and nudges',

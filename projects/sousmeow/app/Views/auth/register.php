@@ -4,13 +4,13 @@
     <aside class="auth-aside">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
       <h2>Ten minutes to your first kit</h2>
-      <p>An account gives you a Kitchen: a home for your Projects, your Pantry, and everything you approve along the way.</p>
+      <p>An account gives you a Kitchen: home for your Projects, your Pantry, and everything you approve along the way.</p>
       <ol class="auth-steps">
-        <li><strong>Stock the Pantry</strong> with facts about your product</li>
-        <li><strong>Cook each Recipe</strong>: copy a prompt, run it in your own AI, paste the result</li>
-        <li><strong>Export the kit</strong> once every step is approved</li>
+        <li><strong>Stock the Pantry</strong> with the facts about your product</li>
+        <li><strong>Cook each Recipe</strong>: copy the prompt, run it in your own AI, paste the answer back</li>
+        <li><strong>Export the kit</strong> once everything is approved</li>
       </ol>
-      <p class="auth-aside-note">No AI subscription is sold here and none is required to try it: every Recipe includes a sample response you can paste with one click.</p>
+      <p class="auth-aside-note">Nothing here sells or calls an AI. Every Recipe includes a sample response, so you can try the whole loop before opening one.</p>
     </aside>
     <div class="auth-form-col">
       <h1>Create your account</h1>

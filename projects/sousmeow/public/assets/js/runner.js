@@ -26,7 +26,7 @@
     if (approveButton) {
       approveButton.disabled = !canApprove;
       if (canApprove && approveNote) {
-        approveNote.textContent = "All checks confirmed. Approving locks this version into your Project Kit.";
+        approveNote.textContent = "Everything is confirmed. Approving locks this version into your Project Kit.";
       }
     }
   }

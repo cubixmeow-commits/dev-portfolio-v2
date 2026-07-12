@@ -92,8 +92,8 @@ $total = count($recipes);
         <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
         <h3>No exports yet</h3>
         <p><?= $ready
-            ? 'Pack your first kit above; it takes a second. Each export is timestamped, so you can revise a Recipe later and pack a fresh kit without losing this one.'
-            : 'Exports appear here once you have approved every Recipe and packed your first kit. Approving as you go means this moment is closer than it looks.' ?></p>
+            ? 'Pack your first kit above; it takes about a second. Every export is timestamped, so you can revise a Recipe next week and pack a fresh kit without losing this one.'
+            : 'Your first packed kit will land here. Approve the remaining Recipes above and this shelf starts filling.' ?></p>
       </div>
     <?php else: ?>
       <ul class="export-list">

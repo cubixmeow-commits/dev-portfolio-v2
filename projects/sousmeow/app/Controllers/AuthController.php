@@ -142,7 +142,7 @@ final class AuthController
         if ($user !== null) {
             Auth::login($user);
         }
-        Flash::set('success', 'Your kitchen is ready. Start your first Cookbook whenever you like.');
+        Flash::set('success', 'Your Kitchen is open. Start your first Cookbook whenever you are ready.');
         redirect('/kitchen');
     }
 

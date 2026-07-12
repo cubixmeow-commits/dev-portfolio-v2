@@ -21,9 +21,9 @@ $stocked = $project['pantry_saved_at'] !== null;
   <header class="pantry-header rise-in">
     <h1><?= $stocked ? 'Your Pantry' : 'Stock your Pantry' ?></h1>
     <p class="pantry-lede">
-      The Pantry is the single source of truth for this Project. Every Recipe builds its prompt from these
-      ingredients, quotes them exactly, and is instructed to invent nothing beyond them.
-      <?= $stocked ? 'Editing an ingredient changes future prompts; responses you already approved stay as they are.' : 'Fill it once; cook from it in every Recipe.' ?>
+      The Pantry is this Project's single source of truth. Every Recipe builds its prompt from these
+      ingredients, quotes them exactly, and is told to invent nothing beyond them.
+      <?= $stocked ? 'Editing an ingredient changes future prompts; work you already approved stays as it is.' : 'Fill it once and every Recipe cooks from it.' ?>
     </p>
   </header>
 
