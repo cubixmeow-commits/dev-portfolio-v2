@@ -7,7 +7,7 @@
 
 /* Accent hues per cookbook. */
 .accent-terracotta { --accent: var(--terracotta); --accent-wash: var(--terracotta-wash); }
-.accent-teal { --accent: var(--teal); --accent-wash: #DFEeea; }
+.accent-teal { --accent: var(--teal); --accent-wash: #DFEEEA; }
 .accent-amber { --accent: var(--amber); --accent-wash: var(--amber-wash); }
 .accent-sage { --accent: var(--sage); --accent-wash: var(--sage-wash); }
 .accent-lilac { --accent: var(--lilac); --accent-wash: var(--lilac-wash); }

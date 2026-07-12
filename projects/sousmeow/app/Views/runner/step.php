@@ -253,11 +253,14 @@ foreach ($recipes as $r) {
             </div>
           <?php endif; ?>
           <div class="prompt-block">
+            <div class="prompt-toolbar">
+              <span class="prompt-toolbar-label">prompt · <?= e($recipe['slug']) ?></span>
+              <button type="button" class="button button-small copy-button" data-copy-target="#prompt-text">
+                <span class="copy-label">Copy prompt</span>
+                <span class="copied-label">Copied &check;</span>
+              </button>
+            </div>
             <pre id="prompt-text" tabindex="0"><?= $prompt['html'] ?></pre>
-            <button type="button" class="button button-ghost button-small copy-button" data-copy-target="#prompt-text">
-              <span class="copy-label">Copy prompt</span>
-              <span class="copied-label">Copied &check;</span>
-            </button>
           </div>
         </section>
 

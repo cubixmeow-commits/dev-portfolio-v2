@@ -141,7 +141,6 @@
   .runner-page { padding-left: var(--space-3); padding-right: var(--space-3); }
   .response-wrap, .card-pad { padding: var(--space-4); }
   .prompt-block pre { padding: var(--space-4); font-size: 0.8rem; max-height: 20rem; }
-  .copy-button { position: static; margin: 0 var(--space-3) var(--space-3); display: inline-flex; }
   .approve-form .button { width: 100%; }
   .paste-card .button-large { width: 100%; }
   .rail-title { display: none; }

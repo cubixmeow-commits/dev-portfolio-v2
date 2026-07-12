@@ -65,6 +65,8 @@ final class RunnerController
                     $decoded = json_decode($raw, true);
                     $raw = is_array($decoded) ? implode(', ', $decoded) : $raw;
                 }
+                // Multi-line values read as one summary line in the panel.
+                $raw = implode(' · ', array_filter(array_map('trim', explode("\n", $raw))));
                 $ingredients[] = ['label' => $field['label'], 'value' => $raw];
             }
         }

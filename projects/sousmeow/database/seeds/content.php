@@ -91,7 +91,7 @@ It is 9 dollars a month, works offline, and your data stays on your device until
 
 **Post 3:** At the end of the week you get a client-ready summary you can send as a link. Hours by project, what moved, what is next. No spreadsheet cleanup.
 
-**Post 4:** It is live today at https://driftlog.app, 9 dollars a month, works offline. If you have ever reconstructed a Tuesday from file timestamps, this one is for you.
+**Post 4:** It is live today at https://driftlog.example, 9 dollars a month, works offline. If you have ever reconstructed a Tuesday from file timestamps, this one is for you.
 
 ## Email newsletter announcement
 
@@ -106,7 +106,7 @@ For everyone else, today I am launching Driftlog. It logs your working time pass
 
 No timers to forget. Works offline. 9 dollars a month, with a free start so you can see a real week of your own data before paying anything.
 
-Have a look at https://driftlog.app, and reply to this email if you have questions. I read everything.
+Have a look at https://driftlog.example, and reply to this email if you have questions. I read everything.
 MD;
 
 $faqExample = <<<'MD'
@@ -215,7 +215,7 @@ return [
                 'type'         => 'url',
                 'help'         => 'Where every announcement should point. Include https://.',
                 'placeholder'  => 'https://',
-                'sample_value' => 'https://driftlog.app',
+                'sample_value' => 'https://driftlog.example',
             ],
         ],
         'recipes' => [

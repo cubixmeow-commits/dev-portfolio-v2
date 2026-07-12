@@ -182,7 +182,20 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 }
 .prompt-block .prompt-ingredient { color: #F2C27E; font-weight: 500; }
 
-.copy-button { position: absolute; top: var(--space-3); right: var(--space-3); }
+.prompt-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
+  border-bottom: 1px solid rgba(247, 239, 226, 0.16);
+}
+.prompt-toolbar-label {
+  font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.04em;
+  color: rgba(247, 239, 226, 0.65);
+}
+.copy-button {
+  background: rgba(247, 239, 226, 0.1); color: var(--ink-on-dark);
+  border-color: rgba(247, 239, 226, 0.35);
+}
+.copy-button:hover { background: rgba(247, 239, 226, 0.2); color: #fff; border-color: rgba(247, 239, 226, 0.6); }
 .copy-button .copied-label { display: none; }
 .copy-button.is-copied { background: var(--sage); color: #fff; border-color: var(--sage); }
 .copy-button.is-copied .copy-label { display: none; }
