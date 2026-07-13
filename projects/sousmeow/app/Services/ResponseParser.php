@@ -62,8 +62,10 @@ final class ResponseParser
 
         // Collect candidate headings (levels 1-3) outside fenced code.
         // Deeper headings (####+) are sub-structure inside a section and
-        // never split the document.
+        // never split the document. Bare lines that exactly match a
+        // declared heading or alias are held back as a fallback (below).
         $headings = [];
+        $bareCandidates = [];
         $fence = null;
         foreach ($lines as $i => $line) {
             if (preg_match('/^\s{0,3}(`{3,}|~{3,})/', $line, $m) === 1) {
@@ -84,7 +86,38 @@ final class ResponseParser
                     'text'  => $m[2],
                     'key'   => $lookup[OutputContract::normalizeHeading($m[2])] ?? null,
                 ];
+                continue;
             }
+            // A non-blank line whose whole text is exactly a declared
+            // heading or alias (case, emphasis, and trailing punctuation
+            // ignored). Some assistants — Gemini, pasted plain text —
+            // drop the leading ## markers entirely.
+            $trimmed = trim($line);
+            if ($trimmed !== '' && isset($lookup[OutputContract::normalizeHeading($trimmed)])) {
+                $bareCandidates[] = [
+                    'line'  => $i,
+                    'level' => 2,
+                    'text'  => $trimmed,
+                    'key'   => $lookup[OutputContract::normalizeHeading($trimmed)],
+                ];
+            }
+        }
+
+        // Fallback for responses with no ATX heading markers at all: only
+        // when no declared section was found via real headings do the
+        // exact-match bare lines count as headings. This keeps well-formed
+        // ## responses untouched — a body line that merely quotes a
+        // heading phrase never creates a spurious section there.
+        $recognizedViaAtx = false;
+        foreach ($headings as $heading) {
+            if ($heading['key'] !== null) {
+                $recognizedViaAtx = true;
+                break;
+            }
+        }
+        if (!$recognizedViaAtx && $bareCandidates !== []) {
+            $headings = array_merge($headings, $bareCandidates);
+            usort($headings, static fn(array $a, array $b): int => $a['line'] <=> $b['line']);
         }
 
         // A recognized section spans from its heading to the next heading

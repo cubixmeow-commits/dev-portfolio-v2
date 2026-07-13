@@ -118,6 +118,23 @@ $r = ResponseParser::parse("## Target Audience\nBefore.\n```\n## Core Promise\nn
 check('genuine embedded code block still ignored after fix',
     isset($r['sections']['alpha']) && in_array('beta', $r['missing'], true));
 
+// Bare-line headings (no ## markers) recognized as a fallback. Some
+// assistants (Gemini, pasted plain text) drop the leading markers.
+$r = ResponseParser::parse("Target Audience\nPeople who ship.\nCore Promise\nA clear promise.", $contract);
+check('bare-line headings recognized when no ATX markers exist',
+    isset($r['sections']['alpha'], $r['sections']['beta']));
+check('bare-line section content extracted',
+    ($r['sections']['alpha'][0]['content'] ?? '') === 'People who ship.');
+$r = ResponseParser::parse("**Target Audience**\nPeople.\n**Core Promise**\nYes.", $contract);
+check('bold-only-line headings recognized', isset($r['sections']['alpha'], $r['sections']['beta']));
+$r = ResponseParser::parse("**Target Audience:** people who ship for a living.", $contract);
+check('inline bold with trailing body is not a heading', !isset($r['sections']['alpha']));
+// The fallback must never fire when a real ## heading already matched,
+// so a body line quoting a heading phrase cannot spawn a phantom section.
+$r = ResponseParser::parse("## Target Audience\nWe serve the Core Promise crowd.\nCore Promise\nstill body.\n## Core Promise\nB.", $contract);
+check('bare fallback suppressed once an ATX section is found',
+    count($r['sections']['beta'] ?? []) === 1 && !in_array('beta', $r['duplicates'], true));
+
 // Content before the first recognized heading.
 $r = ResponseParser::parse("Sure! Here's what you asked for.\n\n## Target Audience\nA.", $contract);
 check('preamble captured', $r['preamble'] === "Sure! Here's what you asked for.");
