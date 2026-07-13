@@ -218,10 +218,10 @@ return [
         [
             'stage_position'   => 1,
             'slug'             => 'position-the-dish',
-            'title'            => 'Position the Dish',
-            'summary'          => 'Nail what your product is, who it serves, and why it wins.',
-            'why_it_matters'   => 'Every later Recipe quotes this positioning word for word. Ten focused minutes here is why the whole kit will sound like one person wrote it; skipping this step is why most launch copy sounds like four.',
-            'unlocks_text'     => 'Approve it and the Landing Page Recipe starts cooking with it immediately.',
+            'title'            => 'Define your positioning',
+            'summary'          => 'Clarify what your product is, who it is for, and why it matters.',
+            'why_it_matters'   => 'Every later step quotes this positioning word for word. Ten focused minutes here is why the whole project will sound like one person wrote it.',
+            'unlocks_text'     => 'Approving unlocks the landing page step, which builds on this positioning.',
             'est_minutes'      => 6,
             'prompt_template'  => <<<'TXT'
 You are a positioning-focused product marketer. Write positioning for a product using only the facts below. Do not invent features, statistics, customers, or claims.
@@ -262,10 +262,10 @@ TXT,
         [
             'stage_position'   => 2,
             'slug'             => 'plate-the-landing-page',
-            'title'            => 'Plate the Landing Page',
-            'summary'          => 'Write the hero, feature blocks, and call to action for your landing page.',
-            'why_it_matters'   => 'Every announcement you post will send people to this one page, and it has one job: make the next click obvious. This Recipe turns your approved positioning into a page that does that job.',
-            'unlocks_text'     => 'Approving this unlocks the Announcements Recipe, which links people to this page.',
+            'title'            => 'Write landing page copy',
+            'summary'          => 'Turn your positioning into a headline, feature blocks, and call to action.',
+            'why_it_matters'   => 'Every announcement will send people to this page. This step turns your approved positioning into copy that makes the next click obvious.',
+            'unlocks_text'     => 'Approving unlocks the launch posts step.',
             'est_minutes'      => 6,
             'prompt_template'  => <<<'TXT'
 You are a conversion copywriter who writes plainly. Using the approved positioning below and only the listed features, write landing page copy.
@@ -305,10 +305,10 @@ TXT,
         [
             'stage_position'   => 3,
             'slug'             => 'serve-the-announcements',
-            'title'            => 'Serve the Announcements',
-            'summary'          => 'Write a launch post shaped for each channel you picked.',
-            'why_it_matters'   => 'One paragraph pasted into five channels reads as spam five times. Each channel has its own etiquette, and this Recipe writes a native post for every one you picked.',
-            'unlocks_text'     => 'Approving this unlocks the final Recipe: the FAQ your announcements will generate questions for.',
+            'title'            => 'Write launch posts',
+            'summary'          => 'Draft a post shaped for each launch channel you chose.',
+            'why_it_matters'   => 'One paragraph pasted into five channels reads as spam five times. This step writes a native post for every channel you picked.',
+            'unlocks_text'     => 'Approving unlocks the final step: your FAQ.',
             'est_minutes'      => 7,
             'prompt_template'  => <<<'TXT'
 You are launching a product and writing announcements that respect each channel's culture. Use only the facts in the positioning below; invent nothing.
@@ -341,10 +341,10 @@ TXT,
         [
             'stage_position'   => 4,
             'slug'             => 'answer-the-table',
-            'title'            => 'Answer the Table',
-            'summary'          => 'Prepare honest answers for the questions and objections launch day brings.',
-            'why_it_matters'   => 'Launch day is mostly answering comments, and answering fast beats answering perfectly. This Recipe prepares the hard questions and your honest answers in advance, so tomorrow you paste instead of scramble.',
-            'unlocks_text'     => 'Approving this completes the Cookbook and opens your Project Kit export.',
+            'title'            => 'Prepare your FAQ',
+            'summary'          => 'Answer the questions and objections people will raise on launch day.',
+            'why_it_matters'   => 'Launch day is mostly answering comments. This step prepares the hard questions and your honest answers in advance.',
+            'unlocks_text'     => 'Approving this completes the workflow and opens export.',
             'est_minutes'      => 6,
             'prompt_template'  => <<<'TXT'
 You are preparing a founder for launch day questions. Using only the facts below, write a FAQ and objection-handling section. Honesty is the strategy: when the product has a real limit, state it and say who the product is not for.
