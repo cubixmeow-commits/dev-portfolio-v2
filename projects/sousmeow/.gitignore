@@ -1,8 +1,10 @@
 # Local configuration carries credentials; only the example is tracked.
 config/config.php
+.env
 
 # Runtime state: SQLite database and generated Project Kit zips.
 storage/*.sqlite
 storage/*.sqlite-shm
 storage/*.sqlite-wal
 storage/exports/*.zip
+storage/mail/

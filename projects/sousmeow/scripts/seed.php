@@ -117,26 +117,58 @@ function column_definition(string $driver, string $column): string
 {
     if ($driver === 'mysql') {
         return match ($column) {
-            'difficulty'          => "VARCHAR(20) NOT NULL DEFAULT 'Intermediate'",
-            'demo_completed_runs' => 'INT UNSIGNED NOT NULL DEFAULT 0',
-            'demo_avg_rating'     => 'DECIMAL(2,1) NULL',
-            'stage_position'      => 'INT UNSIGNED NULL',
-            'simulation'          => 'TINYINT(1) NOT NULL DEFAULT 0',
-            'output_contract'     => 'MEDIUMTEXT NULL',
-            'evidence_keys'       => 'TEXT NULL',
-            default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
+            'difficulty'               => "VARCHAR(20) NOT NULL DEFAULT 'Intermediate'",
+            'demo_completed_runs'        => 'INT UNSIGNED NOT NULL DEFAULT 0',
+            'demo_avg_rating'          => 'DECIMAL(2,1) NULL',
+            'stage_position'           => 'INT UNSIGNED NULL',
+            'simulation'               => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'output_contract'          => 'MEDIUMTEXT NULL',
+            'evidence_keys'            => 'TEXT NULL',
+            'email_verified_at'        => 'DATETIME NULL',
+            'verification_token_hash'  => 'VARCHAR(64) NULL',
+            'verification_expires_at'  => 'DATETIME NULL',
+            'verification_sent_at'     => 'DATETIME NULL',
+            'pending_email'            => 'VARCHAR(190) NULL',
+            'pending_email_token_hash' => 'VARCHAR(64) NULL',
+            'pending_email_expires_at' => 'DATETIME NULL',
+            'password_changed_at'      => 'DATETIME NULL',
+            'onboarding_completed_at'  => 'DATETIME NULL',
+            'bio'                      => 'VARCHAR(280) NULL',
+            'website'                  => 'VARCHAR(255) NULL',
+            'avatar_url'               => 'VARCHAR(255) NULL',
+            'preferred_ai'             => 'VARCHAR(30) NULL',
+            'ai_experience_level'      => 'VARCHAR(20) NULL',
+            'timezone'                 => 'VARCHAR(64) NULL',
+            'theme_preference'         => "VARCHAR(10) NULL DEFAULT 'system'",
+            default                    => throw new \InvalidArgumentException("Unknown column: {$column}"),
         };
     }
 
     return match ($column) {
-        'difficulty'          => "TEXT NOT NULL DEFAULT 'Intermediate'",
-        'demo_completed_runs' => 'INTEGER NOT NULL DEFAULT 0',
-        'demo_avg_rating'     => 'REAL',
-        'stage_position'      => 'INTEGER',
-        'simulation'          => 'INTEGER NOT NULL DEFAULT 0',
-        'output_contract'     => 'TEXT',
-        'evidence_keys'       => 'TEXT',
-        default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
+        'difficulty'               => "TEXT NOT NULL DEFAULT 'Intermediate'",
+        'demo_completed_runs'      => 'INTEGER NOT NULL DEFAULT 0',
+        'demo_avg_rating'          => 'REAL',
+        'stage_position'           => 'INTEGER',
+        'simulation'               => 'INTEGER NOT NULL DEFAULT 0',
+        'output_contract'          => 'TEXT',
+        'evidence_keys'            => 'TEXT',
+        'email_verified_at'        => 'TEXT NULL',
+        'verification_token_hash'  => 'TEXT NULL',
+        'verification_expires_at'  => 'TEXT NULL',
+        'verification_sent_at'     => 'TEXT NULL',
+        'pending_email'            => 'TEXT NULL',
+        'pending_email_token_hash' => 'TEXT NULL',
+        'pending_email_expires_at' => 'TEXT NULL',
+        'password_changed_at'      => 'TEXT NULL',
+        'onboarding_completed_at'  => 'TEXT NULL',
+        'bio'                      => 'TEXT NULL',
+        'website'                  => 'TEXT NULL',
+        'avatar_url'               => 'TEXT NULL',
+        'preferred_ai'             => 'TEXT NULL',
+        'ai_experience_level'      => 'TEXT NULL',
+        'timezone'                 => 'TEXT NULL',
+        'theme_preference'         => "TEXT NULL DEFAULT 'system'",
+        default                    => throw new \InvalidArgumentException("Unknown column: {$column}"),
     };
 }
 
@@ -150,6 +182,66 @@ function migrate_schema(PDO $pdo, string $driver): void
     ensure_column($pdo, $driver, 'users', 'simulation', column_definition($driver, 'simulation'));
     ensure_column($pdo, $driver, 'recipes', 'output_contract', column_definition($driver, 'output_contract'));
     ensure_column($pdo, $driver, 'recipe_checks', 'evidence_keys', column_definition($driver, 'evidence_keys'));
+
+    $userAccountColumns = [
+        'email_verified_at', 'verification_token_hash', 'verification_expires_at', 'verification_sent_at',
+        'pending_email', 'pending_email_token_hash', 'pending_email_expires_at',
+        'password_changed_at', 'onboarding_completed_at',
+        'bio', 'website', 'avatar_url', 'preferred_ai', 'ai_experience_level', 'timezone', 'theme_preference',
+    ];
+    foreach ($userAccountColumns as $col) {
+        ensure_column($pdo, $driver, 'users', $col, column_definition($driver, $col));
+    }
+
+    $hasResetTokens = (int) Database::fetchValue(
+        $driver === 'mysql'
+            ? "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'password_reset_tokens'"
+            : "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'password_reset_tokens'"
+    ) > 0;
+    if (!$hasResetTokens) {
+        if ($driver === 'mysql') {
+            $pdo->exec(<<<'SQL'
+CREATE TABLE password_reset_tokens (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at    DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    KEY idx_reset_user (user_id),
+    KEY idx_reset_hash (token_hash),
+    CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+SQL);
+        } else {
+            $pdo->exec(<<<'SQL'
+CREATE TABLE password_reset_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    used_at    TEXT NULL,
+    created_at TEXT NOT NULL
+)
+SQL);
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reset_user ON password_reset_tokens (user_id)');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_reset_hash ON password_reset_tokens (token_hash)');
+        }
+        echo "Migrated password_reset_tokens table\n";
+    }
+
+    // Legacy users (pre-verification deploy) keep access. New signups stay unverified
+    // until they verify — they always have verification_token_hash set at registration.
+    Database::run(
+        'UPDATE users SET email_verified_at = created_at, onboarding_completed_at = COALESCE(onboarding_completed_at, created_at)
+         WHERE email_verified_at IS NULL AND (simulation = 1 OR role = ?)',
+        ['admin']
+    );
+    Database::run(
+        'UPDATE users SET email_verified_at = created_at, onboarding_completed_at = COALESCE(onboarding_completed_at, created_at)
+         WHERE email_verified_at IS NULL AND simulation = 0 AND role = ? AND verification_token_hash IS NULL',
+        ['user']
+    );
 
     $hasStages = (int) Database::fetchValue(
         $driver === 'mysql'
@@ -782,8 +874,8 @@ if ($adminCount > 0) {
     $email = strtolower(trim($options['admin_email']));
     $password = temp_password();
     Database::run(
-        'INSERT INTO users (name, email, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)',
-        ['Head Chef', $email, password_hash($password, PASSWORD_DEFAULT), 'admin', now_utc()]
+        'INSERT INTO users (name, email, password_hash, role, email_verified_at, onboarding_completed_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ['Head Chef', $email, password_hash($password, PASSWORD_DEFAULT), 'admin', now_utc(), now_utc(), now_utc()]
     );
     echo "\nAdmin account created.\n";
     echo "  Email:              {$email}\n";

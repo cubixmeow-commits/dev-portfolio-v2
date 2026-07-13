@@ -19,7 +19,7 @@ final class ProjectController
     /** Start a new project from an executable cookbook. */
     public function create(): void
     {
-        Auth::requireLogin();
+        Auth::requireVerified();
         $slug = (string) ($_POST['cookbook'] ?? '');
         $cookbook = Cookbook::findBySlug($slug);
 
@@ -93,6 +93,7 @@ final class ProjectController
 
     public function savePantry(string $id): void
     {
+        Auth::requireVerified();
         $project = $this->own($id);
         $projectId = (int) $project['id'];
         $fields = PantryField::forCookbook((int) $project['cookbook_id']);
@@ -209,6 +210,7 @@ final class ProjectController
 
     public function delete(string $id): void
     {
+        Auth::requireVerified();
         $project = $this->own($id);
         Project::delete((int) $project['id']);
         Flash::set('notice', 'Project deleted. Its exports were kept on disk but are no longer downloadable.');

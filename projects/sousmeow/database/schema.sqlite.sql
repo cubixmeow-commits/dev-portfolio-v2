@@ -9,8 +9,35 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role          TEXT NOT NULL DEFAULT 'user',
     simulation    INTEGER NOT NULL DEFAULT 0,
+    email_verified_at        TEXT NULL,
+    verification_token_hash  TEXT NULL,
+    verification_expires_at  TEXT NULL,
+    verification_sent_at     TEXT NULL,
+    pending_email            TEXT NULL,
+    pending_email_token_hash TEXT NULL,
+    pending_email_expires_at TEXT NULL,
+    password_changed_at      TEXT NULL,
+    onboarding_completed_at  TEXT NULL,
+    bio                      TEXT NULL,
+    website                  TEXT NULL,
+    avatar_url               TEXT NULL,
+    preferred_ai             TEXT NULL,
+    ai_experience_level      TEXT NULL,
+    timezone                 TEXT NULL,
+    theme_preference         TEXT NULL DEFAULT 'system',
     created_at    TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    used_at    TEXT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_reset_user ON password_reset_tokens (user_id);
+CREATE INDEX IF NOT EXISTS idx_reset_hash ON password_reset_tokens (token_hash);
 
 CREATE TABLE IF NOT EXISTS rate_events (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,

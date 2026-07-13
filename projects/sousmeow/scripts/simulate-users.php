@@ -53,8 +53,8 @@ foreach ($personas as $persona) {
     $signupUtc = $signupLocal->setTimezone(Simulation::utc())->format('Y-m-d H:i:s');
 
     Database::run(
-        'INSERT INTO users (name, email, password_hash, role, simulation, created_at) VALUES (?, ?, ?, ?, 1, ?)',
-        [(string) $persona['name'], $email, $passwordHash, 'user', $signupUtc]
+        'INSERT INTO users (name, email, password_hash, role, simulation, email_verified_at, onboarding_completed_at, created_at) VALUES (?, ?, ?, ?, 1, ?, ?, ?)',
+        [(string) $persona['name'], $email, $passwordHash, 'user', $signupUtc, $signupUtc, $signupUtc]
     );
     $created++;
 }

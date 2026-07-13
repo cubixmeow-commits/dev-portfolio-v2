@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use SousMeow\Controllers\AccountController;
 use SousMeow\Controllers\AdminController;
 use SousMeow\Controllers\AuthController;
 use SousMeow\Controllers\ExportController;
 use SousMeow\Controllers\KitchenController;
+use SousMeow\Controllers\LegalController;
 use SousMeow\Controllers\MarketingController;
 use SousMeow\Controllers\MarketplaceController;
 use SousMeow\Controllers\ProjectController;
@@ -18,14 +20,45 @@ return static function (Router $router): void {
     $router->get('/marketplace', [MarketplaceController::class, 'index']);
     $router->get('/cookbooks/{slug}', [MarketplaceController::class, 'show']);
 
+    // Legal pages.
+    $router->get('/terms', [LegalController::class, 'terms']);
+    $router->get('/privacy', [LegalController::class, 'privacy']);
+
     // Authentication.
     $router->get('/login', [AuthController::class, 'showLogin']);
     $router->post('/login', [AuthController::class, 'login']);
     $router->get('/register', [AuthController::class, 'showRegister']);
     $router->post('/register', [AuthController::class, 'register']);
     $router->post('/logout', [AuthController::class, 'logout']);
+    $router->get('/forgot-password', [AuthController::class, 'showForgotPassword']);
+    $router->post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    $router->get('/reset-password/{token}', [AuthController::class, 'showResetPassword']);
+    $router->post('/reset-password/{token}', [AuthController::class, 'resetPassword']);
+    $router->get('/verify-email/pending', [AuthController::class, 'showVerifyPending']);
+    $router->get('/verify-email/{token}', [AuthController::class, 'verifyEmail']);
+    $router->post('/verify-email/resend', [AuthController::class, 'resendVerification']);
+
+    // Legacy password route redirects to account security.
     $router->get('/account/password', [AuthController::class, 'showChangePassword']);
     $router->post('/account/password', [AuthController::class, 'changePassword']);
+
+    // Account settings.
+    $router->get('/account', [AccountController::class, 'index']);
+    $router->get('/account/profile', [AccountController::class, 'profile']);
+    $router->post('/account/profile', [AccountController::class, 'updateProfile']);
+    $router->get('/account/preferences', [AccountController::class, 'preferences']);
+    $router->post('/account/preferences', [AccountController::class, 'updatePreferences']);
+    $router->get('/account/security', [AccountController::class, 'security']);
+    $router->post('/account/security/password', [AccountController::class, 'updatePassword']);
+    $router->post('/account/security/email', [AccountController::class, 'requestEmailChange']);
+    $router->get('/account/email/confirm/{token}', [AccountController::class, 'confirmEmailChange']);
+    $router->get('/account/data', [AccountController::class, 'data']);
+    $router->post('/account/data/export', [AccountController::class, 'exportData']);
+    $router->post('/account/delete', [AccountController::class, 'deleteAccount']);
+
+    // First-run onboarding.
+    $router->get('/onboarding', [AccountController::class, 'showOnboarding']);
+    $router->post('/onboarding', [AccountController::class, 'completeOnboarding']);
 
     // Kitchen (the signed-in home).
     $router->get('/kitchen', [KitchenController::class, 'index']);

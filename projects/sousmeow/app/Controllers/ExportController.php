@@ -43,6 +43,7 @@ final class ExportController
     /** Build a fresh kit zip. */
     public function create(string $id): void
     {
+        Auth::requireVerified();
         $project = $this->own($id);
         $projectId = (int) $project['id'];
 
@@ -65,7 +66,7 @@ final class ExportController
     /** Stream a previously built kit to its owner. */
     public function download(string $id): void
     {
-        Auth::requireLogin();
+        Auth::requireVerified();
         $export = Export::findForUser((int) $id, (int) Auth::id());
         if ($export === null) {
             http_response_code(404);

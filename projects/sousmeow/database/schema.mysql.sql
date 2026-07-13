@@ -9,7 +9,35 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role          VARCHAR(20) NOT NULL DEFAULT 'user',
     simulation    TINYINT(1) NOT NULL DEFAULT 0,
+    email_verified_at        DATETIME NULL,
+    verification_token_hash  VARCHAR(64) NULL,
+    verification_expires_at  DATETIME NULL,
+    verification_sent_at     DATETIME NULL,
+    pending_email            VARCHAR(190) NULL,
+    pending_email_token_hash VARCHAR(64) NULL,
+    pending_email_expires_at DATETIME NULL,
+    password_changed_at      DATETIME NULL,
+    onboarding_completed_at  DATETIME NULL,
+    bio                      VARCHAR(280) NULL,
+    website                  VARCHAR(255) NULL,
+    avatar_url               VARCHAR(255) NULL,
+    preferred_ai             VARCHAR(30) NULL,
+    ai_experience_level      VARCHAR(20) NULL,
+    timezone                 VARCHAR(64) NULL,
+    theme_preference         VARCHAR(10) NULL DEFAULT 'system',
     created_at    DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at    DATETIME NULL,
+    created_at DATETIME NOT NULL,
+    KEY idx_reset_user (user_id),
+    KEY idx_reset_hash (token_hash),
+    CONSTRAINT fk_reset_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS rate_events (
