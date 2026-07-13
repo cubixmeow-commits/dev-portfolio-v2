@@ -210,7 +210,7 @@ Improved:
 
 | Area | Status | Recommendation |
 |------|--------|----------------|
-| Seed Cookbook recipe titles (“Plate the Landing Page”) | Kept | Food metaphors inside workflow content — acceptable once user is in a project |
+| Seed Cookbook recipe titles (“Plate the Landing Page”) | **Updated** | Launch Day Kit steps now use plain titles in seed data |
 | Runner rail still says “Recipe” on step labels | Kept | Branded term; user has been taught by this point |
 | Breadcrumb “My Kitchen” | Kept | Matches page title; subtitle explains |
 | Admin “Workflow” column still shows Cookbook slug data | Kept | Admin audience |
