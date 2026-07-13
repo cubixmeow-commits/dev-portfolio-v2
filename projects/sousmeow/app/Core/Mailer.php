@@ -7,6 +7,9 @@ namespace SousMeow\Core;
 /**
  * Outbound mail via SMTP (Hostinger) or local log driver for development.
  * Never logs credentials or full message bodies on failure.
+ *
+ * Reads mail.* from config.php when present, otherwise falls back to .env
+ * so production hosts with an older config.php still work.
  */
 final class Mailer
 {
@@ -15,18 +18,24 @@ final class Mailer
      */
     public static function send(string $to, string $subject, array $bodies): bool
     {
-        $driver = Config::string('mail.driver', 'log');
+        $driver = self::setting('driver', 'MAIL_DRIVER', 'log');
         if ($driver === 'log') {
             return self::log($to, $subject, $bodies);
         }
         return self::smtp($to, $subject, $bodies);
     }
 
+    public static function driver(): string
+    {
+        return self::setting('driver', 'MAIL_DRIVER', 'log');
+    }
+
     /** @param array{html?: string, text?: string} $bodies */
     private static function log(string $to, string $subject, array $bodies): bool
     {
-        $dir = Config::string('mail.log_dir');
+        $dir = self::logDir();
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            error_log('SousMeow mail: cannot create log directory: ' . $dir);
             return false;
         }
 
@@ -40,14 +49,23 @@ final class Mailer
         return file_put_contents($file, $eml) !== false;
     }
 
+    private static function logDir(): string
+    {
+        $dir = Config::string('mail.log_dir');
+        if ($dir !== '') {
+            return $dir;
+        }
+        return dirname(__DIR__, 2) . '/storage/mail';
+    }
+
     /** @param array{html?: string, text?: string} $bodies */
     private static function smtp(string $to, string $subject, array $bodies): bool
     {
-        $host = Config::string('mail.host');
-        $port = Config::int('mail.port', 465);
-        $encryption = Config::string('mail.encryption', 'ssl');
-        $username = Config::string('mail.username');
-        $password = Config::string('mail.password');
+        $host = self::setting('host', 'SMTP_HOST', 'smtp.hostinger.com');
+        $port = (int) self::setting('port', 'SMTP_PORT', '465');
+        $encryption = self::setting('encryption', 'SMTP_ENCRYPTION', 'ssl');
+        $username = self::setting('username', 'SMTP_USERNAME');
+        $password = self::setting('password', 'SMTP_PASSWORD');
 
         if ($host === '' || $username === '' || $password === '') {
             error_log('SousMeow mail: SMTP not configured (missing host, username, or password).');
@@ -65,7 +83,8 @@ final class Mailer
             stream_set_timeout($socket, 15);
             self::expect($socket, [220]);
 
-            $ehloHost = parse_url(Config::string('app.url', 'localhost'), PHP_URL_HOST) ?: 'localhost';
+            $appUrl = Config::string('app.url', Config::string('app.base_url', Env::get('APP_URL', 'localhost')));
+            $ehloHost = parse_url($appUrl, PHP_URL_HOST) ?: 'localhost';
             self::command($socket, 'EHLO ' . $ehloHost, [250]);
 
             if ($encryption === 'tls') {
@@ -80,7 +99,7 @@ final class Mailer
             self::command($socket, base64_encode($username), [334]);
             self::command($socket, base64_encode($password), [235]);
 
-            $from = Config::string('mail.from_address');
+            $from = self::setting('from_address', 'MAIL_FROM_ADDRESS', $username);
             self::command($socket, 'MAIL FROM:<' . $from . '>', [250]);
             self::command($socket, 'RCPT TO:<' . $to . '>', [250, 251]);
             self::command($socket, 'DATA', [354]);
@@ -119,9 +138,9 @@ final class Mailer
 
     private static function headers(string $to, string $subject, string $contentType, bool $forSmtp = false): string
     {
-        $fromName = Config::string('mail.from_name', 'Chef Meow');
-        $fromAddr = Config::string('mail.from_address');
-        $replyTo = Config::string('mail.reply_to', $fromAddr);
+        $fromName = self::setting('from_name', 'MAIL_FROM_NAME', 'Chef Meow');
+        $fromAddr = self::setting('from_address', 'MAIL_FROM_ADDRESS', self::setting('username', 'SMTP_USERNAME'));
+        $replyTo = self::setting('reply_to', 'MAIL_REPLY_TO', $fromAddr);
         $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
         $encodedFromName = '=?UTF-8?B?' . base64_encode($fromName) . '?=';
 
@@ -143,7 +162,20 @@ final class Mailer
         return implode("\r\n", $lines) . "\r\n";
     }
 
-  /** @param resource $socket */
+    private static function setting(string $configKey, string $envKey, string $default = ''): string
+    {
+        $fromConfig = Config::get('mail.' . $configKey);
+        if ($fromConfig !== null && (string) $fromConfig !== '') {
+            return (string) $fromConfig;
+        }
+        $fromEnv = Env::get($envKey, '');
+        if ($fromEnv !== '') {
+            return $fromEnv;
+        }
+        return $default;
+    }
+
+    /** @param resource $socket */
     private static function command($socket, string $command, array $okCodes): void
     {
         fwrite($socket, $command . "\r\n");

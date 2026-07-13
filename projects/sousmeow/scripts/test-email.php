@@ -23,12 +23,14 @@ if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
 require __DIR__ . '/../app/bootstrap.php';
 
 use SousMeow\Core\Config;
+use SousMeow\Core\Env;
+use SousMeow\Core\Mailer;
 use SousMeow\Services\AccountMailer;
 
-$driver = Config::string('mail.driver', 'log');
+$driver = Mailer::driver();
 echo "Mail driver: {$driver}\n";
 
-if ($driver === 'smtp' && Config::string('mail.password') === '') {
+if ($driver === 'smtp' && Env::get('SMTP_PASSWORD', '') === '' && \SousMeow\Core\Config::string('mail.password') === '') {
     fwrite(STDERR, "FAIL: SMTP_PASSWORD is not set. Configure .env before sending.\n");
     exit(1);
 }
@@ -37,7 +39,8 @@ $ok = AccountMailer::sendTest($recipient);
 if ($ok) {
     echo "OK: Test message sent to {$recipient}\n";
     if ($driver === 'log') {
-        echo "Note: log driver writes to " . Config::string('mail.log_dir') . "\n";
+        $logDir = Config::string('mail.log_dir') ?: dirname(__DIR__) . '/storage/mail';
+        echo "Note: log driver writes to {$logDir}\n";
     }
     exit(0);
 }
