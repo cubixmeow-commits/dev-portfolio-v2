@@ -21,6 +21,7 @@ final class MarketingController
             'pageCss'         => 'marketing',
             'featured'        => $featured,
             'featuredRecipes' => $featuredRecipes,
+            'cookbooks'       => Cookbook::marketplace(),
             'stats'           => SiteStats::hero(),
             'heatmap'         => SiteStats::activityHeatmap(12),
             'popular'         => SiteStats::popularCookbooks(3),

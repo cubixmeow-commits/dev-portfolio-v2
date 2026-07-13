@@ -26,6 +26,8 @@
   line-height: 1.5;
 }
 .terms-callout strong { color: var(--ink); font-weight: 600; }
+.terms-callout-compact { font-size: 0.85rem; margin-top: var(--space-3); }
+.hero-lede-sub { margin-top: calc(var(--space-3) * -1); margin-bottom: var(--space-5); }
 .hero-footnote { margin-top: var(--space-3); }
 
 /* ---------- Kitchen dashboard (portfolio simulation metrics) ---------- */
@@ -528,6 +530,219 @@
 
 .hero-actions { display: flex; gap: var(--space-3); justify-content: center; flex-wrap: wrap; }
 .hero-footnote { margin-top: var(--space-4); font-size: 0.85rem; color: var(--ink-faint); max-width: 34rem; margin-left: auto; margin-right: auto; }
+
+/* ---------- Three pillars ---------- */
+
+.pillars-section { padding: var(--space-6) var(--space-4); }
+.pillars-inner { max-width: var(--content-max); margin: 0 auto; }
+.pillars-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+.pillar-card { text-align: left; border-top: 3px solid var(--terracotta); }
+.pillar-number {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--terracotta);
+  margin: 0 0 var(--space-2);
+}
+.pillar-card h3 { font-size: 1.1rem; margin-bottom: var(--space-2); }
+.pillar-card p { color: var(--ink-soft); font-size: 0.92rem; margin: 0; }
+.pillar-theme {
+  margin-top: var(--space-3) !important;
+  font-size: 0.82rem !important;
+  font-style: italic;
+  color: var(--ink-faint) !important;
+}
+
+/* ---------- Comparison ---------- */
+
+.compare-section {
+  padding: var(--space-7) var(--space-4);
+  background: rgba(244, 234, 217, 0.4);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.compare-inner { max-width: var(--content-max); margin: 0 auto; text-align: center; }
+.compare-inner h2 { max-width: 36rem; margin-left: auto; margin-right: auto; }
+.compare-sub { margin-bottom: var(--space-5); }
+.compare-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  text-align: left;
+}
+.compare-card h3 { font-size: 1.05rem; margin-bottom: var(--space-3); color: var(--ink); }
+.compare-card-highlight { border-left: 4px solid var(--sage-deep); background: linear-gradient(135deg, var(--sage-wash) 0%, var(--card) 55%); }
+.compare-list {
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  display: grid;
+  gap: var(--space-2);
+}
+
+/* ---------- Subscription flow ---------- */
+
+.subscription-section { padding: var(--space-6) var(--space-4); }
+.subscription-inner {
+  max-width: 40rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.subscription-inner h2 { margin-bottom: var(--space-2); }
+.subscription-inner .section-sub { margin-bottom: var(--space-5); }
+.flow-steps {
+  list-style: none;
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4);
+  background: var(--card-sunken);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--line);
+  display: grid;
+  gap: var(--space-1);
+}
+.flow-label {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.flow-label-ai { color: var(--teal-deep); }
+.flow-arrow {
+  font-size: 1.1rem;
+  color: var(--ink-faint);
+  line-height: 1;
+}
+.subscription-points {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.subscription-points li {
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: var(--terracotta-wash);
+  color: var(--terracotta-deep);
+}
+.subscription-note {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------- Trust / definition of done ---------- */
+
+.trust-section { padding: var(--space-7) var(--space-4); }
+.trust-inner { max-width: var(--content-max); margin: 0 auto; text-align: center; }
+.trust-sub { margin-bottom: var(--space-5); }
+.trust-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  text-align: left;
+  margin-bottom: var(--space-5);
+}
+.trust-item h3 { font-size: 1rem; margin-bottom: var(--space-2); color: var(--terracotta-deep); }
+.trust-item p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
+.trust-direction {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  max-width: 40rem;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ---------- Home workflow discovery ---------- */
+
+.workflows-section { padding: var(--space-7) var(--space-4); background: rgba(255, 253, 248, 0.6); }
+.workflows-inner { max-width: var(--content-max); margin: 0 auto; }
+.workflows-header { margin-bottom: var(--space-5); text-align: left; }
+.workflows-header h2 { margin-bottom: var(--space-2); }
+.home-workflow-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  margin-bottom: var(--space-5);
+}
+.home-workflow-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+  padding: var(--space-4);
+  border-left: 4px solid var(--terracotta);
+}
+.home-workflow-card.accent-sage { border-left-color: var(--sage-deep); }
+.home-workflow-card.accent-amber { border-left-color: var(--amber); }
+.home-workflow-card.accent-lilac { border-left-color: var(--lilac); }
+.home-workflow-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.home-workflow-title { font-size: 1.1rem; margin: 0 0 var(--space-2); color: var(--ink); }
+.home-workflow-outcome {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 var(--space-2);
+  line-height: 1.35;
+}
+.home-workflow-tagline { font-size: 0.88rem; color: var(--ink-soft); margin: 0 0 var(--space-3); }
+.home-workflow-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  margin-bottom: var(--space-2);
+}
+.home-workflow-receive {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+}
+.workflows-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+.workflows-honesty {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  text-align: center;
+  max-width: 42rem;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+@media (max-width: 719px) {
+  .compare-grid { grid-template-columns: 1fr; }
+  .pillars-grid { grid-template-columns: 1fr; }
+  .home-workflow-grid { grid-template-columns: 1fr; }
+  .subscription-points { flex-direction: column; align-items: center; }
+}
 
 /* ---------- Loop ---------- */
 

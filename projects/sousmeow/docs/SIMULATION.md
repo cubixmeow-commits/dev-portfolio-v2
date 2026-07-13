@@ -417,7 +417,7 @@ php scripts/seed.php --fresh   # destroys everything — portfolio dev only
 | File | Role |
 |------|------|
 | `docs/SIMULATION.md` | This playbook |
-| `database/simulation/personas.json` | 500 chef names |
+| `database/simulation/personas.json` | 772 creator names |
 | `scripts/generate-personas.php` | Regenerate personas |
 | `scripts/simulate-users.php` | Create simulation user pool |
 | `scripts/simulate-day.php` | Preload one Pacific day |
