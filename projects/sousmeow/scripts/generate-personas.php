@@ -3,16 +3,24 @@
 declare(strict_types=1);
 
 /**
- * One-time generator for database/simulation/personas.json (500 chefs).
- * US-weighted (~65%) with international diversity. Re-run only to regenerate.
+ * Generate or extend database/simulation/personas.json.
+ *
+ * Usage:
+ *   php scripts/generate-personas.php          Append missing personas up to POOL_SIZE
+ *   php scripts/generate-personas.php --fresh  Regenerate the full pool from scratch
  */
 
 if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
+require __DIR__ . '/../app/bootstrap.php';
+
+use SousMeow\Services\Simulation;
+
 $out = __DIR__ . '/../database/simulation/personas.json';
-$target = 500;
+$target = Simulation::POOL_SIZE;
+$fresh = in_array('--fresh', $argv, true);
 $usTarget = (int) round($target * 0.65);
 
 $usFirst = [
@@ -26,6 +34,7 @@ $usFirst = [
     'Mia', 'Heather', 'Ella', 'Diane', 'Harper', 'Julie', 'Evelyn', 'Joyce', 'Abigail', 'Victoria',
     'Emma', 'Olivia', 'Sophia', 'Isabella', 'Charlotte', 'Amelia', 'Hannah', 'Grace', 'Chloe', 'Zoe',
     'Nathan', 'Caleb', 'Dylan', 'Jordan', 'Cameron', 'Hunter', 'Austin', 'Blake', 'Connor', 'Colton',
+    'Wesley', 'Paige', 'Grant', 'Brooke', 'Spencer', 'Morgan', 'Trevor', 'Kelsey', 'Derek', 'Jillian',
 ];
 
 $usLast = [
@@ -38,6 +47,7 @@ $usLast = [
     'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers', 'Gutierrez', 'Ortiz', 'Morgan', 'Cooper',
     'Peterson', 'Bailey', 'Reed', 'Kelly', 'Howard', 'Ramos', 'Kim', 'Ward', 'Cox', 'Richardson',
     'Watson', 'Brooks', 'Chavez', 'Wood', 'James', 'Bennett', 'Gray', 'Mendoza', 'Ruiz', 'Hughes',
+    'Price', 'Alvarez', 'Castillo', 'Sanders', 'Patel', 'Myers', 'Long', 'Ross', 'Foster', 'Jimenez',
 ];
 
 /** @var list<array{country: string, code: string, first: list<string>, last: list<string>}> */
@@ -62,39 +72,62 @@ $intlPools = [
     ['code' => 'PL', 'country' => 'Poland', 'first' => ['Jakub', 'Zuzanna', 'Jan', 'Julia', 'Filip', 'Maja'], 'last' => ['Nowak', 'Kowalski', 'Lewandowski', 'Wojcik', 'Kaminski', 'Zielinski']],
     ['code' => 'ZA', 'country' => 'South Africa', 'first' => ['Thabo', 'Naledi', 'Sipho', 'Lerato', 'Mandla', 'Zanele'], 'last' => ['Nkosi', 'Dlamini', 'Mokoena', 'Pillay', 'Botha', 'Van Wyk']],
     ['code' => 'AR', 'country' => 'Argentina', 'first' => ['Mateo', 'Sofia', 'Benicio', 'Emma', 'Thiago', 'Mia'], 'last' => ['Gonzalez', 'Rodriguez', 'Fernandez', 'Lopez', 'Martinez', 'Garcia']],
+    ['code' => 'NL', 'country' => 'Netherlands', 'first' => ['Daan', 'Emma', 'Sem', 'Sophie', 'Lucas', 'Julia'], 'last' => ['De Vries', 'Van Dijk', 'Bakker', 'Visser', 'Smit', 'Meijer']],
+    ['code' => 'SE', 'country' => 'Sweden', 'first' => ['Erik', 'Astrid', 'Oscar', 'Elsa', 'Hugo', 'Maja'], 'last' => ['Andersson', 'Johansson', 'Karlsson', 'Nilsson', 'Eriksson', 'Larsson']],
 ];
 
 $personas = [];
 $usedNames = [];
 
-for ($i = 1; $i <= $usTarget; $i++) {
-    do {
-        $name = $usFirst[array_rand($usFirst)] . ' ' . $usLast[array_rand($usLast)];
-    } while (isset($usedNames[$name]));
-    $usedNames[$name] = true;
-    $personas[] = ['id' => $i, 'name' => $name, 'country' => 'United States', 'code' => 'US'];
+if (!$fresh && is_file($out)) {
+    $existing = json_decode((string) file_get_contents($out), true);
+    if (is_array($existing)) {
+        foreach ($existing as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $id = (int) ($row['id'] ?? 0);
+            if ($id < 1 || $id > $target) {
+                continue;
+            }
+            $personas[$id] = $row;
+            $usedNames[(string) ($row['name'] ?? '')] = true;
+        }
+    }
 }
 
-$intlCount = $target - $usTarget;
-for ($i = 0; $i < $intlCount; $i++) {
-    $pool = $intlPools[$i % count($intlPools)];
-    do {
-        $name = $pool['first'][array_rand($pool['first'])] . ' ' . $pool['last'][array_rand($pool['last'])];
-    } while (isset($usedNames[$name]));
-    $usedNames[$name] = true;
-    $personas[] = [
-        'id'      => $usTarget + $i + 1,
-        'name'    => $name,
-        'country' => $pool['country'],
-        'code'    => $pool['code'],
-    ];
+$startId = count($personas) > 0 ? max(array_keys($personas)) + 1 : 1;
+if ($fresh) {
+    $personas = [];
+    $usedNames = [];
+    $startId = 1;
 }
 
-shuffle($personas);
-foreach ($personas as $idx => &$p) {
-    $p['id'] = $idx + 1;
+$makeUniqueName = static function (callable $picker) use (&$usedNames): string {
+    do {
+        $name = $picker();
+    } while (isset($usedNames[$name]));
+    $usedNames[$name] = true;
+    return $name;
+};
+
+for ($id = $startId; $id <= $target; $id++) {
+    if (isset($personas[$id])) {
+        continue;
+    }
+    $isUs = $id <= $usTarget || random_int(1, 100) <= 65;
+    if ($isUs) {
+        $name = $makeUniqueName(static fn(): string => $usFirst[array_rand($usFirst)] . ' ' . $usLast[array_rand($usLast)]);
+        $personas[$id] = ['id' => $id, 'name' => $name, 'country' => 'United States', 'code' => 'US'];
+    } else {
+        $pool = $intlPools[($id - 1) % count($intlPools)];
+        $name = $makeUniqueName(static fn() => $pool['first'][array_rand($pool['first'])] . ' ' . $pool['last'][array_rand($pool['last'])]);
+        $personas[$id] = ['id' => $id, 'name' => $name, 'country' => $pool['country'], 'code' => $pool['code']];
+    }
 }
-unset($p);
+
+ksort($personas);
+$personas = array_values($personas);
 
 $dir = dirname($out);
 if (!is_dir($dir)) {
@@ -102,6 +135,10 @@ if (!is_dir($dir)) {
 }
 
 file_put_contents($out, json_encode($personas, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n");
-echo "Wrote " . count($personas) . " personas to {$out}\n";
+$added = max(0, count($personas) - ($startId - 1));
+echo "Wrote " . count($personas) . " personas to {$out} (target {$target})\n";
+if (!$fresh && $startId > 1) {
+    echo "Appended from id {$startId}\n";
+}
 $us = count(array_filter($personas, static fn(array $p): bool => $p['code'] === 'US'));
-echo "US: {$us}, International: " . ($target - $us) . "\n";
+echo "US: {$us}, International: " . (count($personas) - $us) . "\n";

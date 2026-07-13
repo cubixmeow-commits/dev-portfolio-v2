@@ -1,6 +1,6 @@
 # SousMeow portfolio simulation — complete playbook
 
-This document describes **version 1** of the kitchen simulation system: 500
+This document describes **version 1** of the kitchen simulation system: 772
 believable simulated chefs, a full day of activity preloaded per Pacific
 calendar day, a public social-style metrics dashboard, and admin proof
 metrics. Use it with **Claude Code**, **Cursor agents**, or manual CLI.
@@ -16,7 +16,7 @@ metrics. Use it with **Claude Code**, **Cursor agents**, or manual CLI.
 1. [Goals](#goals)
 2. [Architecture](#architecture)
 3. [Timezone (California)](#timezone-california)
-4. [User pool (500 chefs)](#user-pool-500-chefs)
+4. [User pool (772 creators)](#user-pool-772-creators)
 5. [Daily activity (preload)](#daily-activity-preload)
 6. [CLI reference](#cli-reference)
 7. [Cron setup (production)](#cron-setup-production)
@@ -34,7 +34,7 @@ metrics. Use it with **Claude Code**, **Cursor agents**, or manual CLI.
 
 | Goal | How v1 delivers |
 |------|-----------------|
-| Prove the product at scale | 500 real `users` rows, real projects/artifacts/exports |
+| Prove the product at scale | 772 real `users` rows, real projects/artifacts/exports |
 | Believable usage | Model-layer actions + timestamps spread across 24h Pacific |
 | Social SaaS feel | Public dashboard on `/` with live-ish activity feed |
 | Hiring-manager proof | `/admin` with simulation stats + recent projects |
@@ -47,7 +47,7 @@ metrics. Use it with **Claude Code**, **Cursor agents**, or manual CLI.
 ## Architecture
 
 ```
-personas.json (500 names, US-weighted)
+personas.json (772 names, US-weighted)
         │
         ▼
 simulate-users.php ──► users (simulation=1)
@@ -85,11 +85,11 @@ random across the full day.
 
 ---
 
-## User pool (500 chefs)
+## User pool (772 creators)
 
 ### Personas file
 
-`database/simulation/personas.json` — 500 entries:
+`database/simulation/personas.json` — 772 entries:
 
 ```json
 {
@@ -100,10 +100,16 @@ random across the full day.
 }
 ```
 
-- **~65% United States** (325 names)
-- **~35% international** (175 names across 20 countries)
+- **~65% United States** (~502 names)
+- **~35% international** (~270 names across 22 countries)
 
-Regenerate (rare):
+Regenerate from scratch:
+
+```sh
+php scripts/generate-personas.php --fresh
+```
+
+Append missing personas up to `Simulation::POOL_SIZE` (keeps existing ids 1–500):
 
 ```sh
 php scripts/generate-personas.php
@@ -113,7 +119,7 @@ php scripts/generate-personas.php
 
 | Field | Value |
 |-------|--------|
-| Email pattern | `kitchen+1@demo.local` … `kitchen+500@demo.local` |
+| Email pattern | `kitchen+1@demo.local` … `kitchen+772@demo.local` |
 | Password (all) | `demo-kitchen-2026` |
 | DB flag | `users.simulation = 1` |
 
@@ -171,7 +177,7 @@ php scripts/simulate-day.php --date=yesterday
 ```sh
 cd projects/sousmeow
 php scripts/seed.php              # schema + cookbooks + admin
-php scripts/simulate-users.php    # 500 simulation chefs
+php scripts/simulate-users.php    # 772 simulation creators
 ```
 
 ### Daily simulation

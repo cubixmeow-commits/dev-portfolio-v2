@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Create the 500-persona simulation user pool (kitchen+1@demo.local … +500).
+ * Create the simulation user pool (kitchen+1@demo.local … +POOL_SIZE).
  *
  * Usage:
  *   php scripts/simulate-users.php
