@@ -48,7 +48,7 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
         <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
       </div>
       <p class="hero-eyebrow">Use the AI you already have</p>
-      <h1>Finish projects with AI, one step at a time.</h1>
+      <h1>SousMeow guides you through every AI project, one step at a time.</h1>
       <p class="hero-lede">
         Instead of staring at a blank chat, follow a guided workflow that shows you exactly what to do next.
         Use ChatGPT, Claude, Gemini, or another AI you already have, and build complete projects from start to finish.
