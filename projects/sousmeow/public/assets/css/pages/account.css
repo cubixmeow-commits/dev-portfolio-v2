@@ -1,0 +1,113 @@
+/* Account settings: stacked sections, mobile-first layout. */
+
+.account-page { max-width: 56rem; margin: 0 auto; }
+
+.account-layout {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.account-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: sticky;
+  top: var(--space-4);
+}
+.account-nav a {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.account-nav a:hover { background: var(--card-sunken); color: var(--ink); }
+.account-nav a.is-active { background: var(--card-sunken); color: var(--ink); font-weight: 600; }
+
+.account-content { padding: var(--space-6); }
+.account-lead { color: var(--ink-soft); margin-bottom: var(--space-5); }
+.account-header { display: flex; gap: var(--space-4); align-items: center; margin-bottom: var(--space-6); }
+.account-avatar {
+  width: 3.5rem; height: 3.5rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  display: grid; place-items: center; font-weight: 700; font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.account-email { color: var(--ink-soft); font-size: 0.92rem; margin: 0; }
+.account-badge { display: inline-block; font-size: 0.8rem; padding: 0.15em 0.5em; border-radius: 4px; margin-top: var(--space-1); }
+.account-badge-ok { background: rgba(94, 126, 78, 0.15); color: var(--sage); }
+.account-badge-warn { background: rgba(217, 142, 43, 0.15); color: var(--terracotta); }
+
+.account-section { margin-top: var(--space-6); padding-top: var(--space-5); border-top: 1px solid var(--line); }
+.account-section h2 { font-size: 1.1rem; margin-bottom: var(--space-3); }
+.account-danger { border-color: rgba(180, 60, 50, 0.25); }
+.account-danger h2 { color: var(--danger, #b43c32); }
+
+.account-form .field { margin-bottom: var(--space-4); }
+.field-optional { font-weight: 400; color: var(--ink-faint); font-size: 0.85rem; }
+.field-label-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); }
+.field-inline-link { font-size: 0.85rem; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.stats-grid div { margin: 0; }
+.stats-grid dt { font-size: 0.8rem; color: var(--ink-faint); margin-bottom: 0.2rem; }
+.stats-grid dd { font-size: 1.25rem; font-weight: 600; margin: 0; }
+
+.onboarding-page { display: grid; place-items: center; }
+.onboarding-steps { margin: var(--space-4) 0 var(--space-5); padding-left: 1.2rem; color: var(--ink-soft); }
+.onboarding-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
+
+.legal-page { max-width: 40rem; margin: 0 auto; }
+.legal-content { padding: var(--space-6); }
+.legal-content h2 { font-size: 1.1rem; margin-top: var(--space-5); }
+.legal-updated { color: var(--ink-faint); font-size: 0.9rem; }
+
+.field-checkbox { margin: var(--space-4) 0; }
+.checkbox-label { display: flex; gap: var(--space-2); align-items: flex-start; font-size: 0.92rem; cursor: pointer; }
+.checkbox-label input { margin-top: 0.2rem; flex-shrink: 0; }
+
+.form-errors {
+  background: rgba(180, 60, 50, 0.08);
+  border: 1px solid rgba(180, 60, 50, 0.25);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.button-danger {
+  background: var(--danger, #b43c32);
+  color: #fff;
+  border: none;
+}
+.button-danger:hover { filter: brightness(1.05); }
+
+.verify-banner {
+  background: rgba(217, 142, 43, 0.12);
+  border-bottom: 1px solid rgba(217, 142, 43, 0.3);
+  padding: var(--space-2) var(--space-4);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 760px) {
+  .account-layout { grid-template-columns: 1fr; }
+  .account-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: static;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--space-3);
+  }
+}
+
+@media (max-width: 400px) {
+  .account-content { padding: var(--space-4); }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}

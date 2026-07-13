@@ -20,6 +20,13 @@ function url(string $path = '/'): string
     return $base . '/' . ltrim($path, '/');
 }
 
+/** Absolute URL for email links: APP_URL + base path + route path. */
+function full_url(string $path = '/'): string
+{
+    $appUrl = rtrim(Config::string('app.url', Config::string('app.base_url')), '/');
+    return $appUrl . url($path);
+}
+
 /**
  * Static asset URL with a filemtime cache-buster so CSS/JS updates show up
  * immediately after deploy (shared hosts often cache /assets for a day).

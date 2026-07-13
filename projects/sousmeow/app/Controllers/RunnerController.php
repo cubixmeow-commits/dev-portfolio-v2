@@ -163,6 +163,7 @@ final class RunnerController
     /** Store a pasted AI response as a new immutable version. */
     public function paste(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $content = $this->cleanContent((string) ($_POST['content'] ?? ''));
 
@@ -180,6 +181,7 @@ final class RunnerController
     /** Demo Mode: paste the recipe's seeded example response. */
     public function pasteExample(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $example = (string) ($recipe['example_response'] ?? '');
         if (trim($example) === '') {
@@ -201,6 +203,7 @@ final class RunnerController
      */
     public function toggleCheck(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $artifact = Artifact::find((int) $project['id'], (int) $recipe['id']);
         $latest = $artifact !== null ? Artifact::latestVersion((int) $artifact['id']) : null;
@@ -234,6 +237,7 @@ final class RunnerController
     /** Approve the latest version; all checks must be confirmed. */
     public function approve(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe, $recipes] = $this->load($id, $position);
         $projectId = (int) $project['id'];
         $artifact = Artifact::find($projectId, (int) $recipe['id']);
@@ -277,6 +281,7 @@ final class RunnerController
     /** Withdraw an approval to keep working on this artifact. */
     public function reopen(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $artifact = Artifact::find((int) $project['id'], (int) $recipe['id']);
         if ($artifact === null) {
@@ -292,6 +297,7 @@ final class RunnerController
     /** Save an edited copy as a new version; the original is untouched. */
     public function saveEdit(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $artifact = Artifact::find((int) $project['id'], (int) $recipe['id']);
         if ($artifact === null) {
@@ -320,6 +326,7 @@ final class RunnerController
     /** Bring an older version back as a new version (history intact). */
     public function restore(string $id, string $position): void
     {
+        Auth::requireVerified();
         [$project, $recipe] = $this->load($id, $position);
         $artifact = Artifact::find((int) $project['id'], (int) $recipe['id']);
         $versionNo = (int) ($_POST['version_no'] ?? 0);

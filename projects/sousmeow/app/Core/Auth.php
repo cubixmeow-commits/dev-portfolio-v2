@@ -43,6 +43,24 @@ final class Auth
         return $user !== null && $user['role'] === 'admin';
     }
 
+    public static function isSimulated(): bool
+    {
+        $user = self::user();
+        return $user !== null && (int) ($user['simulation'] ?? 0) === 1;
+    }
+
+    public static function isVerified(): bool
+    {
+        $user = self::user();
+        if ($user === null) {
+            return false;
+        }
+        if (self::isAdmin() || self::isSimulated()) {
+            return true;
+        }
+        return $user['email_verified_at'] !== null && $user['email_verified_at'] !== '';
+    }
+
     /** @param array<string, mixed> $user */
     public static function login(array $user): void
     {
@@ -58,6 +76,11 @@ final class Auth
         self::$user = false;
     }
 
+    public static function refresh(): void
+    {
+        self::$user = false;
+    }
+
     /** Redirect guests to login, remembering where they were headed. */
     public static function requireLogin(): void
     {
@@ -69,6 +92,21 @@ final class Auth
         redirect('/login');
     }
 
+    /**
+     * Block unverified real users from privileged actions. Admins and
+     * simulated demo accounts bypass this check.
+     */
+    public static function requireVerified(): void
+    {
+        self::requireLogin();
+        if (self::isVerified()) {
+            return;
+        }
+        $_SESSION['intended'] = $_SERVER['REQUEST_URI'] ?? null;
+        Flash::set('notice', 'Verify your email to use this feature.');
+        redirect('/verify-email/pending');
+    }
+
     public static function requireAdmin(): void
     {
         self::requireLogin();
@@ -77,5 +115,28 @@ final class Auth
             View::render('errors/403', ['title' => 'Not allowed']);
             exit;
         }
+    }
+
+    /** Real users only — simulated and admin accounts are excluded. */
+    public static function requireRealUser(): void
+    {
+        self::requireLogin();
+        $user = self::user();
+        if ($user === null || !User::isRealUser($user)) {
+            http_response_code(403);
+            View::render('errors/403', ['title' => 'Not allowed']);
+            exit;
+        }
+    }
+
+    public static function redirectIntended(string $fallback = '/kitchen'): never
+    {
+        $intended = $_SESSION['intended'] ?? null;
+        unset($_SESSION['intended']);
+        if (is_string($intended) && str_starts_with($intended, '/') && !str_starts_with($intended, '//')) {
+            header('Location: ' . $intended, true, 303);
+            exit;
+        }
+        redirect($fallback);
     }
 }

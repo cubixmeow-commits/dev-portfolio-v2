@@ -26,7 +26,7 @@ $projectStatus = static function (array $p): array {
       <p class="section-sub">Your workflows, projects, and exports — saved at the exact step you left off.</p>
       <p class="kitchen-theme-line">Every project lives here until it is ready to export.</p>
     </div>
-    <a class="button button-ghost button-small" href="<?= e(url('/account/password')) ?>">Change password</a>
+    <a class="button button-ghost button-small" href="<?= e(url('/account')) ?>">Account</a>
   </header>
 
   <?php if ($projects === []): ?>

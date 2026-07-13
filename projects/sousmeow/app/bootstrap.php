@@ -22,8 +22,10 @@ spl_autoload_register(static function (string $class): void {
 require __DIR__ . '/Core/helpers.php';
 
 use SousMeow\Core\Config;
+use SousMeow\Core\Env;
 use SousMeow\Core\Session;
 
+Env::load(__DIR__ . '/../.env');
 Config::load(__DIR__ . '/../config');
 
 date_default_timezone_set(Config::string('app.timezone', 'UTC'));

@@ -10,7 +10,6 @@
         <li>Every pasted response is versioned — nothing is ever lost</li>
         <li>Completed workflows export as a Project Kit</li>
       </ul>
-      <p class="auth-aside-note">The kitchen remembers everything.</p>
     </aside>
     <div class="auth-form-col">
       <h1>Sign in</h1>
@@ -24,14 +23,16 @@
           <?php if (isset($errors['email'])): ?><p class="field-error"><?= e($errors['email']) ?></p><?php endif; ?>
         </div>
         <div class="field">
-          <label class="field-label" for="password">Password</label>
+          <div class="field-label-row">
+            <label class="field-label" for="password">Password</label>
+            <a class="field-inline-link" href="<?= e(url('/forgot-password')) ?>">Forgot password?</a>
+          </div>
           <input class="input <?= isset($errors['password']) ? 'input-invalid' : '' ?>" type="password" id="password"
                  name="password" autocomplete="current-password" required>
           <?php if (isset($errors['password'])): ?><p class="field-error"><?= e($errors['password']) ?></p><?php endif; ?>
         </div>
         <button type="submit" class="button button-primary button-block">Sign in</button>
       </form>
-      <p class="auth-footnote">Forgot your password? This demo has no email delivery; an admin can issue a temporary password with <code>php scripts/seed.php --reset-password you@example.com</code>.</p>
     </div>
   </div>
 </div>

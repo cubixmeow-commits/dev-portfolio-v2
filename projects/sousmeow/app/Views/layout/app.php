@@ -1,5 +1,6 @@
 <?php
 
+use SousMeow\Core\Auth;
 use SousMeow\Core\Csrf;
 use SousMeow\Core\Flash;
 
@@ -13,6 +14,7 @@ $title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow ·
 $pageCssList = isset($pageCss) ? (array) $pageCss : [];
 $flash = Flash::pull();
 $isAdmin = ($auth['role'] ?? '') === 'admin';
+$needsVerification = $auth && !Auth::isVerified();
 ?>
 <!doctype html>
 <html lang="en">
@@ -48,6 +50,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
         <?php if ($auth): ?>
           <a href="<?= e(url('/kitchen')) ?>">My projects</a>
           <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+          <a href="<?= e(url('/account')) ?>">Account</a>
           <?php if ($isAdmin): ?><a href="<?= e(url('/admin')) ?>">Admin</a><?php endif; ?>
           <form method="post" action="<?= e(url('/logout')) ?>" class="nav-logout">
             <?= Csrf::field() ?>
@@ -63,6 +66,13 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
     </nav>
   </div>
 </header>
+
+<?php if ($needsVerification): ?>
+<div class="verify-banner" role="status">
+  Verify your email to start projects and export kits.
+  <a href="<?= e(url('/verify-email/pending')) ?>">Resend verification</a>
+</div>
+<?php endif; ?>
 
 <?php if ($flash !== null): ?>
   <div class="flash flash-<?= e($flash['type']) ?>" role="status" data-flash <?= $flash['type'] === 'celebrate' ? 'data-celebrate' : '' ?>>
@@ -87,6 +97,8 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
     <nav class="footer-links" aria-label="Footer">
       <a href="<?= e(url('/')) ?>">How it works</a>
       <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+      <a href="<?= e(url('/terms')) ?>">Terms</a>
+      <a href="<?= e(url('/privacy')) ?>">Privacy</a>
       <?php if (!$auth): ?><a href="<?= e(url('/register')) ?>">Create an account</a><?php endif; ?>
     </nav>
   </div>
