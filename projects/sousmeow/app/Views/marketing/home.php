@@ -39,6 +39,9 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
     <div class="tw-wrap">
       <div class="hero-grid">
         <div class="hero-copy">
+          <div class="hero-mascot" aria-hidden="true">
+            <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'plain']); ?>
+          </div>
           <p class="tw-kicker mono">sousmeow · structured AI workflows</p>
           <h1 id="hero-h">AI&nbsp;workflows,<br>not AI&nbsp;prompts.</h1>
           <p class="hero-lede">A prompt gets you a paragraph. A Cookbook walks you through

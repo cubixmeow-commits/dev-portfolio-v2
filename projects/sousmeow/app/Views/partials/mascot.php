@@ -25,7 +25,9 @@ $prop = match ($pose) {
   <path d="M20 26 C17 17 18 10 22 8.5 C25 7.4 28.5 10 30.5 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="var(--mascot-ear, #F6E7D7)"/>
   <path d="M52 26 C55 17 54 10 50 8.5 C47 7.4 43.5 10 41.5 13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="var(--mascot-ear, #F6E7D7)"/>
   <ellipse cx="36" cy="40" rx="22" ry="19" fill="var(--mascot-face, #FDF6EC)" stroke="currentColor" stroke-width="2.4"/>
-  <path d="M22 16 C22 11 28 7.5 36 7.5 C44 7.5 50 11 50 16 C50 18.4 48 20 45.5 20 L26.5 20 C24 20 22 18.4 22 16 Z" fill="var(--mascot-hat, #FFFFFF)" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+  <!-- Chef's toque: a pleated puff sitting on a band -->
+  <path d="M26 16 C21.5 15.5 21.5 9 26 8.5 C24 4 31 3.5 32.5 7.5 C34 4 38 4 39.5 7.5 C41 3.5 48 4 46 8.5 C50.5 9 50.5 15.5 46 16 Z" fill="var(--mascot-hat, #FFFFFF)" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+  <rect x="25" y="14.5" width="22" height="7.6" rx="2.6" fill="var(--mascot-hat, #FFFFFF)" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
   <?= $eyes ?>
   <path d="M36 41.5 L34.6 43.2 Q36 44.4 37.4 43.2 Z" fill="currentColor"/>
   <path d="M33 46.5 Q36 49 39 46.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
