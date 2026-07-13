@@ -42,6 +42,14 @@ final class ResponseParser
         $text = str_replace(["\r\n", "\r"], "\n", $content);
         $lines = explode("\n", $text);
 
+        // Some assistants return the whole answer wrapped in a single
+        // ```markdown code fence. Taken literally, every heading inside
+        // would be code and nothing would match. When the entire response
+        // is one wrapper fence, unwrap it once so the real document is
+        // parsed. Genuine embedded code blocks are untouched (they never
+        // start on the very first line and close on the very last).
+        $lines = self::unwrapWrapperFence($lines);
+
         // Map every normalized heading and alias to its section key.
         // Contract validation guarantees these are collision-free.
         $lookup = [];
@@ -54,8 +62,10 @@ final class ResponseParser
 
         // Collect candidate headings (levels 1-3) outside fenced code.
         // Deeper headings (####+) are sub-structure inside a section and
-        // never split the document.
+        // never split the document. Bare lines that exactly match a
+        // declared heading or alias are held back as a fallback (below).
         $headings = [];
+        $bareCandidates = [];
         $fence = null;
         foreach ($lines as $i => $line) {
             if (preg_match('/^\s{0,3}(`{3,}|~{3,})/', $line, $m) === 1) {
@@ -76,7 +86,38 @@ final class ResponseParser
                     'text'  => $m[2],
                     'key'   => $lookup[OutputContract::normalizeHeading($m[2])] ?? null,
                 ];
+                continue;
             }
+            // A non-blank line whose whole text is exactly a declared
+            // heading or alias (case, emphasis, and trailing punctuation
+            // ignored). Some assistants — Gemini, pasted plain text —
+            // drop the leading ## markers entirely.
+            $trimmed = trim($line);
+            if ($trimmed !== '' && isset($lookup[OutputContract::normalizeHeading($trimmed)])) {
+                $bareCandidates[] = [
+                    'line'  => $i,
+                    'level' => 2,
+                    'text'  => $trimmed,
+                    'key'   => $lookup[OutputContract::normalizeHeading($trimmed)],
+                ];
+            }
+        }
+
+        // Fallback for responses with no ATX heading markers at all: only
+        // when no declared section was found via real headings do the
+        // exact-match bare lines count as headings. This keeps well-formed
+        // ## responses untouched — a body line that merely quotes a
+        // heading phrase never creates a spurious section there.
+        $recognizedViaAtx = false;
+        foreach ($headings as $heading) {
+            if ($heading['key'] !== null) {
+                $recognizedViaAtx = true;
+                break;
+            }
+        }
+        if (!$recognizedViaAtx && $bareCandidates !== []) {
+            $headings = array_merge($headings, $bareCandidates);
+            usort($headings, static fn(array $a, array $b): int => $a['line'] <=> $b['line']);
         }
 
         // A recognized section spans from its heading to the next heading
@@ -167,6 +208,51 @@ final class ResponseParser
             'unexpected'       => $unexpected,
             'preamble'         => $preamble,
         ];
+    }
+
+    /**
+     * If the entire response is a single fenced block (optionally with a
+     * `markdown`/`md` info string), return its inner lines; otherwise
+     * return the lines unchanged. This only fires when the first non-blank
+     * line opens a fence and the last non-blank line closes the matching
+     * fence with no same-marker fence in between — i.e. a pure wrapper,
+     * never a document that merely contains a code block.
+     *
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private static function unwrapWrapperFence(array $lines): array
+    {
+        $firstIdx = null;
+        $lastIdx = null;
+        foreach ($lines as $i => $line) {
+            if (trim($line) !== '') {
+                $firstIdx ??= $i;
+                $lastIdx = $i;
+            }
+        }
+        if ($firstIdx === null || $firstIdx === $lastIdx) {
+            return $lines;
+        }
+        // Opening fence may carry an info string (```markdown); closing
+        // fence must be bare. Both must use the same marker character.
+        if (preg_match('/^\s{0,3}(`{3,}|~{3,})\s*[A-Za-z0-9_+-]*\s*$/', $lines[$firstIdx], $open) !== 1) {
+            return $lines;
+        }
+        if (preg_match('/^\s{0,3}(`{3,}|~{3,})\s*$/', $lines[$lastIdx], $close) !== 1) {
+            return $lines;
+        }
+        if ($open[1][0] !== $close[1][0]) {
+            return $lines;
+        }
+        // Any same-marker fence between the outer pair means this is not a
+        // clean wrapper (a real embedded block); leave it alone.
+        for ($i = $firstIdx + 1; $i < $lastIdx; $i++) {
+            if (preg_match('/^\s{0,3}(`{3,}|~{3,})/', $lines[$i], $inner) === 1 && $inner[1][0] === $open[1][0]) {
+                return $lines;
+            }
+        }
+        return array_slice($lines, $firstIdx + 1, $lastIdx - $firstIdx - 1);
     }
 
     /**
