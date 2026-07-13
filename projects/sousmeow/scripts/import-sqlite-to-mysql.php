@@ -198,9 +198,13 @@ function column_names(PDO $pdo, string $driver, string $table): array
              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ' . $pdo->quote($table) . '
              ORDER BY ORDINAL_POSITION'
         );
-        return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+        $cols = $stmt ? $stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+        return array_map('strval', $cols ?: []);
     }
     $rows = $pdo->query('PRAGMA table_info(' . $table . ')')->fetchAll();
+    if ($rows === false) {
+        return [];
+    }
     return array_map(static fn(array $r): string => (string) $r['name'], $rows);
 }
 
