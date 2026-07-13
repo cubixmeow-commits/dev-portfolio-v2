@@ -1,385 +1,474 @@
 <?php
-use SousMeow\Services\HomepageActivityPresenter;
-use SousMeow\Services\SiteStats;
-use SousMeow\Services\Simulation;
-
 /**
- * @var list<array<string, mixed>> $featuredCookbooks
- * @var array{
- *   metrics: array<string, int|float>,
- *   heatmap: array<string, mixed>,
- *   feed: list<array<string, string>>,
- *   achievements: list<array<string, string>>,
- *   insights: list<array<string, string>>,
- *   popular: list<array<string, mixed>>
- * } $activityBoard
+ * Marketing homepage — "Twilight workbench".
+ *
+ * The page reads as a narrative walk through the product: prompts break
+ * down → the Cookbook → the Pantry → the Runner → Quality Checks → the
+ * Project Kit → the shelf. Every demonstration below uses the real
+ * Launch Day Kit seed content (the Driftlog sample), not invented UI.
+ *
+ * @var array<string, mixed>|null       $featured        Executable sample Cookbook.
+ * @var list<array<string, mixed>>      $featuredStages  Its stages, ordered.
+ * @var list<array<string, mixed>>      $featuredRecipes Its recipes, ordered.
+ * @var list<array<string, mixed>>      $cookbooks       Full marketplace listing.
  */
-$accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/', '', (string) $c['accent']);
-$feedBadge = static fn(string $tone): string => match ($tone) {
-    'completed' => 'badge-sage',
-    'started'   => 'badge-lilac',
-    'milestone' => 'badge-amber',
-    'resumed'   => 'badge-terracotta',
-    default     => 'badge-neutral',
-};
-$metrics = $activityBoard['metrics'];
-$heatmap = $activityBoard['heatmap'];
-$feed = $activityBoard['feed'];
-$achievements = $activityBoard['achievements'];
-$insights = $activityBoard['insights'];
-$popular = $activityBoard['popular'];
+
 $marketplaceUrl = url('/marketplace');
+
+$recipesByStage = [];
+foreach ($featuredRecipes as $recipe) {
+    $recipesByStage[(int) $recipe['stage_position']][] = $recipe;
+}
+
+// Editorial shelf labels: curated by hand, like a shop window.
+$shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
+    'launch-day-kit'               => 'Creator pick',
+    'validate-saas-idea'           => 'Most cooked',
+    'plan-youtube-video'           => 'Recently updated',
+    'build-professional-portfolio' => 'New on the shelf',
+    'plan-a-novel'                 => 'Preview',
+    default                        => (string) ($c['category'] ?? 'Cookbook'),
+};
 ?>
-<div class="marketing-home">
+<div class="tw" id="top">
 
-  <!-- 1. Hero -->
-  <section class="hero">
-    <div class="hero-wash" aria-hidden="true">
-      <span class="wash-blob wash-peach" style="width: 22rem; height: 22rem; top: -6rem; right: -5rem;"></span>
-      <span class="wash-blob wash-sage" style="width: 18rem; height: 18rem; bottom: -7rem; left: -6rem;"></span>
-      <span class="wash-blob wash-butter" style="width: 12rem; height: 12rem; top: 40%; left: 12%;"></span>
-    </div>
-    <div class="hero-inner">
-      <div class="hero-mascot" aria-hidden="true">
-        <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
-      </div>
-      <h1>SousMeow guides you through every AI project,<br class="hero-headline-break" aria-hidden="true"> one step at a time.</h1>
-      <p class="hero-lede">Make AI easier. Pick a Cookbook, follow one clear step, and finish with work you can actually use.</p>
-      <div class="hero-actions">
-        <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Explore Cookbooks</a>
-        <a class="button button-ghost button-large" href="#how-it-works">See how it works</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. How it works -->
-  <section class="how-section" id="how-it-works" aria-labelledby="how-heading">
-    <div class="how-inner">
-      <h2 id="how-heading">How SousMeow works</h2>
-      <ol class="how-steps">
-        <li class="how-step">
-          <div class="how-step-visual" aria-hidden="true">
-            <span class="how-icon how-icon-cookbook">
-              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="8" y="10" width="32" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
-                <path d="M16 10V8a8 8 0 0 1 16 0v2" stroke="currentColor" stroke-width="2"/>
-                <path d="M16 22h16M16 28h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="how-illustration how-illustration-cookbook">
-              <span class="wash-blob wash-peach" style="width: 5rem; height: 5rem; top: 10%; right: 5%;"></span>
-              <span class="wash-blob wash-sage" style="width: 4rem; height: 4rem; bottom: 5%; left: 10%;"></span>
-            </span>
+  <!-- ============================================================
+       HERO — one idea, stated plainly, then shown
+       ============================================================ -->
+  <section class="tw-hero" aria-labelledby="hero-h">
+    <div class="tw-wrap">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="tw-kicker mono">sousmeow · structured AI workflows</p>
+          <h1 id="hero-h">AI&nbsp;workflows,<br>not AI&nbsp;prompts.</h1>
+          <p class="hero-lede">A prompt gets you a paragraph. A Cookbook walks you through
+            every step of a real project — in the AI you already use — and ends with
+            finished work in your hands.</p>
+          <div class="hero-actions">
+            <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Browse the Cookbooks</a>
+            <a class="button button-ghost button-large" href="#why-prompts">Walk through it</a>
           </div>
-          <p class="how-copy">Choose a Cookbook.</p>
-        </li>
-        <li class="how-step">
-          <div class="how-step-visual" aria-hidden="true">
-            <span class="how-icon how-icon-step">
-              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="24" cy="12" r="6" stroke="currentColor" stroke-width="2"/>
-                <circle cx="24" cy="24" r="6" stroke="currentColor" stroke-width="2"/>
-                <circle cx="24" cy="36" r="6" stroke="currentColor" stroke-width="2"/>
-                <path d="M24 18v0M24 30v0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="how-illustration how-illustration-step">
-              <span class="wash-blob wash-butter" style="width: 5rem; height: 5rem; top: 15%; left: 8%;"></span>
-              <span class="wash-blob wash-lilac" style="width: 3.5rem; height: 3.5rem; bottom: 10%; right: 12%;"></span>
-            </span>
-          </div>
-          <p class="how-copy">Follow one guided step at a time.</p>
-        </li>
-        <li class="how-step">
-          <div class="how-step-visual" aria-hidden="true">
-            <span class="how-icon how-icon-finish">
-              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10 14h28v24H10z" stroke="currentColor" stroke-width="2" rx="3"/>
-                <path d="M18 26l4 4 8-10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="how-illustration how-illustration-finish">
-              <span class="wash-blob wash-sage" style="width: 5rem; height: 5rem; top: 8%; right: 10%;"></span>
-              <span class="wash-blob wash-peach" style="width: 4rem; height: 4rem; bottom: 8%; left: 5%;"></span>
-            </span>
-          </div>
-          <p class="how-copy">Finish with organized work you can actually use.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
+          <p class="hero-foot mono">works with ChatGPT · Claude · Gemini — no API keys, nothing to install</p>
+        </div>
 
-  <!-- 3. Explore Cookbooks -->
-  <section class="cookbooks-section" aria-labelledby="cookbooks-heading">
-    <div class="cookbooks-inner">
-      <h2 id="cookbooks-heading">Explore Cookbooks</h2>
-      <div class="featured-cookbook-grid">
-        <?php foreach ($featuredCookbooks as $cookbook): ?>
-          <article class="featured-cookbook-card card <?= e($accentClass($cookbook)) ?>">
-            <h3 class="featured-cookbook-title"><?= e($cookbook['title']) ?></h3>
-            <p class="featured-cookbook-build">What you'll build: <?= e($cookbook['outcome']) ?></p>
-            <dl class="featured-cookbook-meta">
-              <div>
-                <dt>Steps</dt>
-                <dd><?= e(plural((int) $cookbook['recipe_count'], 'step')) ?></dd>
-              </div>
-              <div>
-                <dt>Time</dt>
-                <dd>~<?= (int) $cookbook['est_minutes'] ?> min</dd>
-              </div>
-              <div>
-                <dt>Level</dt>
-                <dd><?= e($cookbook['difficulty'] ?? 'Intermediate') ?></dd>
-              </div>
-            </dl>
-            <a class="button button-primary button-block" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">Start</a>
-          </article>
-        <?php endforeach; ?>
+        <figure class="hero-visual" data-hero>
+          <figcaption class="visually-hidden">A Cookbook of four Recipes completing one
+            by one, each producing a file that collects into a finished Project Kit.</figcaption>
+          <div class="hv-grid" aria-hidden="true">
+            <div class="hv-col-head mono">cookbook</div>
+            <div class="hv-col-head hv-gap"></div>
+            <div class="hv-col-head mono">project kit</div>
+
+            <div class="hv-recipe" style="--i:0"><span class="hv-dot"></span><span class="hv-name">Define your positioning</span></div>
+            <div class="hv-arrow" style="--i:0"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="hv-file mono" style="--i:0">positioning.md</div>
+
+            <div class="hv-recipe" style="--i:1"><span class="hv-dot"></span><span class="hv-name">Write landing page copy</span></div>
+            <div class="hv-arrow" style="--i:1"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="hv-file mono" style="--i:1">landing-page.md</div>
+
+            <div class="hv-recipe" style="--i:2"><span class="hv-dot"></span><span class="hv-name">Write launch posts</span></div>
+            <div class="hv-arrow" style="--i:2"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="hv-file mono" style="--i:2">announcements.md</div>
+
+            <div class="hv-recipe" style="--i:3"><span class="hv-dot"></span><span class="hv-name">Prepare your FAQ</span></div>
+            <div class="hv-arrow" style="--i:3"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+            <div class="hv-file mono" style="--i:3">faq.md</div>
+
+            <div class="hv-zip mono" style="--i:4"><span class="hv-zip-mark"></span>launch-day-kit.zip · 4 files + manifest</div>
+          </div>
+          <p class="hero-annot mono" aria-hidden="true">every Recipe leaves <br>something finished behind</p>
+        </figure>
       </div>
-      <p class="cookbooks-more">
-        <a href="<?= e($marketplaceUrl) ?>">Browse all Cookbooks</a>
-      </p>
     </div>
   </section>
 
-  <!-- 4. Why SousMeow -->
-  <section class="benefits-section" aria-labelledby="benefits-heading">
-    <div class="benefits-inner">
-      <h2 id="benefits-heading">Why SousMeow</h2>
-      <ul class="benefits-grid">
-        <li class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="10" y="14" width="36" height="28" rx="6" stroke="currentColor" stroke-width="2.5"/>
-              <path d="M18 28h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6"/>
-              <circle cx="28" cy="28" r="5" fill="currentColor" opacity="0.2"/>
-            </svg>
-          </span>
-          <p>No blank-chat guessing.</p>
-        </li>
-        <li class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="28" cy="28" r="18" stroke="currentColor" stroke-width="2.5"/>
-              <path d="M20 28h16M28 20v16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <p>Use the AI you already have.</p>
-        </li>
-        <li class="benefit-card">
-          <span class="benefit-icon" aria-hidden="true">
-            <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 38l10-12 8 6 14-18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="42" cy="14" r="6" stroke="currentColor" stroke-width="2.5"/>
-            </svg>
-          </span>
-          <p>Finish projects instead of collecting prompts.</p>
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- 5. Simulation showcase -->
-  <section class="showcase-section" aria-labelledby="showcase-heading">
-    <div class="showcase-inner">
-      <header class="showcase-header">
-        <h2 id="showcase-heading">See SousMeow in action</h2>
-        <p class="section-sub">A live portfolio demonstration — real guided projects, simulated creator activity.</p>
+  <!-- ============================================================
+       01 · WHY PROMPTS BREAK DOWN
+       ============================================================ -->
+  <section class="tw-sec sec-problem" id="why-prompts" aria-labelledby="problem-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">01 · the problem</p>
+        <h2 id="problem-h">Prompts don't finish projects.</h2>
       </header>
 
-      <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
-        <div class="dashboard-head">
-          <div class="dashboard-head-main">
-            <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Portfolio demo</p>
-            <h3 id="dashboard-heading" class="dashboard-title">Project progress today</h3>
-          </div>
-          <p class="dashboard-honesty">Simulated creator activity</p>
-        </div>
+      <div class="problem-grid">
+        <figure class="problem-panel" data-reveal style="--i:0">
+          <div class="diagram">
+            <svg viewBox="0 0 340 220" role="img" aria-label="Diagram: three isolated prompts drift apart, each trailing off into nothing.">
+              <g class="pr-chip" transform="rotate(-4 70 46)">
+                <rect x="18" y="28" width="150" height="34" rx="8"/>
+                <text x="34" y="50">“write me a landing page”</text>
+              </g>
+              <path class="pr-trail" d="M168 46 C 210 46, 240 30, 268 24"/>
+              <circle class="pr-end" cx="278" cy="22" r="2.2"/><circle class="pr-end" cx="290" cy="20" r="2.2"/><circle class="pr-end" cx="302" cy="19" r="2.2"/>
 
-        <div class="insights-hero" aria-labelledby="insights-heading">
-          <div class="insights-hero-glow" aria-hidden="true"></div>
-          <div class="insights-top">
-            <div class="insights-primary">
-              <p id="insights-heading" class="insights-eyebrow">Today</p>
-              <div class="insights-primary-value" aria-label="<?= e((string) $metrics['projects_completed_today']) ?> projects completed today">
-                <span class="insights-number"><?= e((string) $metrics['projects_completed_today']) ?></span>
-                <span class="insights-primary-label">projects completed</span>
-              </div>
-              <p class="insights-primary-meta">
-                <span class="insights-pill"><?= e((string) $metrics['milestones_today']) ?> milestones reached</span>
-                <span class="insights-pill"><?= e((string) $metrics['active_creators_today']) ?> creators active</span>
-              </p>
-            </div>
+              <g class="pr-chip" transform="rotate(2 110 106)">
+                <rect x="46" y="88" width="118" height="34" rx="8"/>
+                <text x="62" y="110">“hmm. make it better”</text>
+              </g>
+              <path class="pr-trail" d="M164 106 C 210 108, 238 118, 262 130"/>
+              <circle class="pr-end" cx="272" cy="134" r="2.2"/><circle class="pr-end" cx="284" cy="139" r="2.2"/>
 
-            <div class="insights-kpis" role="list">
-              <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact((int) $metrics['creators_total'])) ?></span>
-                <span class="insight-kpi-label">Active creators</span>
-                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(((int) $metrics['creators_total'] / Simulation::POOL_SIZE) * 100)) ?>%"></span>
-              </div>
-              <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact((int) $metrics['projects_finished_total'])) ?></span>
-                <span class="insight-kpi-label">Finished projects</span>
-                <span class="insight-kpi-bar insight-kpi-bar-sage" style="--fill: <?= min(100, max(8, (int) round(((int) $metrics['projects_finished_total'] / max((int) $metrics['creators_total'], 1)) * 100))) ?>%"></span>
-              </div>
-              <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e((string) $metrics['workflows_in_progress']) ?></span>
-                <span class="insight-kpi-label">In progress now</span>
-                <span class="insight-kpi-bar insight-kpi-bar-amber" style="--fill: <?= min(100, max(8, (int) $metrics['workflows_in_progress'])) ?>%"></span>
-              </div>
-              <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e((string) $metrics['projects_completed_week']) ?></span>
-                <span class="insight-kpi-label">Finished this week</span>
-                <span class="insight-kpi-bar insight-kpi-bar-teal" style="--fill: <?= min(100, max(8, (int) round(((int) $metrics['projects_completed_week'] / max((int) $metrics['projects_finished_total'], 1)) * 100))) ?>%"></span>
-              </div>
-            </div>
+              <g class="pr-chip" transform="rotate(-2 96 168)">
+                <rect x="26" y="150" width="140" height="34" rx="8"/>
+                <text x="42" y="172">“wait, who is this for?”</text>
+              </g>
+              <path class="pr-trail" d="M166 168 C 204 172, 224 186, 240 198"/>
+              <text class="pr-q" x="252" y="210">?</text>
+            </svg>
           </div>
+          <figcaption>Every chat starts from zero. Context evaporates, quality drifts,
+            and nothing accumulates.</figcaption>
+        </figure>
 
-          <div class="insights-heatmap">
-            <div class="heatmap-head">
-              <div>
-                <h4 class="heatmap-title"><?= e((string) ($heatmap['label'] ?? 'Project milestones')) ?></h4>
-                <p class="heatmap-sub"><?= e((string) ($heatmap['summary'] ?? '')) ?></p>
-              </div>
-              <div class="heatmap-legend" aria-hidden="true">
-                <span>Less</span>
-                <?php for ($lvl = 0; $lvl <= 4; $lvl++): ?>
-                  <span class="heatmap-cell heatmap-level-<?= $lvl ?>"></span>
-                <?php endfor; ?>
-                <span>More</span>
-              </div>
-            </div>
-            <div class="heatmap-scroll">
-              <div class="heatmap-chart" role="img" aria-label="Project milestone heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
-                <div class="heatmap-weeks">
-                  <?php foreach ($heatmap['weeks'] as $week): ?>
-                    <div class="heatmap-week">
-                      <?php foreach ($week as $cell): ?>
-                        <?php if ($cell === null): ?>
-                          <span class="heatmap-cell heatmap-empty" aria-hidden="true"></span>
-                        <?php else: ?>
-                          <span
-                            class="heatmap-cell heatmap-level-<?= (int) $cell['level'] ?>"
-                            title="<?= e($cell['date'] . ': ' . $cell['count'] . ' milestones') ?>"
-                          ></span>
-                        <?php endif; ?>
-                      <?php endforeach; ?>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div class="problem-vs mono" aria-hidden="true" data-reveal style="--i:1">vs</div>
 
-        <div class="dashboard-boards">
-          <div class="dashboard-panel dashboard-activity">
-            <div class="panel-heading">
-              <div>
-                <h3>What people are finishing</h3>
-              </div>
-              <span class="panel-live">Live demo</span>
-            </div>
-            <?php if ($feed === []): ?>
-              <p class="panel-empty">Activity appears when the portfolio simulation runs.</p>
-            <?php else: ?>
-              <ul class="activity-feed">
-                <?php foreach ($feed as $event): ?>
-                  <li class="activity-card activity-<?= e($event['tone']) ?>">
-                    <span class="activity-avatar" style="--avatar-hue: <?= e((string) SiteStats::avatarHue($event['name'])) ?>" aria-hidden="true"><?= e(SiteStats::initials($event['name'])) ?></span>
-                    <div class="activity-body">
-                      <div class="activity-card-top">
-                        <span class="badge <?= e($feedBadge($event['tone'])) ?>"><?= e($event['badge']) ?></span>
-                        <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
-                      </div>
-                      <p class="activity-copy"><?= e($event['message']) ?></p>
-                    </div>
-                  </li>
-                <?php endforeach; ?>
-              </ul>
-            <?php endif; ?>
+        <figure class="problem-panel" data-reveal style="--i:2">
+          <div class="diagram">
+            <svg viewBox="0 0 340 220" role="img" aria-label="Diagram: four connected steps pass their work forward and end in a finished kit.">
+              <g class="wf-node"><rect x="16" y="92" width="56" height="36" rx="8"/><text x="28" y="114">step 1</text></g>
+              <path class="wf-link" d="M72 110 H96"/>
+              <g class="wf-node"><rect x="98" y="92" width="56" height="36" rx="8"/><text x="110" y="114">step 2</text></g>
+              <path class="wf-link" d="M154 110 H178"/>
+              <g class="wf-node"><rect x="180" y="92" width="56" height="36" rx="8"/><text x="192" y="114">step 3</text></g>
+              <path class="wf-link" d="M236 110 H260"/>
+              <g class="wf-kit"><rect x="262" y="86" width="62" height="48" rx="8"/><text x="274" y="107">done</text><text class="wf-kit-sub" x="274" y="122">.zip</text></g>
+              <path class="wf-carry" d="M44 128 C 44 156, 126 156, 126 130"/>
+              <path class="wf-carry" d="M126 128 C 126 162, 208 162, 208 130"/>
+              <text class="wf-annot" x="70" y="186">each step hands its work to the next</text>
+            </svg>
           </div>
+          <figcaption>A workflow carries context forward. Every step builds on approved
+            work — until the project is done.</figcaption>
+        </figure>
+      </div>
 
-          <div class="dashboard-panel dashboard-achievements">
-            <div class="panel-heading">
-              <div>
-                <h3>Community achievements</h3>
-              </div>
-            </div>
-            <?php if ($achievements === []): ?>
-              <p class="panel-empty">Achievements appear as simulated creators finish projects.</p>
-            <?php else: ?>
-              <ul class="achievement-list">
-                <?php foreach ($achievements as $achievement): ?>
-                  <li class="achievement-card">
-                    <span class="achievement-mark" aria-hidden="true">&#9733;</span>
-                    <div class="achievement-body">
-                      <p class="achievement-title"><?= e($achievement['title']) ?></p>
-                      <p class="achievement-copy"><?= e($achievement['message']) ?></p>
-                      <time class="achievement-time" datetime="<?= e($achievement['at']) ?>"><?= e(time_ago($achievement['at'])) ?></time>
-                    </div>
-                  </li>
-                <?php endforeach; ?>
-              </ul>
-            <?php endif; ?>
-          </div>
-        </div>
-
-        <div class="dashboard-panel dashboard-insights">
-          <div class="panel-heading">
-            <div>
-              <h3>Community insights</h3>
-            </div>
-          </div>
-          <ul class="insight-grid" role="list">
-            <?php foreach ($insights as $insight): ?>
-              <li class="insight-card" role="listitem">
-                <p class="insight-card-label"><?= e($insight['label']) ?></p>
-                <p class="insight-card-value"><?= e($insight['value']) ?></p>
-                <p class="insight-card-detail"><?= e($insight['detail']) ?></p>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-
-        <div class="dashboard-panel dashboard-popular">
-          <div class="panel-heading">
-            <div>
-              <h3>Popular workflows</h3>
-            </div>
-          </div>
-          <ol class="trending-list">
-            <?php $rank = 1; foreach ($popular as $cookbook): ?>
-              <li>
-                <a class="trending-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
-                  <span class="trending-rank" aria-hidden="true"><?= $rank++ ?></span>
-                  <span class="trending-body">
-                    <span class="trending-title"><?= e($cookbook['title']) ?></span>
-                    <span class="trending-metrics">
-                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['completed_today'] ?? 0))) ?> finished today</span>
-                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['in_progress'] ?? 0))) ?> in progress</span>
-                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['completion_rate'] ?? 0))) ?>% completion rate</span>
-                    </span>
-                  </span>
-                  <span class="trending-chevron" aria-hidden="true">&#8250;</span>
-                </a>
-              </li>
-            <?php endforeach; ?>
-          </ol>
-        </div>
-      </section>
+      <p class="sec-bridge" data-reveal>SousMeow packages that workflow as something you can
+        hold: <strong>a&nbsp;Cookbook</strong>.</p>
     </div>
   </section>
 
-  <!-- 6. Final CTA -->
-  <section class="final-cta">
-    <div class="final-cta-inner card card-pad">
-      <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
-      <h2>Ready to start?</h2>
-      <p class="section-sub">Choose a Cookbook and let SousMeow guide the rest.</p>
-      <div class="hero-actions">
-        <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Explore Cookbooks</a>
+  <?php if ($featured !== null): ?>
+  <!-- ============================================================
+       02 · MEET THE COOKBOOK — one real artifact, typeset
+       ============================================================ -->
+  <section class="tw-sec sec-cookbook" id="cookbook" aria-labelledby="cookbook-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">02 · the cookbook</p>
+        <h2 id="cookbook-h">A Cookbook is a project with the thinking already done.</h2>
+      </header>
+
+      <article class="cb-artifact" data-reveal aria-label="The <?= e($featured['title']) ?> Cookbook">
+        <div class="cb-cover">
+          <p class="cb-cat mono"><?= e($featured['category']) ?> · <?= e($featured['difficulty'] ?? 'Intermediate') ?></p>
+          <h3 class="cb-title"><?= e($featured['title']) ?></h3>
+          <p class="cb-tagline"><?= e($featured['tagline']) ?></p>
+
+          <dl class="cb-facts">
+            <div><dt class="mono">recipes</dt><dd><?= (int) $featured['recipe_count'] ?></dd></div>
+            <div><dt class="mono">time</dt><dd>~<?= (int) $featured['est_minutes'] ?> min</dd></div>
+            <div><dt class="mono">completed runs</dt><dd><?= number_format((int) ($featured['demo_completed_runs'] ?? 0)) ?></dd></div>
+          </dl>
+
+          <div class="cb-outcome">
+            <p class="cb-outcome-label mono">you leave with</p>
+            <p class="cb-outcome-text"><?= e(ucfirst((string) $featured['outcome'])) ?>.</p>
+          </div>
+
+          <a class="button button-ghost" href="<?= e(url('/cookbooks/' . $featured['slug'])) ?>">Open this Cookbook</a>
+        </div>
+
+        <div class="cb-toc" aria-label="Table of contents">
+          <p class="cb-toc-head mono">contents</p>
+          <?php foreach ($featuredStages as $stage): ?>
+            <div class="cb-stage">
+              <p class="cb-stage-name"><span class="cb-stage-no mono"><?= sprintf('%02d', (int) $stage['position']) ?></span>
+                <?= e($stage['title']) ?> <span class="cb-stage-sum">— <?= e($stage['summary']) ?></span></p>
+              <ol class="cb-recipes">
+                <?php foreach ($recipesByStage[(int) $stage['position']] ?? [] as $recipe): ?>
+                  <li class="cb-recipe">
+                    <span class="cb-recipe-name"><?= e($recipe['title']) ?></span>
+                    <span class="cb-leader" aria-hidden="true"></span>
+                    <span class="cb-recipe-min mono"><?= (int) $recipe['est_minutes'] ?>&nbsp;min</span>
+                  </li>
+                <?php endforeach; ?>
+              </ol>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </article>
+
+      <p class="sec-bridge" data-reveal>Every Recipe cooks from the same set of facts about
+        <em>your</em> project. Those facts live in <strong>the&nbsp;Pantry</strong>.</p>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <!-- ============================================================
+       03 · THE PANTRY — variables become prompts
+       ============================================================ -->
+  <section class="tw-sec sec-pantry" id="pantry" aria-labelledby="pantry-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">03 · the pantry</p>
+        <h2 id="pantry-h">Answer once. Every prompt remembers.</h2>
+        <p class="sec-sub-tw">Stock the Pantry with the plain facts of your project.
+          Every Recipe quotes them — and is told to invent nothing beyond them.</p>
+      </header>
+
+      <div class="pantry-demo" data-pantry>
+        <div class="pantry-fields" role="list" aria-label="Pantry values for the sample project">
+          <div class="pf" role="listitem" data-field="product_name" style="--i:0">
+            <span class="pf-label mono">product_name</span>
+            <span class="pf-value">Driftlog</span>
+          </div>
+          <div class="pf" role="listitem" data-field="one_liner" style="--i:1">
+            <span class="pf-label mono">one_liner</span>
+            <span class="pf-value">Effortless time logging for freelance designers</span>
+          </div>
+          <div class="pf" role="listitem" data-field="audience" style="--i:2">
+            <span class="pf-label mono">audience</span>
+            <span class="pf-value">Freelancers who bill by the hour but hate timers</span>
+          </div>
+          <div class="pf" role="listitem" data-field="tone" style="--i:3">
+            <span class="pf-label mono">tone</span>
+            <span class="pf-value">Quietly confident</span>
+          </div>
+        </div>
+
+        <div class="pantry-prompt prompt-frame" aria-label="A prompt being prepared from Pantry values">
+          <div class="prompt-frame-bar mono"><span>recipe 1 of 4 · prompt, prepared for you</span></div>
+          <pre class="pantry-pre mono">You are a positioning-focused product marketer.
+Write positioning for a product using only the
+facts below. Invent nothing.
+
+Product: <span class="pv" data-token="product_name"><span class="pv-key">{{product_name}}</span><span class="pv-val">Driftlog</span></span>
+One-liner: <span class="pv" data-token="one_liner"><span class="pv-key">{{one_liner}}</span><span class="pv-val">Effortless time logging for freelance designers</span></span>
+Audience: <span class="pv" data-token="audience"><span class="pv-key">{{audience}}</span><span class="pv-val">Freelancers who bill by the hour but hate timers</span></span>
+Voice: <span class="pv" data-token="tone"><span class="pv-key">{{tone}}</span><span class="pv-val">Quietly confident</span></span></pre>
+        </div>
+
+        <button type="button" class="pantry-replay mono" data-pantry-replay hidden>↻ fill the prompt again</button>
+      </div>
+
+      <p class="sec-bridge" data-reveal>A prepared prompt is only half the loop. The other
+        half happens in <strong>the&nbsp;Runner</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       04 · THE RECIPE RUNNER — the centerpiece
+       ============================================================ -->
+  <section class="tw-sec sec-runner" id="runner" aria-labelledby="runner-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">04 · the runner</p>
+        <h2 id="runner-h">One loop, repeated until the work is done.</h2>
+        <p class="sec-sub-tw">SousMeow never calls an AI for you. You carry each prompt to
+          the assistant you already pay for, and carry the answer back. The Runner keeps
+          the loop honest.</p>
+      </header>
+
+      <div class="runner-demo is-step-1" data-runner data-reveal>
+        <ol class="run-rail" aria-label="The six moments of the loop">
+          <li><button type="button" class="run-step" data-step="1"><span class="rs-no mono">1</span><span class="rs-name">Recipe</span></button></li>
+          <li><button type="button" class="run-step" data-step="2"><span class="rs-no mono">2</span><span class="rs-name">Prompt</span></button></li>
+          <li><button type="button" class="run-step" data-step="3"><span class="rs-no mono">3</span><span class="rs-name">Your AI</span></button></li>
+          <li><button type="button" class="run-step" data-step="4"><span class="rs-no mono">4</span><span class="rs-name">Paste back</span></button></li>
+          <li><button type="button" class="run-step" data-step="5"><span class="rs-no mono">5</span><span class="rs-name">Quality check</span></button></li>
+          <li><button type="button" class="run-step" data-step="6"><span class="rs-no mono">6</span><span class="rs-name">Next Recipe</span></button></li>
+        </ol>
+
+        <div class="run-stage">
+          <div class="run-panel run-panel-recipe" data-panel="1 2">
+            <p class="run-panel-tag mono">sousmeow · recipe 1 of 4</p>
+            <h3 class="run-panel-title">Define your positioning</h3>
+            <p class="run-panel-body">Clarify what your product is, who it is for, and why
+              it matters. Every later step quotes this word for word.</p>
+            <div class="run-prompt mono" aria-label="Prepared prompt, ready to copy">
+              <span class="run-prompt-line">Write positioning for <b>Driftlog</b> using only</span>
+              <span class="run-prompt-line">the facts below. Invent nothing. …</span>
+              <span class="run-copy" aria-hidden="true">⧉ copy</span>
+            </div>
+          </div>
+
+          <div class="run-panel run-panel-ai" data-panel="3">
+            <p class="run-panel-tag mono">your AI · any of them</p>
+            <div class="run-ai-tabs" aria-hidden="true">
+              <span class="run-ai-tab is-on">ChatGPT</span><span class="run-ai-tab">Claude</span><span class="run-ai-tab">Gemini</span>
+            </div>
+            <div class="run-ai-thread" aria-hidden="true">
+              <span class="run-line run-line-user"></span>
+              <span class="run-line w80"></span>
+              <span class="run-line w95"></span>
+              <span class="run-line w60"></span>
+            </div>
+            <p class="run-panel-body">Paste the prompt into whichever assistant you already
+              use. Your subscription, your data, your choice.</p>
+          </div>
+
+          <div class="run-panel run-panel-review" data-panel="4 5 6">
+            <p class="run-panel-tag mono">sousmeow · review</p>
+            <div class="run-response" aria-hidden="true">
+              <span class="run-resp-head mono">## Positioning statement</span>
+              <span class="run-line w95"></span>
+              <span class="run-line w85"></span>
+            </div>
+            <ul class="run-checks">
+              <li class="run-check" style="--i:0"><span class="rc-box" aria-hidden="true"></span>Names the audience from your Pantry, not a generic one</li>
+              <li class="run-check" style="--i:1"><span class="rc-box" aria-hidden="true"></span>Claims only features from your list</li>
+              <li class="run-check" style="--i:2"><span class="rc-box" aria-hidden="true"></span>You would say this sentence out loud</li>
+            </ul>
+            <p class="run-next mono"><span class="run-next-arrow" aria-hidden="true">→</span> recipe 2 unlocked: Write landing page copy</p>
+          </div>
+        </div>
+
+        <div class="run-captions">
+          <p class="run-caption mono" data-caption="1">the Recipe frames the step: what you're making and why it matters</p>
+          <p class="run-caption mono" data-caption="2">the prompt is prepared from your Pantry — copy it in one tap</p>
+          <p class="run-caption mono" data-caption="3">run it in the AI you already have; SousMeow never sees your chat</p>
+          <p class="run-caption mono" data-caption="4">paste the response back — it's saved as version 1, untouched</p>
+          <p class="run-caption mono" data-caption="5">confirm the Quality Checks: you read it, it holds up</p>
+          <p class="run-caption mono" data-caption="6">approval unlocks the next Recipe, carrying this work forward</p>
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- ============================================================
+       05 · QUALITY CHECKS — the part nobody else does
+       ============================================================ -->
+  <section class="tw-sec sec-checks" id="checks" aria-labelledby="checks-h">
+    <div class="tw-wrap">
+      <div class="checks-grid">
+        <header class="sec-head checks-head" data-reveal>
+          <p class="tw-kicker mono">05 · quality checks</p>
+          <h2 id="checks-h">Nothing advances unread.</h2>
+          <p class="sec-sub-tw">Most AI tools grade their own homework. SousMeow doesn't
+            pretend to: a Quality Check is your judgement, recorded. Each confirmation
+            binds to the exact version you read — edit the text and the checks reset,
+            on purpose.</p>
+          <ul class="checks-versions" aria-label="Version history of one response">
+            <li class="cv mono" style="--i:0"><span class="cv-v">v1</span> pasted response <span class="cv-state">superseded</span></li>
+            <li class="cv mono" style="--i:1"><span class="cv-v">v2</span> edited · checks reset <span class="cv-state">superseded</span></li>
+            <li class="cv cv-approved mono" style="--i:2"><span class="cv-v">v3</span> restored from v1 <span class="cv-state">approved</span></li>
+          </ul>
+        </header>
+
+        <figure class="checks-artifact" data-checks data-reveal>
+          <figcaption class="visually-hidden">A pasted response with margin annotations,
+            three confirmed Quality Checks, and an approval stamp.</figcaption>
+          <div class="ca-sheet">
+            <p class="ca-head mono">artifact · positioning.md · v3</p>
+            <p class="ca-line ca-strong">Driftlog is a passive time logger for freelance
+              designers who bill by the hour but refuse to babysit a timer.</p>
+            <p class="ca-line">It watches the apps you already work in, then turns your day
+              into clean, client-ready entries in one review tap.</p>
+            <span class="ca-annot ca-annot-1 mono" aria-hidden="true">audience quoted from<br>your Pantry — nothing invented</span>
+            <span class="ca-annot ca-annot-2 mono" aria-hidden="true">a claim you can<br>defend in comments</span>
+
+            <ul class="ca-checks">
+              <li class="ca-check" style="--i:0"><span class="ca-mark" aria-hidden="true"></span>Names the audience from your Pantry</li>
+              <li class="ca-check" style="--i:1"><span class="ca-mark" aria-hidden="true"></span>Claims only features from your list</li>
+              <li class="ca-check" style="--i:2"><span class="ca-mark" aria-hidden="true"></span>You would say this out loud</li>
+            </ul>
+
+            <span class="ca-stamp" aria-hidden="true">
+              <span class="ca-stamp-top">approved</span>
+              <span class="ca-stamp-sub mono">read by you · v3 · 3/3</span>
+            </span>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       06 · THE PROJECT KIT — everything, collected
+       ============================================================ -->
+  <section class="tw-sec sec-kit" id="kit" aria-labelledby="kit-h">
+    <div class="tw-wrap">
+      <div class="kit-grid">
+        <header class="sec-head" data-reveal>
+          <p class="tw-kicker mono">06 · the project kit</p>
+          <h2 id="kit-h">Finish with files, not a chat history.</h2>
+          <p class="sec-sub-tw">Everything you approve collects into one organized bundle:
+            documents, copy, plans, research — plus a manifest of what was made, when,
+            and from which Recipe. Yours to keep, ship, or hand off.</p>
+        </header>
+
+        <div class="kit-manifest" data-kit data-reveal>
+          <p class="km-head mono">launch-day-kit.zip <span class="km-count" data-kit-count>0 of 5 packed</span></p>
+          <ol class="km-files">
+            <li class="km-file" style="--i:0"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">positioning.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">recipe 1</span></li>
+            <li class="km-file" style="--i:1"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">landing-page.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">recipe 2</span></li>
+            <li class="km-file" style="--i:2"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">announcements.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">recipe 3</span></li>
+            <li class="km-file" style="--i:3"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">faq.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">recipe 4</span></li>
+            <li class="km-file km-file-manifest" style="--i:4"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">manifest.txt</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">who approved what, when</span></li>
+          </ol>
+          <p class="km-foot mono">packed as .zip · plain files · no lock-in</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       07 · THE SHELF — curated marketplace
+       ============================================================ -->
+  <section class="tw-sec sec-shelf" id="shelf" aria-labelledby="shelf-h">
+    <div class="tw-wrap">
+      <header class="sec-head shelf-head" data-reveal>
+        <div>
+          <p class="tw-kicker mono">07 · the shelf</p>
+          <h2 id="shelf-h">Cookbooks worth cooking.</h2>
+        </div>
+        <a class="shelf-all mono" href="<?= e($marketplaceUrl) ?>">browse the whole shelf →</a>
+      </header>
+
+      <?php if ($cookbooks === []): ?>
+        <p class="sec-sub-tw" data-reveal>The shelf is being stocked —
+          <a href="<?= e($marketplaceUrl) ?>">see the marketplace</a>.</p>
+      <?php else: ?>
+      <ul class="shelf" data-reveal>
+        <?php foreach ($cookbooks as $i => $cookbook): ?>
+          <li class="shelf-book accent-<?= e(preg_replace('/[^a-z]/', '', (string) $cookbook['accent'])) ?>" style="--i:<?= (int) $i ?>">
+            <p class="sb-tag mono"><?= e($shelfLabel($cookbook)) ?></p>
+            <h3 class="sb-title"><a href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>"><?= e($cookbook['title']) ?></a></h3>
+            <p class="sb-tagline"><?= e($cookbook['tagline']) ?></p>
+            <p class="sb-meta mono">
+              <?= e(plural((int) $cookbook['recipe_count'], 'recipe')) ?> ·
+              ~<?= (int) $cookbook['est_minutes'] ?> min ·
+              <?= e($cookbook['difficulty'] ?? 'Intermediate') ?>
+            </p>
+            <p class="sb-foot">
+              <?php if ((int) $cookbook['is_executable'] === 1): ?>
+                <span class="sb-runs mono"><?= number_format((int) ($cookbook['demo_completed_runs'] ?? 0)) ?> runs · ★ <?= e((string) ($cookbook['demo_avg_rating'] ?? '')) ?></span>
+              <?php else: ?>
+                <span class="sb-runs mono">preview · full run coming soon</span>
+              <?php endif; ?>
+            </p>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+      <div class="shelf-rail" aria-hidden="true"></div>
+      <?php endif; ?>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FINAL CTA — quiet and sure
+       ============================================================ -->
+  <section class="tw-sec sec-cta" aria-labelledby="cta-h">
+    <div class="tw-wrap">
+      <div class="cta-inner" data-reveal>
+        <h2 id="cta-h">Stop prompting. Start finishing.</h2>
+        <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Start your first Cookbook</a>
+        <p class="cta-foot mono">free to try · bring the AI you already have · leave with files</p>
+      </div>
+    </div>
+  </section>
+
 </div>
