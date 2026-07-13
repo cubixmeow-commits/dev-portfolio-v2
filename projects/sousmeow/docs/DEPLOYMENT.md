@@ -61,6 +61,34 @@ To rotate a forgotten password later:
 php scripts/seed.php --reset-password user@example.com
 ```
 
+## 3b. Import SQLite data into MySQL
+
+If you developed locally on SQLite and switched `config.php` to MySQL,
+`seed.php` only applies schema and catalog content — it does **not** copy
+users, projects, artifacts, or exports from your old database.
+
+Upload your SQLite file to the server (for example
+`storage/sousmeow.sqlite`), then:
+
+```sh
+# Preview row counts without writing
+php scripts/import-sqlite-to-mysql.php --dry-run --sqlite-path storage/sousmeow.sqlite
+
+# Recommended: catalog already seeded on MySQL, import user data only
+php scripts/import-sqlite-to-mysql.php --sqlite-path storage/sousmeow.sqlite --replace-users
+
+# Or: SQLite is the full source of truth (replaces all MySQL rows)
+php scripts/import-sqlite-to-mysql.php --full --sqlite-path storage/sousmeow.sqlite
+```
+
+`--replace-users` removes existing MySQL users before import so IDs match
+SQLite (needed when the seed admin occupies id `1` but SQLite has
+simulation users starting at `1`). Re-create the admin after import if
+needed: `php scripts/seed.php --admin-email you@yourdomain.tld`.
+
+Copy export zip files separately: they live in `storage/exports/` on disk,
+not inside the database.
+
 ## 4. Verify
 
 - `https://yourdomain.tld/` renders the marketing page with fonts and
