@@ -1,9 +1,15 @@
-/* Marketing homepage — "Twilight workbench".
-   A deep-indigo editorial theme scoped entirely to body.theme-twilight,
-   so the rest of the app keeps its warm daylight palette. Typography
-   carries the design; color is deliberate: muted blue for annotations,
-   subtle green for approval, a warm amber only where Pantry values
-   land in prompts.
+/* Marketing homepage — editorial daylight theme.
+   Shares the site's warm "Cozy Engineering" palette (cream paper,
+   ink-brown text, terracotta / sage / teal accents) so the homepage
+   sits naturally beside the rest of the app. Typography carries the
+   design; color is deliberate — teal for editorial notes and links,
+   sage for approval, a deep amber only where Pantry values land in
+   prompts, and dark ink-brown wells for the prompt blocks (matching
+   the site's own prompt-block convention).
+
+   The header, footer, buttons, links, and mascot deliberately inherit
+   the site's default light chrome — there are no overrides for them
+   here.
 
    Animation contract: html.tw-anim is added by js/marketing.js at
    startup (never under prefers-reduced-motion). All pre-animation
@@ -11,90 +17,35 @@
    page renders complete and static. */
 
 /* ------------------------------------------------------------------
-   Twilight tokens
+   Homepage tokens — mapped onto the site's daylight palette
    ------------------------------------------------------------------ */
 
-body.theme-twilight {
-  --tw-bg0: #101425;          /* page: deep indigo */
-  --tw-bg1: #151A30;          /* panels */
-  --tw-bg2: #1C2340;          /* raised wells */
-  --tw-bg-deep: #0B0E1B;      /* prompt wells, darkest */
-  --tw-line: #262D4C;
-  --tw-line-strong: #343C63;
-  --tw-ink: #E9E7DE;          /* warm gray-white */
-  --tw-ink-soft: #ABAEC6;     /* muted blue-gray */
-  --tw-ink-faint: #8B8FAD;
-  --tw-blue: #8FA0DB;         /* muted blue: annotations, links */
-  --tw-green: #8FBE8D;        /* subtle green: approval */
-  --tw-green-dim: #5F8A63;
-  --tw-amber: #D9B27C;        /* pantry values only */
-  --tw-shadow: 0 1px 2px rgba(4, 6, 14, 0.4), 0 14px 40px rgba(4, 6, 14, 0.35);
+.tw {
+  --tw-bg0: var(--paper);            /* page surface, cream */
+  --tw-bg1: var(--card);             /* raised panels */
+  --tw-bg2: var(--card-sunken);      /* wells, skeleton fills */
+  --tw-bg-deep: var(--ink-surface);  /* prompt wells, dark ink-brown */
+  --tw-line: var(--line);
+  --tw-line-strong: var(--line-strong);
+  --tw-ink: var(--ink);              /* primary text */
+  --tw-ink-soft: var(--ink-soft);    /* secondary text */
+  --tw-ink-faint: var(--ink-faint);  /* hints, timestamps */
+  --tw-blue: var(--teal);            /* editorial notes, links, kickers */
+  --tw-green: var(--sage);           /* approval */
+  --tw-green-dim: var(--sage-deep);
+  --tw-amber: #9A6412;               /* Pantry values on light surfaces */
+  --tw-shadow: var(--shadow-lift);
 
-  color: var(--tw-ink);
-  background: var(--tw-bg0);
+  color: var(--ink);
 }
 
-/* ------------------------------------------------------------------
-   Shared chrome, re-dressed for twilight (header, footer, flash)
-   ------------------------------------------------------------------ */
-
-body.theme-twilight {
-  --logo-face: #1C2340;
-  --logo-ear: #262D4C;
-  --logo-hat: #2B3357;
-}
-
-body.theme-twilight a { color: var(--tw-blue); }
-body.theme-twilight a:hover { color: #ADBAE8; }
-
-body.theme-twilight .site-header {
-  background: rgba(16, 20, 37, 0.88);
-  border-bottom-color: var(--tw-line);
-}
-body.theme-twilight .brand { color: var(--tw-ink); }
-body.theme-twilight .nav-links > a { color: var(--tw-ink-soft); }
-body.theme-twilight .nav-links > a:hover { color: var(--tw-ink); }
-body.theme-twilight .nav-user { color: var(--tw-ink-faint); border-left-color: var(--tw-line); }
-body.theme-twilight .link-button { color: var(--tw-ink-soft); }
-body.theme-twilight .link-button:hover { color: var(--tw-ink); }
-body.theme-twilight .nav-toggle { border-color: var(--tw-line-strong); }
-body.theme-twilight .nav-toggle-bar { background: var(--tw-ink); }
-@media (max-width: 720px) {
-  body.theme-twilight .nav-links {
-    background: var(--tw-bg1);
-    border-color: var(--tw-line);
-    box-shadow: var(--tw-shadow);
-  }
-}
-
-body.theme-twilight .button-primary {
-  background: var(--tw-ink);
-  color: #14182C;
-  box-shadow: none;
-}
-body.theme-twilight .button-primary:hover { background: #FFFDF4; color: #14182C; box-shadow: var(--tw-shadow); }
-body.theme-twilight .button-ghost { color: var(--tw-ink); border-color: var(--tw-line-strong); }
-body.theme-twilight .button-ghost:hover { background: var(--tw-bg2); border-color: var(--tw-ink-faint); color: var(--tw-ink); }
-
-body.theme-twilight .button:focus-visible,
-body.theme-twilight a:focus-visible,
-body.theme-twilight button:focus-visible,
-body.theme-twilight [tabindex]:focus-visible {
-  outline: 2px solid var(--tw-blue);
-  outline-offset: 2px;
-}
-body.theme-twilight .skip-link { background: var(--tw-ink); color: #14182C; }
-
-body.theme-twilight .site-footer {
-  background: var(--tw-bg-deep);
-  border-top-color: var(--tw-line);
-}
-body.theme-twilight .footer-note { color: var(--tw-ink-faint); }
-
-body.theme-twilight .verify-banner {
-  background: var(--tw-bg2);
-  color: var(--tw-ink);
-  border-bottom: 1px solid var(--tw-line);
+/* The email-verification banner only appears for signed-in, unverified
+   visitors. Styled here to match the warm palette (this sheet loads on
+   the homepage only). */
+.verify-banner {
+  background: var(--amber-wash);
+  color: #8A5A14;
+  border-bottom: 1px solid var(--line);
   padding: 0.6rem 1rem;
   text-align: center;
   font-size: 0.9rem;
@@ -172,8 +123,8 @@ body.theme-twilight .verify-banner {
 .tw-hero {
   padding-block: clamp(3.5rem, 8vw, 6.5rem) clamp(4rem, 9vw, 7rem);
   background:
-    radial-gradient(52rem 30rem at 85% -10%, rgba(143, 160, 219, 0.09), transparent 62%),
-    radial-gradient(40rem 24rem at -10% 30%, rgba(143, 190, 141, 0.05), transparent 60%);
+    radial-gradient(52rem 30rem at 85% -10%, rgba(217, 142, 43, 0.10), transparent 62%),
+    radial-gradient(40rem 24rem at -10% 30%, rgba(94, 126, 78, 0.08), transparent 60%);
 }
 
 .hero-grid {
@@ -183,19 +134,13 @@ body.theme-twilight .verify-banner {
   align-items: center;
 }
 
-/* Chef-cat mascot above the headline: rendered white so it reads as a
-   bright silhouette on the deep-indigo hero, with near-background line
-   work so the face features and toque stay legible. */
+/* Chef-cat mascot above the headline: the standard warm mascot in
+   ink-brown line art on cream, matching the rest of the site. */
 .hero-mascot { margin: 0 0 1.1rem; line-height: 0; }
 .hero-mascot .mascot {
   width: clamp(4.75rem, 9vw, 6.25rem);
   height: auto;
-  color: #12162A;                 /* dark line art over the white body */
-  --mascot-face: #FFFDF8;
-  --mascot-ear: #DCE2F2;
-  --mascot-hat: #FFFFFF;
-  --mascot-accent: #8FA0DB;
-  --mascot-shadow: rgba(4, 6, 14, 0.45);
+  color: var(--ink);
 }
 
 .tw .hero-copy h1 {
@@ -388,7 +333,7 @@ body.theme-twilight .verify-banner {
 .wf-node rect { fill: var(--tw-bg2); stroke: var(--tw-line-strong); stroke-width: 1; }
 .wf-node text { fill: var(--tw-ink); font-family: var(--font-mono); font-size: 11px; }
 .wf-link { stroke: var(--tw-green-dim); stroke-width: 1.6; }
-.wf-kit rect { fill: rgba(143, 190, 141, 0.12); stroke: var(--tw-green); stroke-width: 1.2; }
+.wf-kit rect { fill: rgba(94, 126, 78, 0.12); stroke: var(--tw-green); stroke-width: 1.2; }
 .wf-kit text { fill: var(--tw-green); font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
 .wf-kit-sub { opacity: 0.75; }
 .wf-carry { fill: none; stroke: var(--tw-blue); stroke-width: 1.1; stroke-dasharray: 3 4; opacity: 0.6; }
@@ -413,7 +358,7 @@ body.theme-twilight .verify-banner {
   border-right: 1px solid var(--tw-line);
   display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem;
   background:
-    radial-gradient(24rem 16rem at 0% 0%, rgba(143, 160, 219, 0.08), transparent 65%);
+    radial-gradient(24rem 16rem at 0% 0%, rgba(217, 142, 43, 0.09), transparent 65%);
 }
 
 .cb-cat { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--tw-blue); margin: 0; }
@@ -497,16 +442,16 @@ body.theme-twilight .verify-banner {
 .prompt-frame-bar {
   display: flex; justify-content: space-between;
   font-size: 0.7rem; letter-spacing: 0.06em;
-  color: var(--tw-ink-faint);
+  color: rgba(247, 239, 226, 0.6);
   padding: 0.55rem 1.1rem;
-  border-bottom: 1px solid var(--tw-line);
+  border-bottom: 1px solid rgba(247, 239, 226, 0.14);
 }
 .pantry-pre {
   margin: 0;
   padding: 1.1rem 1.2rem 1.25rem;
   font-size: 0.82rem;
   line-height: 1.9;
-  color: #C7CADF;
+  color: rgba(247, 239, 226, 0.85);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -514,8 +459,8 @@ body.theme-twilight .verify-banner {
 /* A Pantry token: shows {{key}} until the value drops in. */
 .pv { display: inline; }
 .pv .pv-key {
-  color: var(--tw-ink-faint);
-  border: 1px dashed var(--tw-line-strong);
+  color: rgba(247, 239, 226, 0.55);
+  border: 1px dashed rgba(247, 239, 226, 0.3);
   border-radius: 4px;
   padding: 0.05em 0.35em;
 }
@@ -559,7 +504,7 @@ body.theme-twilight .verify-banner {
 
 .sec-runner {
   background:
-    radial-gradient(60rem 34rem at 50% 0%, rgba(143, 160, 219, 0.06), transparent 65%);
+    radial-gradient(60rem 34rem at 50% 0%, rgba(217, 142, 43, 0.06), transparent 65%);
 }
 .sec-runner .sec-head { text-align: center; margin-inline: auto; }
 .sec-runner .sec-head h2 { margin-inline: auto; }
@@ -645,19 +590,19 @@ body.theme-twilight .verify-banner {
   padding: 0.8rem 3.6rem 0.85rem 0.9rem; /* right gap keeps text clear of the copy chip */
   margin-top: 0.85rem;
   font-size: 0.76rem;
-  color: #C7CADF;
+  color: rgba(247, 239, 226, 0.85);
 }
-.run-prompt-line b { color: var(--tw-amber); font-weight: 500; }
+.run-prompt-line b { color: #F2C27E; font-weight: 500; }
 .run-copy {
   position: absolute; top: 0.5rem; right: 0.55rem;
   font-size: 0.68rem;
-  color: var(--tw-ink-faint);
-  border: 1px solid var(--tw-line-strong);
+  color: rgba(247, 239, 226, 0.6);
+  border: 1px solid rgba(247, 239, 226, 0.32);
   border-radius: 4px;
   padding: 0.1rem 0.4rem;
   transition: color 300ms var(--ease-out), border-color 300ms var(--ease-out);
 }
-.tw-anim .runner-demo.is-step-2 .run-copy { color: var(--tw-green); border-color: var(--tw-green-dim); }
+.tw-anim .runner-demo.is-step-2 .run-copy { color: #A8CE9A; border-color: rgba(168, 206, 154, 0.55); }
 
 .run-ai-tabs { display: flex; gap: 0.35rem; margin-bottom: 0.8rem; }
 .run-ai-tab {
@@ -676,7 +621,7 @@ body.theme-twilight .verify-banner {
 }
 .run-line.w95 { width: 95%; } .run-line.w85 { width: 85%; }
 .run-line.w80 { width: 80%; } .run-line.w60 { width: 60%; }
-.run-line-user { width: 55%; justify-self: end; background: #2B3357; }
+.run-line-user { width: 55%; justify-self: end; background: var(--line-strong); }
 
 .tw-anim .runner-demo .run-ai-thread .run-line { opacity: 0.25; transition: opacity 300ms var(--ease-out); }
 .tw-anim .runner-demo.is-step-3 .run-ai-thread .run-line { opacity: 1; }
@@ -924,12 +869,12 @@ html:not(.tw-anim) .run-caption[data-caption="6"] { display: block; }
 .shelf-all { font-size: 0.78rem; letter-spacing: 0.04em; text-decoration: none; }
 .shelf-all:hover { text-decoration: underline; }
 
-/* Twilight-tuned accent hues for the book spines. */
-body.theme-twilight .accent-terracotta { --sb-accent: #D08B6A; }
-body.theme-twilight .accent-teal       { --sb-accent: #6FB5AA; }
-body.theme-twilight .accent-amber      { --sb-accent: #D9B27C; }
-body.theme-twilight .accent-sage       { --sb-accent: #8FBE8D; }
-body.theme-twilight .accent-lilac      { --sb-accent: #A995CC; }
+/* Accent hues for the book spines, from the site palette. */
+.tw .accent-terracotta { --sb-accent: var(--terracotta); }
+.tw .accent-teal       { --sb-accent: var(--teal); }
+.tw .accent-amber      { --sb-accent: var(--amber); }
+.tw .accent-sage       { --sb-accent: var(--sage); }
+.tw .accent-lilac      { --sb-accent: var(--lilac); }
 
 .shelf {
   list-style: none;
@@ -967,8 +912,8 @@ body.theme-twilight .accent-lilac      { --sb-accent: #A995CC; }
 
 .sb-tag { font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--sb-accent, var(--tw-blue)); margin: 0; }
 .sb-title { font-size: 1.06rem; letter-spacing: -0.015em; line-height: 1.2; margin: 0; }
-body.theme-twilight .sb-title a { color: var(--tw-ink); text-decoration: none; }
-body.theme-twilight .sb-title a:hover { text-decoration: underline; text-decoration-color: var(--sb-accent); }
+.tw .sb-title a { color: var(--tw-ink); text-decoration: none; }
+.tw .sb-title a:hover { text-decoration: underline; text-decoration-color: var(--sb-accent); }
 .sb-tagline { font-size: 0.82rem; line-height: 1.5; color: var(--tw-ink-soft); margin: 0; flex: 1; }
 .sb-meta { font-size: 0.7rem; color: var(--tw-ink-faint); margin: 0.3rem 0 0; }
 .sb-foot { margin: 0; }

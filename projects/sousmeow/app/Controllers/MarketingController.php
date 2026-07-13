@@ -29,7 +29,6 @@ final class MarketingController
             'title'           => '',
             'pageCss'         => 'marketing',
             'pageJs'          => 'marketing',
-            'bodyClass'       => 'theme-twilight',
             'featured'        => $featured,
             'featuredStages'  => $featuredStages,
             'featuredRecipes' => $featuredRecipes,
