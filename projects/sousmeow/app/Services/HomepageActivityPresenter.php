@@ -418,8 +418,8 @@ final class HomepageActivityPresenter
     private static function internalResumes(int $limit): array
     {
         $rows = Database::fetchAll(
-            "SELECT p.updated_at AS at, u.name, c.slug, c.outcome,
-                    (SELECT COUNT(*) FROM artifacts a WHERE a.project_id = p.id AND a.status = 'approved') AS approved_count
+            'SELECT p.updated_at AS at, u.name, c.slug, c.outcome,
+                    (SELECT COUNT(*) FROM artifacts a WHERE a.project_id = p.id AND a.status = \'approved\') AS approved_count
              FROM projects p
              JOIN users u ON u.id = p.user_id
              JOIN cookbooks c ON c.id = p.cookbook_id
@@ -428,7 +428,7 @@ final class HomepageActivityPresenter
                AND p.pantry_saved_at IS NOT NULL
                AND p.updated_at > ' . self::sqlDaysAfter('p.created_at', 2) . '
              ORDER BY p.updated_at DESC
-             LIMIT {$limit}"
+             LIMIT ' . $limit
         );
 
         $events = [];
@@ -514,7 +514,7 @@ final class HomepageActivityPresenter
     private static function achievementReturned(int $limit): array
     {
         $rows = Database::fetchAll(
-            "SELECT u.name, p.updated_at AS at, c.slug, c.outcome
+            'SELECT u.name, p.updated_at AS at, c.slug, c.outcome
              FROM projects p
              JOIN users u ON u.id = p.user_id
              JOIN cookbooks c ON c.id = p.cookbook_id
@@ -523,7 +523,7 @@ final class HomepageActivityPresenter
                AND p.updated_at > ' . self::sqlDaysAfter('p.created_at', 2) . '
                AND ' . self::sqlProjectSpanAtLeast(2) . '
              ORDER BY p.completed_at DESC
-             LIMIT {$limit}"
+             LIMIT ' . $limit
         );
 
         $achievements = [];
