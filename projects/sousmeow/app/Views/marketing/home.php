@@ -1,5 +1,6 @@
 <?php
 use SousMeow\Core\Csrf;
+use SousMeow\Services\HomepageActivityPresenter;
 use SousMeow\Services\SiteStats;
 use SousMeow\Services\Simulation;
 
@@ -7,18 +8,29 @@ use SousMeow\Services\Simulation;
  * @var array<string, mixed>|null  $featured
  * @var list<array<string, mixed>> $featuredRecipes
  * @var list<array<string, mixed>> $cookbooks
- * @var array{chefs:int,kits_today:int,kits_total:int,approved_today:int,rating:float,cookbooks:int,recipes:int,active_today:int} $stats
- * @var array{weeks:list<list<array{date:string,count:int,level:int}|null>>,max:int,total:int,end:string,month_labels:list<array{label:string,col:int}>} $heatmap
- * @var list<array<string, mixed>> $popular
- * @var list<array{kind:string,at:string,name:string,cookbook_title?:string,detail?:string}> $activity
+ * @var array{
+ *   metrics: array<string, int|float>,
+ *   heatmap: array<string, mixed>,
+ *   feed: list<array<string, string>>,
+ *   achievements: list<array<string, string>>,
+ *   insights: list<array<string, string>>,
+ *   popular: list<array<string, mixed>>
+ * } $activityBoard
  */
 $accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/', '', (string) $c['accent']);
-$activityBadge = static fn(string $kind): string => match ($kind) {
-    'completed' => 'badge-sage', 'cooking' => 'badge-terracotta', 'pantry' => 'badge-amber', 'joined' => 'badge-lilac', default => 'badge-neutral',
+$feedBadge = static fn(string $tone): string => match ($tone) {
+    'completed' => 'badge-sage',
+    'started'   => 'badge-lilac',
+    'milestone' => 'badge-amber',
+    'resumed'   => 'badge-terracotta',
+    default     => 'badge-neutral',
 };
-$activityLabel = static fn(string $kind): string => match ($kind) {
-    'completed' => 'Project complete', 'cooking' => 'In progress', 'pantry' => 'Details added', 'joined' => 'New member', default => 'Active',
-};
+$metrics = $activityBoard['metrics'];
+$heatmap = $activityBoard['heatmap'];
+$feed = $activityBoard['feed'];
+$achievements = $activityBoard['achievements'];
+$insights = $activityBoard['insights'];
+$popular = $activityBoard['popular'];
 $primaryCta = $auth ? url('/kitchen') : url('/marketplace');
 $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
 ?>
@@ -235,22 +247,22 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
     </div>
   </section>
 
-  <!-- 8. Community activity dashboard -->
+  <!-- 8. Community accomplishments dashboard -->
   <section class="community-section" aria-labelledby="community-heading">
     <div class="community-inner">
       <header class="community-header">
-        <h2 id="community-heading">Community activity</h2>
-        <p class="section-sub">Portfolio demonstration metrics — simulated creators, real workflow structure. Pacific time.</p>
+        <h2 id="community-heading">People finishing real work</h2>
+        <p class="section-sub">A portfolio demonstration of guided projects in progress — simulated creators, real workflow structure. Pacific time.</p>
       </header>
 
       <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
         <div class="dashboard-head">
           <div class="dashboard-head-main">
             <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Portfolio demo</p>
-            <h3 id="dashboard-heading" class="dashboard-title">Workflow activity today</h3>
-            <p class="dashboard-theme-line">Fresh from the kitchen.</p>
+            <h3 id="dashboard-heading" class="dashboard-title">Project progress today</h3>
+            <p class="dashboard-theme-line">Real outcomes, guided step by step.</p>
           </div>
-          <p class="dashboard-honesty">Simulated activity</p>
+          <p class="dashboard-honesty">Simulated creator activity</p>
         </div>
 
         <div class="insights-hero" aria-labelledby="insights-heading">
@@ -258,36 +270,36 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
           <div class="insights-top">
             <div class="insights-primary">
               <p id="insights-heading" class="insights-eyebrow">Today</p>
-              <div class="insights-primary-value" aria-label="<?= e((string) $stats['kits_today']) ?> projects completed today">
-                <span class="insights-number"><?= e((string) $stats['kits_today']) ?></span>
+              <div class="insights-primary-value" aria-label="<?= e((string) $metrics['projects_completed_today']) ?> projects completed today">
+                <span class="insights-number"><?= e((string) $metrics['projects_completed_today']) ?></span>
                 <span class="insights-primary-label">projects completed</span>
               </div>
               <p class="insights-primary-meta">
-                <span class="insights-pill"><?= e((string) $stats['approved_today']) ?> steps approved</span>
-                <span class="insights-pill"><?= e((string) $stats['active_today']) ?> creators active</span>
+                <span class="insights-pill"><?= e((string) $metrics['milestones_today']) ?> milestones reached</span>
+                <span class="insights-pill"><?= e((string) $metrics['active_creators_today']) ?> creators active</span>
               </p>
             </div>
 
             <div class="insights-kpis" role="list">
               <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
-                <span class="insight-kpi-label">Creators</span>
-                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(($stats['chefs'] / Simulation::POOL_SIZE) * 100)) ?>%"></span>
+                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact((int) $metrics['creators_total'])) ?></span>
+                <span class="insight-kpi-label">Active creators</span>
+                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(((int) $metrics['creators_total'] / Simulation::POOL_SIZE) * 100)) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
-                <span class="insight-kpi-label">All-time projects</span>
-                <span class="insight-kpi-bar insight-kpi-bar-sage" style="--fill: <?= min(100, max(8, (int) round(($stats['kits_total'] / max($stats['chefs'], 1)) * 100))) ?>%"></span>
+                <span class="insight-kpi-value"><?= e(SiteStats::formatCompact((int) $metrics['projects_finished_total'])) ?></span>
+                <span class="insight-kpi-label">Finished projects</span>
+                <span class="insight-kpi-bar insight-kpi-bar-sage" style="--fill: <?= min(100, max(8, (int) round(((int) $metrics['projects_finished_total'] / max((int) $metrics['creators_total'], 1)) * 100))) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e(number_format($stats['rating'], 1)) ?><span class="insight-star" aria-hidden="true">&#9733;</span></span>
-                <span class="insight-kpi-label">Satisfaction</span>
-                <span class="insight-kpi-bar insight-kpi-bar-amber" style="--fill: <?= min(100, (int) round(($stats['rating'] / 5) * 100)) ?>%"></span>
+                <span class="insight-kpi-value"><?= e((string) $metrics['workflows_in_progress']) ?></span>
+                <span class="insight-kpi-label">In progress now</span>
+                <span class="insight-kpi-bar insight-kpi-bar-amber" style="--fill: <?= min(100, max(8, (int) $metrics['workflows_in_progress'])) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
-                <span class="insight-kpi-value"><?= e((string) $stats['cookbooks']) ?></span>
-                <span class="insight-kpi-label">Workflows</span>
-                <span class="insight-kpi-bar insight-kpi-bar-teal" style="--fill: <?= min(100, $stats['cookbooks'] * 12) ?>%"></span>
+                <span class="insight-kpi-value"><?= e((string) $metrics['projects_completed_week']) ?></span>
+                <span class="insight-kpi-label">Finished this week</span>
+                <span class="insight-kpi-bar insight-kpi-bar-teal" style="--fill: <?= min(100, max(8, (int) round(((int) $metrics['projects_completed_week'] / max((int) $metrics['projects_finished_total'], 1)) * 100))) ?>%"></span>
               </div>
             </div>
           </div>
@@ -295,8 +307,8 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
           <div class="insights-heatmap">
             <div class="heatmap-head">
               <div>
-                <h4 class="heatmap-title">Workflow activity</h4>
-                <p class="heatmap-sub"><?= e(SiteStats::formatCompact($heatmap['total'])) ?> actions across <?= count($heatmap['weeks']) ?> weeks</p>
+                <h4 class="heatmap-title"><?= e((string) ($heatmap['label'] ?? 'Project milestones')) ?></h4>
+                <p class="heatmap-sub"><?= e((string) ($heatmap['summary'] ?? '')) ?></p>
               </div>
               <div class="heatmap-legend" aria-hidden="true">
                 <span>Less</span>
@@ -307,7 +319,7 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
               </div>
             </div>
             <div class="heatmap-scroll">
-              <div class="heatmap-chart" role="img" aria-label="Workflow activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
+              <div class="heatmap-chart" role="img" aria-label="Project milestone heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
                 <div class="heatmap-weeks">
                   <?php foreach ($heatmap['weeks'] as $week): ?>
                     <div class="heatmap-week">
@@ -317,7 +329,7 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
                         <?php else: ?>
                           <span
                             class="heatmap-cell heatmap-level-<?= (int) $cell['level'] ?>"
-                            title="<?= e($cell['date'] . ': ' . $cell['count'] . ' actions') ?>"
+                            title="<?= e($cell['date'] . ': ' . $cell['count'] . ' milestones') ?>"
                           ></span>
                         <?php endif; ?>
                       <?php endforeach; ?>
@@ -329,32 +341,28 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
           </div>
         </div>
 
-        <div class="dashboard-panels">
+        <div class="dashboard-boards">
           <div class="dashboard-panel dashboard-activity">
             <div class="panel-heading">
               <div>
-                <h3>Recent activity</h3>
-                <p class="panel-theme-line">The kitchen pulse.</p>
+                <h3>What people are finishing</h3>
+                <p class="panel-theme-line">Projects, milestones, and completions.</p>
               </div>
-              <span class="panel-live">Live</span>
+              <span class="panel-live">Live demo</span>
             </div>
-            <?php if ($activity === []): ?>
-              <p class="panel-empty">Activity feed populates when the portfolio simulation runs.</p>
+            <?php if ($feed === []): ?>
+              <p class="panel-empty">Activity appears when the portfolio simulation runs.</p>
             <?php else: ?>
               <ul class="activity-feed">
-                <?php foreach ($activity as $event): $msg = SiteStats::activityMessage($event); ?>
-                  <li class="activity-card activity-<?= e($event['kind']) ?>">
+                <?php foreach ($feed as $event): ?>
+                  <li class="activity-card activity-<?= e($event['tone']) ?>">
                     <span class="activity-avatar" style="--avatar-hue: <?= e((string) SiteStats::avatarHue($event['name'])) ?>" aria-hidden="true"><?= e(SiteStats::initials($event['name'])) ?></span>
                     <div class="activity-body">
                       <div class="activity-card-top">
-                        <span class="badge <?= e($activityBadge($event['kind'])) ?>"><?= e($activityLabel($event['kind'])) ?></span>
+                        <span class="badge <?= e($feedBadge($event['tone'])) ?>"><?= e($event['badge']) ?></span>
                         <time class="activity-time" datetime="<?= e($event['at']) ?>"><?= e(time_ago($event['at'])) ?></time>
                       </div>
-                      <p class="activity-copy">
-                        <?= e($msg['prefix']) ?>
-                        <?php if ($msg['emphasis'] !== ''): ?> <strong><?= e($msg['emphasis']) ?></strong><?php endif; ?>
-                        <?php if ($msg['suffix'] !== ''): ?><span class="activity-detail"><?= e($msg['suffix']) ?></span><?php endif; ?>
-                      </p>
+                      <p class="activity-copy"><?= e($event['message']) ?></p>
                     </div>
                   </li>
                 <?php endforeach; ?>
@@ -362,37 +370,75 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
             <?php endif; ?>
           </div>
 
-          <div class="dashboard-panel dashboard-popular">
+          <div class="dashboard-panel dashboard-achievements">
             <div class="panel-heading">
               <div>
-                <h3>Popular workflows</h3>
-                <p class="panel-theme-line">Trending Cookbooks today.</p>
+                <h3>Community achievements</h3>
+                <p class="panel-theme-line">Milestones earned from real simulated progress.</p>
               </div>
             </div>
-            <ol class="trending-list">
-              <?php $rank = 1; foreach ($popular as $cookbook):
-                $today = (int) ($cookbook['activity_today'] ?? 0);
-                $rating = $cookbook['demo_avg_rating'] ?? null;
-              ?>
-                <li>
-                  <a class="trending-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
-                    <span class="trending-rank" aria-hidden="true"><?= $rank++ ?></span>
-                    <span class="trending-body">
-                      <span class="trending-title"><?= e($cookbook['title']) ?></span>
-                      <span class="trending-metrics">
-                        <span class="trending-metric"><?= e((string) $today) ?> active</span>
-                        <?php if ($rating !== null): ?>
-                          <span class="trending-metric trending-metric-star"><?= e(number_format((float) $rating, 1)) ?> &#9733;</span>
-                        <?php endif; ?>
-                        <span class="trending-metric"><?= e(plural((int) $cookbook['recipe_count'], 'step')) ?></span>
-                      </span>
-                    </span>
-                    <span class="trending-chevron" aria-hidden="true">&#8250;</span>
-                  </a>
-                </li>
-              <?php endforeach; ?>
-            </ol>
+            <?php if ($achievements === []): ?>
+              <p class="panel-empty">Achievements appear as simulated creators finish projects.</p>
+            <?php else: ?>
+              <ul class="achievement-list">
+                <?php foreach ($achievements as $achievement): ?>
+                  <li class="achievement-card">
+                    <span class="achievement-mark" aria-hidden="true">&#9733;</span>
+                    <div class="achievement-body">
+                      <p class="achievement-title"><?= e($achievement['title']) ?></p>
+                      <p class="achievement-copy"><?= e($achievement['message']) ?></p>
+                      <time class="achievement-time" datetime="<?= e($achievement['at']) ?>"><?= e(time_ago($achievement['at'])) ?></time>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ul>
+            <?php endif; ?>
           </div>
+        </div>
+
+        <div class="dashboard-panel dashboard-insights">
+          <div class="panel-heading">
+            <div>
+              <h3>Community insights</h3>
+              <p class="panel-theme-line">Momentum across guided workflows.</p>
+            </div>
+          </div>
+          <ul class="insight-grid" role="list">
+            <?php foreach ($insights as $insight): ?>
+              <li class="insight-card" role="listitem">
+                <p class="insight-card-label"><?= e($insight['label']) ?></p>
+                <p class="insight-card-value"><?= e($insight['value']) ?></p>
+                <p class="insight-card-detail"><?= e($insight['detail']) ?></p>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+
+        <div class="dashboard-panel dashboard-popular">
+          <div class="panel-heading">
+            <div>
+              <h3>Popular workflows</h3>
+              <p class="panel-theme-line">Ranked by projects started, finished, and in progress.</p>
+            </div>
+          </div>
+          <ol class="trending-list">
+            <?php $rank = 1; foreach ($popular as $cookbook): ?>
+              <li>
+                <a class="trending-card <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
+                  <span class="trending-rank" aria-hidden="true"><?= $rank++ ?></span>
+                  <span class="trending-body">
+                    <span class="trending-title"><?= e($cookbook['title']) ?></span>
+                    <span class="trending-metrics">
+                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['completed_today'] ?? 0))) ?> finished today</span>
+                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['in_progress'] ?? 0))) ?> in progress</span>
+                      <span class="trending-metric"><?= e((string) ((int) ($cookbook['completion_rate'] ?? 0))) ?>% completion rate</span>
+                    </span>
+                  </span>
+                  <span class="trending-chevron" aria-hidden="true">&#8250;</span>
+                </a>
+              </li>
+            <?php endforeach; ?>
+          </ol>
         </div>
       </section>
     </div>

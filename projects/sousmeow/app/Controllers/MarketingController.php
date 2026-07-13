@@ -7,7 +7,7 @@ namespace SousMeow\Controllers;
 use SousMeow\Core\View;
 use SousMeow\Models\Cookbook;
 use SousMeow\Models\Recipe;
-use SousMeow\Services\SiteStats;
+use SousMeow\Services\HomepageActivityPresenter;
 
 final class MarketingController
 {
@@ -22,10 +22,7 @@ final class MarketingController
             'featured'        => $featured,
             'featuredRecipes' => $featuredRecipes,
             'cookbooks'       => Cookbook::marketplace(),
-            'stats'           => SiteStats::hero(),
-            'heatmap'         => SiteStats::activityHeatmap(12),
-            'popular'         => SiteStats::popularCookbooks(3),
-            'activity'        => SiteStats::recentActivity(10),
+            'activityBoard'   => HomepageActivityPresenter::bundle(),
         ]);
     }
 }
