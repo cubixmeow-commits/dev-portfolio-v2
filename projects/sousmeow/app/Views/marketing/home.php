@@ -43,7 +43,7 @@ $marketplaceUrl = url('/marketplace');
       <div class="hero-mascot" aria-hidden="true">
         <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
       </div>
-      <h1>SousMeow guides you through every AI project, one step at a time.</h1>
+      <h1>SousMeow guides you through every AI project,<br class="hero-headline-break" aria-hidden="true"> one step at a time.</h1>
       <p class="hero-lede">Make AI easier. Pick a Cookbook, follow one clear step, and finish with work you can actually use.</p>
       <div class="hero-actions">
         <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Explore Cookbooks</a>
