@@ -39,7 +39,8 @@ $ok = AccountMailer::sendTest($recipient);
 if ($ok) {
     echo "OK: Test message sent to {$recipient}\n";
     if ($driver === 'log') {
-        echo "Note: log driver writes to " . Config::string('mail.log_dir') . "\n";
+        $logDir = Config::string('mail.log_dir') ?: dirname(__DIR__) . '/storage/mail';
+        echo "Note: log driver writes to {$logDir}\n";
     }
     exit(0);
 }
