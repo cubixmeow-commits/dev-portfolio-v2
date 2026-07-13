@@ -188,7 +188,7 @@ final class RunnerController
         Project::touch($projectId);
 
         if (Project::markCompleteIfDone($projectId)) {
-            Flash::set('celebrate', 'Cookbook complete! Every Recipe approved, nothing left to cook. Pack your Project Kit below.');
+            Flash::set('celebrate', 'Workflow complete! Every step approved. Export your Project Kit below.');
             redirect('/projects/' . $projectId . '/export');
         }
 
@@ -201,7 +201,7 @@ final class RunnerController
             }
         }
         if ($hasNext) {
-            Flash::set('celebrate', $recipe['title'] . ' is approved and locked into your kit. The next Recipe is ready when you are.');
+            Flash::set('celebrate', $recipe['title'] . ' is approved and locked in. The next step is ready when you are.');
             redirect('/projects/' . $projectId . '/run/' . $next);
         }
         redirect('/projects/' . $projectId . '/export');
@@ -290,7 +290,7 @@ final class RunnerController
             exit;
         }
         if ($project['pantry_saved_at'] === null) {
-            Flash::set('notice', 'Stock your Pantry first; every Recipe cooks from it.');
+            Flash::set('notice', 'Add your project details first — every prompt is built from them.');
             redirect('/projects/' . $project['id'] . '/pantry');
         }
 
@@ -316,7 +316,7 @@ final class RunnerController
                 break;
             }
             if (($statuses[(int) $r['id']] ?? '') !== 'approved') {
-                Flash::set('notice', 'Recipes unlock in order. Finish "' . $r['title'] . '" first; later Recipes cook with its approved result.');
+                Flash::set('notice', 'Steps unlock in order. Finish "' . $r['title'] . '" first; later steps build on its approved result.');
                 redirect('/projects/' . $project['id'] . '/run/' . $r['position']);
             }
         }

@@ -111,9 +111,9 @@ foreach ($recipes as $r) {
           <div class="approved-banner">
             <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
             <div>
-              <h2>Approved and in the kit</h2>
+              <h2>Step approved</h2>
               <p>This result is locked into your Project Kit exactly as it reads below.
-                 <?= $nextRecipe !== null ? 'The next Recipe cooks with it from here.' : 'It was the final Recipe; the kit is complete.' ?></p>
+                 <?= $nextRecipe !== null ? 'The next step builds on it from here.' : 'This was the final step — your project is complete.' ?></p>
             </div>
           </div>
           <div class="response-wrap">
@@ -127,10 +127,10 @@ foreach ($recipes as $r) {
           <div class="approved-actions">
             <?php if ($nextRecipe !== null): ?>
               <a class="button button-primary button-large" href="<?= e(url('/projects/' . $projectId . '/run/' . $nextRecipe['position'])) ?>">
-                Continue to Recipe <?= (int) $nextRecipe['position'] ?>: <?= e($nextRecipe['title']) ?>
+                Continue to step <?= (int) $nextRecipe['position'] ?>: <?= e($nextRecipe['title']) ?>
               </a>
             <?php else: ?>
-              <a class="button button-primary button-large" href="<?= e(url('/projects/' . $projectId . '/export')) ?>">Export your Project Kit</a>
+              <a class="button button-primary button-large" href="<?= e(url('/projects/' . $projectId . '/export')) ?>">Export project</a>
             <?php endif; ?>
             <form method="post" action="<?= e($runBase . '/reopen') ?>"
                   data-confirm="Withdraw the approval for this Recipe? You can revise and approve it again.">
@@ -205,7 +205,7 @@ foreach ($recipes as $r) {
               </span>
             </div>
             <p class="section-sub checks-lede">
-              SousMeow never grades text for you; you are the chef who tastes the dish. Each box records
+              SousMeow never grades text for you — these checks record your judgement. Each box records
               <em>your</em> confirmation against this exact version. Editing the text unchecks everything, on purpose.
             </p>
             <form method="post" action="<?= e($runBase . '/checks') ?>" data-checks-form>
@@ -227,11 +227,11 @@ foreach ($recipes as $r) {
             <form class="approve-form" method="post" action="<?= e($runBase . '/approve') ?>" data-loading>
               <?= Csrf::field() ?>
               <button type="submit" class="button button-success button-large" data-approve-button <?= $allConfirmed ? '' : 'disabled' ?>>
-                Approve and lock into the kit
+                Approve response
               </button>
               <p class="approve-note" data-approve-note>
                 <?= $allConfirmed
-                    ? 'Everything is confirmed. Approving locks v' . (int) $latest['version_no'] . ' into your Project Kit' . ($nextRecipe !== null ? ' and unlocks the next Recipe.' : ' and completes the Cookbook.')
+                    ? 'Everything is confirmed. Approving locks v' . (int) $latest['version_no'] . ' into your Project Kit' . ($nextRecipe !== null ? ' and unlocks the next step.' : ' and completes the workflow.')
                     : 'The approve button wakes up when every check is confirmed. ' . ($recipe['unlocks_text'] !== '' ? e($recipe['unlocks_text']) : '') ?>
               </p>
             </form>

@@ -66,7 +66,7 @@ foreach ($stages as $stage) {
             <form method="post" action="<?= e(url('/projects')) ?>" data-loading>
               <?= Csrf::field() ?>
               <input type="hidden" name="cookbook" value="<?= e($cookbook['slug']) ?>">
-              <button type="submit" class="button button-primary button-large">Start cooking</button>
+              <button type="submit" class="button button-primary button-large">Start this workflow</button>
             </form>
           <?php else: ?>
             <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Create a free account to start</a>
@@ -120,8 +120,8 @@ foreach ($stages as $stage) {
 
   <section class="detail-recipes">
     <div class="section-heading">
-      <h2><?= $executable ? 'The Recipes' : 'Recipe preview' ?></h2>
-      <span class="section-sub"><?= e(plural(count($recipes), 'Recipe')) ?>, cooked in order</span>
+      <h2><?= $executable ? 'Workflow steps' : 'Step preview' ?></h2>
+      <span class="section-sub"><?= e(plural(count($recipes), 'step')) ?> · completed in order</span>
     </div>
 
     <?php if ($stages !== []): ?>
@@ -189,7 +189,7 @@ foreach ($stages as $stage) {
   <?php if ($fields !== []): ?>
     <section class="detail-pantry">
       <div class="section-heading">
-        <h2>What the Pantry asks for</h2>
+        <h2>Project details required</h2>
         <span class="section-sub"><?= e(plural(count($fields), 'ingredient')) ?>, filled once<?= $executable ? '' : ' (preview)' ?></span>
       </div>
       <ul class="detail-pantry-grid">

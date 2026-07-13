@@ -19,11 +19,11 @@ $stocked = $project['pantry_saved_at'] !== null;
   </nav>
 
   <header class="pantry-header rise-in">
-    <h1><?= $stocked ? 'Your Pantry' : 'Stock your Pantry' ?></h1>
+    <h1><?= $stocked ? 'Project details' : 'Add project details' ?></h1>
     <p class="pantry-lede">
-      The Pantry is this Project's single source of truth. Every Recipe builds its prompt from these
-      ingredients, quotes them exactly, and is told to invent nothing beyond them.
-      <?= $stocked ? 'Editing an ingredient changes future prompts; work you already approved stays as it is.' : 'Fill it once and every Recipe cooks from it.' ?>
+      Your Pantry holds this project's facts — the single source of truth for every prompt.
+      Each workflow step quotes these details exactly and is told to invent nothing beyond them.
+      <?= $stocked ? 'Editing a field changes future prompts; work you already approved stays as it is.' : 'Fill it once and every step builds from it.' ?>
     </p>
   </header>
 
@@ -97,15 +97,15 @@ $stocked = $project['pantry_saved_at'] !== null;
 
     <div class="pantry-actions">
       <button type="submit" class="button button-primary button-large">
-        <?= $stocked ? 'Save Pantry' : 'Stock the Pantry and start cooking' ?>
+        <?= $stocked ? 'Save project details' : 'Save and start first step' ?>
       </button>
       <?php if ($stocked): ?>
-        <a class="button button-ghost" href="<?= e(url('/projects/' . $project['id'])) ?>">Back to cooking</a>
+        <a class="button button-ghost" href="<?= e(url('/projects/' . $project['id'])) ?>">Back to project</a>
       <?php endif; ?>
     </div>
     <p class="pantry-next-note">
-      <?= $stocked ? 'Saving returns you to your current Recipe with prompts rebuilt from the new values.'
-                   : 'Next: Recipe 1 turns these ingredients into a ready-to-run prompt. You copy it, run it in your own AI, and paste the answer back.' ?>
+      <?= $stocked ? 'Saving returns you to your current step with prompts rebuilt from the new values.'
+                   : 'Next: the first step turns these details into a ready-to-run prompt. Copy it, run it in your AI, and paste the answer back.' ?>
     </p>
   </form>
 </div>

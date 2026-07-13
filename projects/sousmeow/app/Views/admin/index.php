@@ -9,7 +9,7 @@
 <div class="page admin-page">
   <header class="admin-header">
     <h1>Admin overview</h1>
-    <p class="section-sub">Kitchen activity including <strong>portfolio simulation</strong>
+    <p class="section-sub">Platform activity including <strong>portfolio simulation</strong>
        (<code>users.simulation = 1</code>). See <code>docs/SIMULATION.md</code> for the daily playbook.</p>
   </header>
 
@@ -20,7 +20,7 @@
     </div>
     <div class="stat-card card card-pad">
       <span class="stat-value"><?= e(number_format($simulation['sim_users'])) ?></span>
-      <span class="stat-label">Simulated chefs</span>
+      <span class="stat-label">Simulated creators</span>
     </div>
     <div class="stat-card card card-pad">
       <span class="stat-value"><?= e(number_format($simulation['active_today_pt'])) ?></span>
@@ -56,13 +56,13 @@
       <?php if ($recentProjects === []): ?>
         <div class="empty-state">
           <h3>No projects yet</h3>
-          <p>When someone starts a Cookbook, it appears here with its progress. Quiet kitchens are honest kitchens.</p>
+          <p>When someone starts a workflow, it appears here with its progress.</p>
         </div>
       <?php else: ?>
         <div class="table-wrap">
           <table class="table">
             <thead>
-              <tr><th>Project</th><th>Chef</th><th>Cookbook</th><th>Progress</th><th>Started</th></tr>
+              <tr><th>Project</th><th>Creator</th><th>Workflow</th><th>Progress</th><th>Started</th></tr>
             </thead>
             <tbody>
               <?php foreach ($recentProjects as $p): ?>

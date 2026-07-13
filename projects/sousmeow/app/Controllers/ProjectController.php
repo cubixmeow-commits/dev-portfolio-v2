@@ -24,17 +24,17 @@ final class ProjectController
         $cookbook = Cookbook::findBySlug($slug);
 
         if ($cookbook === null) {
-            Flash::set('error', 'That Cookbook does not exist.');
+            Flash::set('error', 'That workflow does not exist.');
             redirect('/marketplace');
         }
         // Server-side gate: presentation-only cookbooks can never start.
         if ((int) $cookbook['is_executable'] !== 1) {
-            Flash::set('notice', $cookbook['title'] . ' is not open for cooking yet.');
+            Flash::set('notice', $cookbook['title'] . ' is not available yet.');
             redirect('/cookbooks/' . $cookbook['slug']);
         }
 
         $id = Project::create((int) Auth::id(), (int) $cookbook['id'], (string) $cookbook['title']);
-        Flash::set('success', 'Project started. First stop: stock your Pantry.');
+        Flash::set('success', 'Project started. First step: add your project details.');
         redirect('/projects/' . $id . '/pantry');
     }
 
@@ -200,10 +200,10 @@ final class ProjectController
         }
 
         if ($firstSave) {
-            Flash::set('success', 'Pantry stocked. Recipe 1 is ready to cook.');
+            Flash::set('success', 'Project details saved. The first step is ready.');
             redirect('/projects/' . $projectId . '/run/1');
         }
-        Flash::set('success', 'Pantry updated. New prompts will cook from the fresh ingredients.');
+        Flash::set('success', 'Project details updated. New prompts will use the updated values.');
         redirect('/projects/' . $projectId . '/run/' . $this->nextPosition(Project::findForUser($projectId, (int) Auth::id()) ?? $project));
     }
 

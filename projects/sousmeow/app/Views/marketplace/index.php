@@ -14,16 +14,14 @@ $formatRuns = static function (int $n): string {
 <div class="page marketplace-page">
   <header class="marketplace-header">
     <div>
-      <h1>The Cookbook shelf</h1>
-      <p class="section-sub">Five first-party Cookbooks, each a different kind of expert-guided work: launch campaigns,
-         SaaS validation, portfolio building, YouTube planning, and novel development. Pantry Ingredients stay put;
-         Recipes chain forward; Quality Checks keep you in charge.</p>
+      <h1>Explore workflows</h1>
+      <p class="section-sub">Guided Cookbooks for launch campaigns, SaaS validation, portfolio building, YouTube planning, and novel development. Add your project details once; each step builds on the last; you stay in control of every review.</p>
     </div>
   </header>
 
   <form class="marketplace-search" method="get" action="<?= e(url('/marketplace')) ?>" role="search">
     <input class="input" type="search" name="q" value="<?= e($query) ?>"
-           placeholder="Search by name, topic, or category" aria-label="Search Cookbooks">
+           placeholder="Search workflows by name, topic, or category" aria-label="Search workflows">
     <button type="submit" class="button button-quiet">Search</button>
     <?php if ($query !== ''): ?><a class="button button-ghost" href="<?= e(url('/marketplace')) ?>">Clear</a><?php endif; ?>
   </form>
@@ -31,11 +29,10 @@ $formatRuns = static function (int $n): string {
   <?php if ($cookbooks === []): ?>
     <div class="empty-state">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'searching']); ?>
-      <h2>No Cookbooks match "<?= e($query) ?>"</h2>
-      <p>The shelf covers marketing, research, career, content, and creative writing. Try a broader
-         word, like "launch" or "portfolio", or browse all five Cookbooks.</p>
+      <h2>No workflows match "<?= e($query) ?>"</h2>
+      <p>Try a broader word, like "launch" or "portfolio", or browse all available Cookbooks.</p>
       <div class="empty-actions">
-        <a class="button button-primary" href="<?= e(url('/marketplace')) ?>">Show all Cookbooks</a>
+        <a class="button button-primary" href="<?= e(url('/marketplace')) ?>">Show all workflows</a>
       </div>
     </div>
   <?php else: ?>

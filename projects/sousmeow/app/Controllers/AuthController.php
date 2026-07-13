@@ -75,7 +75,7 @@ final class AuthController
 
         $intended = $_SESSION['intended'] ?? null;
         unset($_SESSION['intended']);
-        Flash::set('success', 'Welcome back to your kitchen.');
+        Flash::set('success', 'Welcome back.');
         // Only follow same-app relative paths, never absolute URLs.
         if (is_string($intended) && str_starts_with($intended, '/') && !str_starts_with($intended, '//')) {
             header('Location: ' . $intended, true, 303);
@@ -142,7 +142,7 @@ final class AuthController
         if ($user !== null) {
             Auth::login($user);
         }
-        Flash::set('success', 'Your Kitchen is open. Start your first Cookbook whenever you are ready.');
+        Flash::set('success', 'Account created. Choose a workflow to start your first project.');
         redirect('/kitchen');
     }
 

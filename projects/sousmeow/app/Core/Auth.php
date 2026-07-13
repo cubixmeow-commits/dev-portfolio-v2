@@ -65,7 +65,7 @@ final class Auth
             return;
         }
         $_SESSION['intended'] = $_SERVER['REQUEST_URI'] ?? null;
-        Flash::set('notice', 'Sign in to open your kitchen.');
+        Flash::set('notice', 'Sign in to access your projects.');
         redirect('/login');
     }
 

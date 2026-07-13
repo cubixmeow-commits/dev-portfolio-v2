@@ -54,14 +54,14 @@ $total = count($recipes);
       </ul>
       <form method="post" action="<?= e(url('/projects/' . $projectId . '/export')) ?>" data-loading>
         <?= Csrf::field() ?>
-        <button type="submit" class="button button-primary button-large">Pack a fresh kit (.zip)</button>
+        <button type="submit" class="button button-primary button-large">Export project (.zip)</button>
       </form>
       <p class="export-note">Packing again after revisions creates a new zip; earlier exports stay listed below.</p>
     </section>
 
   <?php else: ?>
     <header class="export-hero">
-      <h1>The kit exports when every Recipe is approved</h1>
+      <h1>Export available when every step is approved</h1>
       <p class="section-sub">That rule is what makes the export publish-ready: nothing gets in without your
          explicit approval. Here is where this Project stands.</p>
     </header>
@@ -81,7 +81,7 @@ $total = count($recipes);
         <?php endforeach; ?>
       </ul>
       <a class="button button-primary" href="<?= e(url('/projects/' . $projectId)) ?>">
-        Continue cooking (<?= $doneCount ?> of <?= $total ?> approved)
+        Continue project (<?= $doneCount ?> of <?= $total ?> approved)
       </a>
     </section>
   <?php endif; ?>

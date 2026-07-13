@@ -3,14 +3,14 @@
   <div class="auth-split card rise-in">
     <aside class="auth-aside">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
-      <h2>Ten minutes to your first kit</h2>
-      <p>An account gives you a Kitchen: home for your Projects, your Pantry, and everything you approve along the way.</p>
+      <h2>Try a full workflow in ten minutes</h2>
+      <p>An account gives you a place to save projects, review responses, and export finished files.</p>
       <ol class="auth-steps">
-        <li><strong>Stock the Pantry</strong> with the facts about your product</li>
-        <li><strong>Cook each Recipe</strong>: copy the prompt, run it in your own AI, paste the answer back</li>
-        <li><strong>Export the kit</strong> once everything is approved</li>
+        <li><strong>Add project details</strong> — your Pantry, filled once</li>
+        <li><strong>Run each step</strong> — copy the prompt, run it in your AI, paste the answer back</li>
+        <li><strong>Export your Project Kit</strong> when every step is approved</li>
       </ol>
-      <p class="auth-aside-note">Nothing here sells or calls an AI. Every Recipe includes a sample response, so you can try the whole loop before opening one.</p>
+      <p class="auth-aside-note">No API keys required. Every step includes a sample response so you can try the full loop first.</p>
     </aside>
     <div class="auth-form-col">
       <h1>Create your account</h1>
@@ -19,7 +19,7 @@
         <?= Csrf::field() ?>
         <div class="field">
           <label class="field-label" for="name">Name</label>
-          <p class="field-help">What should we call you around the kitchen?</p>
+          <p class="field-help">How should we address you?</p>
           <input class="input <?= isset($errors['name']) ? 'input-invalid' : '' ?>" type="text" id="name" name="name"
                  value="<?= e($old['name']) ?>" autocomplete="name" maxlength="80" required autofocus>
           <?php if (isset($errors['name'])): ?><p class="field-error"><?= e($errors['name']) ?></p><?php endif; ?>

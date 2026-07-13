@@ -15,7 +15,7 @@ $activityBadge = static fn(string $kind): string => match ($kind) {
     'completed' => 'badge-sage', 'cooking' => 'badge-terracotta', 'pantry' => 'badge-amber', 'joined' => 'badge-lilac', default => 'badge-neutral',
 };
 $activityLabel = static fn(string $kind): string => match ($kind) {
-    'completed' => 'Kit ready', 'cooking' => 'Cooking', 'pantry' => 'Pantry stocked', 'joined' => 'New chef', default => 'Active',
+    'completed' => 'Project complete', 'cooking' => 'In progress', 'pantry' => 'Details added', 'joined' => 'New member', default => 'Active',
 };
 ?>
 <div class="marketing-home">
@@ -27,48 +27,145 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
       <span class="wash-blob wash-butter" style="width: 12rem; height: 12rem; top: 40%; left: 12%;"></span>
     </div>
     <div class="hero-inner">
-      <p class="hero-eyebrow">Your sous-chef for AI work</p>
-      <h1>Great AI results are a recipe,<br>not a lucky prompt.</h1>
+      <p class="hero-eyebrow">Guided AI workflows · no API required</p>
+      <h1>Build complete projects using the AI subscriptions you already have.</h1>
       <p class="hero-lede">
-        SousMeow turns a big writing job into short, guided Recipes. Copy a ready-made prompt, run it in
-        ChatGPT or Claude, paste the answer back, and approve what earns its place. By the last Recipe,
-        you are holding a finished Project Kit, ready to publish.
+        SousMeow provides guided workflows for complex projects. Each step prepares a prompt for you to run in
+        ChatGPT, Claude, Gemini, or another assistant. Bring the responses back, review them, approve them,
+        and export finished project files.
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
+          <?= $auth ? 'Open my projects' : 'Start free' ?>
+        </a>
+        <a class="button button-ghost button-large" href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+      </div>
+      <p class="terms-callout">
+        In SousMeow, workflows are called <strong>Cookbooks</strong>, each step is a <strong>Recipe</strong>,
+        your project details live in the <strong>Pantry</strong>, and finished files export as a <strong>Project Kit</strong>.
+      </p>
+      <p class="hero-footnote">
+        Works with the AI you already use. SousMeow never calls one for you — no API keys, no token markup.
+        Built-in sample responses let you tour the full loop without opening an AI at all.
       </p>
     </div>
+  </section>
 
-    <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
+  <section class="loop-section" aria-labelledby="loop-heading">
+    <div class="loop-inner">
+      <h2 id="loop-heading">How it works</h2>
+      <p class="section-sub loop-sub">Four stages. Same honest cycle for every workflow. No black box, no surprise bills.</p>
+      <ol class="loop-steps loop-steps-four">
+        <li class="loop-step card card-hover">
+          <span class="step-dot is-active">1</span>
+          <h3>Choose a workflow</h3>
+          <p class="step-plain">Pick a guided workflow from the Marketplace — we call these Cookbooks.</p>
+        </li>
+        <li class="loop-step card card-hover">
+          <span class="step-dot is-active">2</span>
+          <h3>Add project details</h3>
+          <p class="step-plain">Tell SousMeow about your project once. Every prompt is built from those facts — your Pantry.</p>
+        </li>
+        <li class="loop-step card card-hover">
+          <span class="step-dot is-active">3</span>
+          <h3>Run each prompt</h3>
+          <p class="step-plain">Copy the ready-made prompt, run it in your own AI, and paste the response back for review.</p>
+        </li>
+        <li class="loop-step card card-hover">
+          <span class="step-dot is-done">&check;</span>
+          <h3>Review and export</h3>
+          <p class="step-plain">Approve each step, then download your Project Kit — clean files ready to publish.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <?php if ($featured !== null): ?>
+  <section class="featured-section" aria-labelledby="featured-heading">
+    <div class="featured-inner card">
+      <div class="featured-copy">
+        <p class="hero-eyebrow">Featured workflow</p>
+        <h2 id="featured-heading"><?= e($featured['title']) ?></h2>
+        <p class="featured-tagline"><?= e($featured['tagline']) ?></p>
+        <p>A guided Cookbook — <?= e($featured['outcome']) ?>. Built for <?= e(strtolower((string) $featured['audience'])) ?>;
+           about <?= (int) $featured['est_minutes'] ?> minutes of your attention. Free to start.</p>
+        <h3 class="featured-steps-heading">Example steps</h3>
+        <ul class="featured-recipes">
+          <?php foreach ($featuredRecipes as $recipe): ?>
+            <li><span class="step-dot"><?= (int) $recipe['position'] ?></span> <strong><?= e($recipe['title']) ?></strong> <span class="featured-recipe-sub"><?= e($recipe['summary']) ?></span></li>
+          <?php endforeach; ?>
+        </ul>
+        <div class="hero-actions">
+          <?php if ($auth): ?>
+            <form method="post" action="<?= e(url('/projects')) ?>" data-loading>
+              <?= Csrf::field() ?>
+              <input type="hidden" name="cookbook" value="<?= e($featured['slug']) ?>">
+              <button type="submit" class="button button-primary button-large">Start this workflow</button>
+            </form>
+          <?php else: ?>
+            <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Create a free account</a>
+          <?php endif; ?>
+          <a class="button button-ghost" href="<?= e(url('/cookbooks/' . $featured['slug'])) ?>">View all steps</a>
+        </div>
+      </div>
+      <div class="featured-art" aria-hidden="true">
+        <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
+      </div>
+    </div>
+  </section>
+  <?php endif; ?>
+
+  <section class="marketplace-teaser" aria-labelledby="marketplace-teaser-heading">
+    <div class="marketplace-teaser-inner card card-pad">
+      <div>
+        <h2 id="marketplace-teaser-heading">Explore workflows</h2>
+        <p class="section-sub">Five guided Cookbooks cover launch campaigns, SaaS validation, portfolio building, YouTube planning, and novel development. Three are fully available today.</p>
+      </div>
+      <a class="button button-primary button-large" href="<?= e(url('/marketplace')) ?>">Browse the Marketplace</a>
+    </div>
+  </section>
+
+  <section class="community-section" aria-labelledby="community-heading">
+    <div class="community-inner">
+      <header class="community-header">
+        <h2 id="community-heading">Community activity</h2>
+        <p class="section-sub">Live metrics from the portfolio demonstration. Simulated creators, real workflow structure.</p>
+      </header>
+
+      <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
         <div class="dashboard-head">
           <div class="dashboard-head-main">
-            <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Live from the kitchen</p>
-            <h2 id="dashboard-heading" class="dashboard-title">The stove is busy today</h2>
+            <p class="dashboard-eyebrow"><span class="live-dot" aria-hidden="true"></span> Portfolio demo</p>
+            <h3 id="dashboard-heading" class="dashboard-title">Workflow activity today</h3>
+            <p class="dashboard-theme-line">Fresh from the kitchen.</p>
           </div>
-          <p class="dashboard-honesty">Portfolio demo · simulated activity · Pacific time</p>
+          <p class="dashboard-honesty">Simulated activity · Pacific time</p>
         </div>
 
         <div class="insights-hero" aria-labelledby="insights-heading">
           <div class="insights-hero-glow" aria-hidden="true"></div>
           <div class="insights-top">
             <div class="insights-primary">
-              <p id="insights-heading" class="insights-eyebrow">Today in the kitchen</p>
-              <div class="insights-primary-value" aria-label="<?= e((string) $stats['kits_today']) ?> kits packed today">
+              <p id="insights-heading" class="insights-eyebrow">Today</p>
+              <div class="insights-primary-value" aria-label="<?= e((string) $stats['kits_today']) ?> projects completed today">
                 <span class="insights-number"><?= e((string) $stats['kits_today']) ?></span>
-                <span class="insights-primary-label">kits packed</span>
+                <span class="insights-primary-label">projects completed</span>
               </div>
               <p class="insights-primary-meta">
-                <span class="insights-pill"><?= e((string) $stats['approved_today']) ?> approved</span>
-                <span class="insights-pill"><?= e((string) $stats['active_today']) ?> chefs cooking</span>
+                <span class="insights-pill"><?= e((string) $stats['approved_today']) ?> steps approved</span>
+                <span class="insights-pill"><?= e((string) $stats['active_today']) ?> creators active</span>
               </p>
             </div>
 
             <div class="insights-kpis" role="list">
               <div class="insight-kpi" role="listitem">
                 <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
-                <span class="insight-kpi-label">Chefs</span>
+                <span class="insight-kpi-label">Creators</span>
                 <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(($stats['chefs'] / 500) * 100)) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
                 <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
-                <span class="insight-kpi-label">All-time kits</span>
+                <span class="insight-kpi-label">All-time projects</span>
                 <span class="insight-kpi-bar insight-kpi-bar-sage" style="--fill: <?= min(100, max(8, (int) round(($stats['kits_total'] / max($stats['chefs'], 1)) * 100))) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
@@ -78,7 +175,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
               </div>
               <div class="insight-kpi" role="listitem">
                 <span class="insight-kpi-value"><?= e((string) $stats['cookbooks']) ?></span>
-                <span class="insight-kpi-label">Cookbooks</span>
+                <span class="insight-kpi-label">Workflows</span>
                 <span class="insight-kpi-bar insight-kpi-bar-teal" style="--fill: <?= min(100, $stats['cookbooks'] * 12) ?>%"></span>
               </div>
             </div>
@@ -87,7 +184,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
           <div class="insights-heatmap">
             <div class="heatmap-head">
               <div>
-                <h3 class="heatmap-title">Kitchen rhythm</h3>
+                <h4 class="heatmap-title">Workflow activity</h4>
                 <p class="heatmap-sub"><?= e(SiteStats::formatCompact($heatmap['total'])) ?> actions across <?= count($heatmap['weeks']) ?> weeks · Pacific time</p>
               </div>
               <div class="heatmap-legend" aria-hidden="true">
@@ -99,7 +196,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
               </div>
             </div>
             <div class="heatmap-scroll">
-              <div class="heatmap-chart" role="img" aria-label="Activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
+              <div class="heatmap-chart" role="img" aria-label="Workflow activity heatmap for the last <?= count($heatmap['weeks']) ?> weeks">
                 <div class="heatmap-weeks">
                   <?php foreach ($heatmap['weeks'] as $week): ?>
                     <div class="heatmap-week">
@@ -124,11 +221,14 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
         <div class="dashboard-panels">
           <div class="dashboard-panel dashboard-activity">
             <div class="panel-heading">
-              <h3>Kitchen pulse</h3>
-              <span class="panel-live">Updating</span>
+              <div>
+                <h3>Recent activity</h3>
+                <p class="panel-theme-line">The kitchen pulse.</p>
+              </div>
+              <span class="panel-live">Live</span>
             </div>
             <?php if ($activity === []): ?>
-              <p class="panel-empty">Run <code>php scripts/simulate-day.php</code> to populate activity.</p>
+              <p class="panel-empty">Activity feed populates when the portfolio simulation runs.</p>
             <?php else: ?>
               <ul class="activity-feed">
                 <?php foreach ($activity as $event): $msg = SiteStats::activityMessage($event); ?>
@@ -152,7 +252,12 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
           </div>
 
           <div class="dashboard-panel dashboard-popular">
-            <div class="panel-heading"><h3>Trending today</h3></div>
+            <div class="panel-heading">
+              <div>
+                <h3>Popular workflows</h3>
+                <p class="panel-theme-line">Trending Cookbooks today.</p>
+              </div>
+            </div>
             <ol class="trending-list">
               <?php $rank = 1; foreach ($popular as $cookbook):
                 $today = (int) ($cookbook['activity_today'] ?? 0);
@@ -168,7 +273,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
                         <?php if ($rating !== null): ?>
                           <span class="trending-metric trending-metric-star"><?= e(number_format((float) $rating, 1)) ?> &#9733;</span>
                         <?php endif; ?>
-                        <span class="trending-metric"><?= e(plural((int) $cookbook['recipe_count'], 'Recipe')) ?></span>
+                        <span class="trending-metric"><?= e(plural((int) $cookbook['recipe_count'], 'step')) ?></span>
                       </span>
                     </span>
                     <span class="trending-chevron" aria-hidden="true">&#8250;</span>
@@ -179,107 +284,24 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
           </div>
         </div>
       </section>
-
-    <div class="hero-inner">
-      <div class="hero-actions">
-        <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
-          <?= $auth ? 'Open my Kitchen' : 'Start cooking free' ?>
-        </a>
-        <a class="button button-ghost button-large" href="<?= e(url('/marketplace')) ?>">Browse Cookbooks</a>
-      </div>
-      <p class="hero-footnote">Works with the AI you already use: Claude, ChatGPT, Gemini, anything that chats. SousMeow never calls one for you, and built-in sample responses let you tour the whole loop without opening an AI at all.</p>
     </div>
   </section>
-
-  <section class="loop-section" aria-labelledby="loop-heading">
-    <div class="loop-inner">
-      <h2 id="loop-heading">The loop, in one glance</h2>
-      <p class="section-sub loop-sub">Every Cookbook runs the same honest cycle. No magic, no black box, no API key.</p>
-      <ol class="loop-steps">
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-active">1</span>
-          <h3>Stock the Pantry</h3>
-          <p>Tell SousMeow about your project once. Every prompt is built from those facts and nothing else.</p>
-        </li>
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-active">2</span>
-          <h3>Copy the prompt</h3>
-          <p>Each Recipe hands you a precise, ready-to-run prompt with your own ingredients highlighted inside it.</p>
-        </li>
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-active">3</span>
-          <h3>Cook in your AI</h3>
-          <p>Run it in the assistant you already pay for. Your data goes where you put it, nowhere else.</p>
-        </li>
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-active">4</span>
-          <h3>Paste and review</h3>
-          <p>Paste the answer back and walk the Recipe's Quality Checks. Your judgement, recorded, never automated.</p>
-        </li>
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-active">5</span>
-          <h3>Approve or revise</h3>
-          <p>Approve to lock it in and unlock the next Recipe. Every version is kept, so revising costs nothing.</p>
-        </li>
-        <li class="loop-step card card-hover">
-          <span class="step-dot is-done">&check;</span>
-          <h3>Export the kit</h3>
-          <p>Finish the last Recipe and download your Project Kit: clean Markdown files plus a manifest, ready to publish.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <?php if ($featured !== null): ?>
-  <section class="featured-section" aria-labelledby="featured-heading">
-    <div class="featured-inner card">
-      <div class="featured-copy">
-        <p class="hero-eyebrow">Free starter Cookbook</p>
-        <h2 id="featured-heading"><?= e($featured['title']) ?></h2>
-        <p class="featured-tagline"><?= e($featured['tagline']) ?></p>
-        <p>By the end you have <?= e($featured['outcome']) ?>, exported as one kit and sounding like you on
-           your best day. Built for <?= e(strtolower((string) $featured['audience'])) ?>; about
-           <?= (int) $featured['est_minutes'] ?> minutes of your attention.</p>
-        <ul class="featured-recipes">
-          <?php foreach ($featuredRecipes as $recipe): ?>
-            <li><span class="step-dot"><?= (int) $recipe['position'] ?></span> <strong><?= e($recipe['title']) ?></strong> <span class="featured-recipe-sub"><?= e($recipe['summary']) ?></span></li>
-          <?php endforeach; ?>
-        </ul>
-        <div class="hero-actions">
-          <?php if ($auth): ?>
-            <form method="post" action="<?= e(url('/projects')) ?>" data-loading>
-              <?= Csrf::field() ?>
-              <input type="hidden" name="cookbook" value="<?= e($featured['slug']) ?>">
-              <button type="submit" class="button button-primary button-large">Start this Cookbook</button>
-            </form>
-          <?php else: ?>
-            <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Create an account and start</a>
-          <?php endif; ?>
-          <a class="button button-ghost" href="<?= e(url('/cookbooks/' . $featured['slug'])) ?>">See the full Recipe list</a>
-        </div>
-      </div>
-      <div class="featured-art" aria-hidden="true">
-        <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
 
   <section class="honesty-section" aria-labelledby="honesty-heading">
     <div class="honesty-inner">
-      <h2 id="honesty-heading">What SousMeow deliberately does not do</h2>
+      <h2 id="honesty-heading">Why SousMeow is different</h2>
       <div class="honesty-grid">
         <div class="honesty-item">
           <h3>It never calls an AI for you</h3>
-          <p>No API keys, no markup on tokens, no surprise bills. You run each prompt in the assistant you already use, on the model you already trust.</p>
+          <p>No API keys, no markup on tokens, no surprise bills. You run each prompt in ChatGPT, Claude, Gemini, or whatever you already pay for.</p>
         </div>
         <div class="honesty-item">
           <h3>It never grades your work</h3>
-          <p>Quality Checks are questions only you can answer, like "does this sound like us?" SousMeow records your judgement; it does not fake having one.</p>
+          <p>Quality Checks are questions only you can answer. SousMeow records your judgement — it does not fake having one.</p>
         </div>
         <div class="honesty-item">
           <h3>It never loses a version</h3>
-          <p>Pasted responses are kept exactly as pasted, forever. Edits stack on top as new versions, so the original is always one click away.</p>
+          <p>Pasted responses are kept exactly as pasted. Edits stack as new versions, so the original is always one click away.</p>
         </div>
       </div>
     </div>
@@ -288,11 +310,12 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
   <section class="final-cta">
     <div class="final-cta-inner card card-pad">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
-      <h2>Ten minutes to your first kit</h2>
-      <p class="section-sub">The Launch Day Kit is free, and every Recipe includes a sample response. Finish an entire Cookbook first; decide if the loop is for you after.</p>
+      <h2>Try a full workflow in ten minutes</h2>
+      <p class="section-sub">The Launch Day Kit is free. Every step includes a sample response, so you can finish an entire workflow before deciding if SousMeow is for you.</p>
       <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
-        <?= $auth ? 'Open my Kitchen' : 'Start cooking free' ?>
+        <?= $auth ? 'Open my projects' : 'Start free' ?>
       </a>
+      <p class="final-cta-theme">The kitchen is ready when you are.</p>
     </div>
   </section>
 </div>
