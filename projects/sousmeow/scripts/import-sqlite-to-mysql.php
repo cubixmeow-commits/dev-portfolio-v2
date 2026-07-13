@@ -73,9 +73,33 @@ if (Config::string('db.driver', 'sqlite') !== 'mysql') {
     exit(1);
 }
 
+$projectRoot = dirname(__DIR__);
+
+/** Resolve a path relative to the project root when it is not absolute. */
+function resolve_sqlite_path(string $path, string $projectRoot): string
+{
+    if ($path === '') {
+        return $path;
+    }
+    if ($path[0] === '/') {
+        return $path;
+    }
+    return $projectRoot . '/' . ltrim($path, '/');
+}
+
 $sqlitePath = $options['sqlite_path'] ?? Config::string('db.sqlite_path');
+$sqlitePath = resolve_sqlite_path($sqlitePath, $projectRoot);
+
 if (!is_file($sqlitePath)) {
+    $defaultPath = resolve_sqlite_path(Config::string('db.sqlite_path'), $projectRoot);
     fwrite(STDERR, "SQLite file not found: {$sqlitePath}\n");
+    if ($defaultPath !== $sqlitePath && is_file($defaultPath)) {
+        fwrite(STDERR, "Try: php scripts/import-sqlite-to-mysql.php --sqlite-path {$defaultPath}\n");
+    } else {
+        fwrite(STDERR, "Upload your local database to storage/sousmeow.sqlite, then run from the project root:\n");
+        fwrite(STDERR, "  cd ..   # parent of scripts/\n");
+        fwrite(STDERR, "  php scripts/import-sqlite-to-mysql.php --dry-run --sqlite-path storage/sousmeow.sqlite\n");
+    }
     exit(1);
 }
 
