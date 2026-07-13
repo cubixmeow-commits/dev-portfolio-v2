@@ -174,7 +174,8 @@ TEXT;
             . '</title></head><body style="font-family:system-ui,sans-serif;line-height:1.5;color:#1a1a1a;max-width:560px;margin:0 auto;padding:24px;">'
             . $body
             . '<hr style="border:none;border-top:1px solid #e0e0e0;margin:32px 0;">'
-            . '<p style="color:#666;font-size:14px;"><strong>' . $fromName . '</strong><br>Your guide through every AI project</p>'
+            . '<p style="color:#666;font-size:14px;margin:0;"><strong>' . $fromName . '</strong><br>'
+            . '<span style="white-space:nowrap;">Your guide through every AI project</span></p>'
             . '</body></html>';
     }
 }
