@@ -95,7 +95,7 @@ Would this person recognize themselves in the sharpened problem statement and fe
 MD;
 
 $buyerAccessPlanExample = <<<'MD'
-## Primary access path: Shopify Community and forums
+## Primary access path
 
 **Channel chosen in Pantry:** Shopify Community and forums
 
@@ -190,7 +190,7 @@ LedgerLoop wins if it matches **supplier invoice line items to fulfilled Shopify
 
 Prior ops lead saw $14K duplicate supplier invoices missed because reconciliation was quarterly. LedgerLoop's UX should optimize for **catching duplicates and quantity drift before close**, not just exporting journal entries.
 
-## Differentiation tests ( falsifiable )
+## Differentiation tests (falsifiable)
 
 1. In 5 workflow teardown calls, buyers say invoice-to-order matching is a distinct step from "bookkeeping."
 2. Pilot users resolve 80%+ of lines automatically on first upload (hypothesis, not fact yet).
@@ -571,13 +571,25 @@ Concrete outcome state, not feature list.
 ## Validation questions to answer next
 Three falsifiable questions the next Recipes should help answer. No invented answers.
 
-Under 400 words. If a fact is missing, say "unknown" rather than guessing.
+Under 400 words. If a fact is missing, say "unknown" rather than guessing. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $problemValidationBriefExample,
+            'output_sections' => [
+                ['key' => 'problem_statement', 'heading' => 'Problem statement (sharpened)', 'aliases' => ['Problem statement'], 'required' => true],
+                ['key' => 'who_feels_it', 'heading' => 'Who feels it first', 'required' => true],
+                ['key' => 'workaround_cost', 'heading' => 'Current workaround and its cost', 'aliases' => ['Current workaround'], 'required' => true],
+                ['key' => 'outcome_state', 'heading' => 'What would change if the problem vanished', 'required' => true],
+                ['key' => 'validation_questions', 'heading' => 'Validation questions to answer next', 'aliases' => ['Validation questions'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Problem is specific to a moment', 'help' => 'You can picture the Tuesday when reconciliation breaks, not a generic "inefficiency" claim.'],
-                ['label' => 'Founder insight stays anecdotal', 'help' => 'Personal stories are labeled as yours, not presented as industry statistics.'],
-                ['label' => 'Questions are falsifiable', 'help' => 'Each validation question could fail based on interview answers.'],
+                ['label' => 'Problem is specific to a moment', 'help' => 'You can picture the Tuesday when reconciliation breaks, not a generic "inefficiency" claim.',
+                 'evidence_sections' => ['problem_statement']],
+                ['label' => 'Founder insight stays anecdotal', 'help' => 'Personal stories are labeled as yours, not presented as industry statistics.',
+                 'evidence_sections' => ['workaround_cost']],
+                ['label' => 'Questions are falsifiable', 'help' => 'Each validation question could fail based on interview answers.',
+                 'evidence_sections' => ['validation_questions']],
+                // Invented metrics could hide anywhere, so this check keeps
+                // manual full-response review on purpose.
                 ['label' => 'No invented TAM or metrics', 'help' => 'Nothing claims market size, churn rates, or survey percentages not in your Pantry.'],
             ],
         ],
@@ -613,14 +625,24 @@ List what you still need to learn from buyers. Call out any placeholder metrics 
 ## Interview prompts to fill gaps
 Three questions a founder could ask on a teardown call to replace hypotheses with evidence.
 
-Under 450 words. Never fabricate interview quotes or survey results.
+Under 450 words. Never fabricate interview quotes or survey results. Keep the four section headings exactly as written above, in that order.
 TXT,
             'example_response' => $painFrequencySnapshotExample,
+            'output_sections' => [
+                ['key' => 'frequency_map', 'heading' => 'Pain frequency map', 'required' => true],
+                ['key' => 'severity', 'heading' => 'Severity scorecard', 'required' => true],
+                ['key' => 'evidence_gaps', 'heading' => 'Evidence gaps (do not invent numbers)', 'aliases' => ['Evidence gaps'], 'required' => true],
+                ['key' => 'interview_prompts', 'heading' => 'Interview prompts to fill gaps', 'aliases' => ['Interview prompts'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Month-end close appears if relevant', 'help' => 'For finance/ops pains, the snapshot names when in the calendar the pain spikes.'],
-                ['label' => 'Gaps are named honestly', 'help' => 'Missing invoice counts or hours are listed as gaps, not filled with plausible numbers.'],
-                ['label' => 'Table rows match your workaround', 'help' => 'Trigger moments trace to steps in your Pantry workaround, not generic SaaS pains.'],
-                ['label' => 'Interview prompts are usable verbatim', 'help' => 'You could paste each prompt into a Calendly call agenda without editing.'],
+                ['label' => 'Month-end close appears if relevant', 'help' => 'For finance/ops pains, the snapshot names when in the calendar the pain spikes.',
+                 'evidence_sections' => ['frequency_map']],
+                ['label' => 'Gaps are named honestly', 'help' => 'Missing invoice counts or hours are listed as gaps, not filled with plausible numbers.',
+                 'evidence_sections' => ['evidence_gaps']],
+                ['label' => 'Table rows match your workaround', 'help' => 'Trigger moments trace to steps in your Pantry workaround, not generic SaaS pains.',
+                 'evidence_sections' => ['frequency_map']],
+                ['label' => 'Interview prompts are usable verbatim', 'help' => 'You could paste each prompt into a Calendly call agenda without editing.',
+                 'evidence_sections' => ['interview_prompts']],
             ],
         ],
         [
@@ -666,14 +688,26 @@ One short scene when they would search for a solution.
 ## ICP litmus test
 One paragraph: how to score a lead in 60 seconds using prior artifacts.
 
-Under 450 words. No fabricated case studies.
+Under 450 words. No fabricated case studies. Keep the six section headings exactly as written above, in that order.
 TXT,
             'example_response' => $idealCustomerProfileExample,
+            'output_sections' => [
+                ['key' => 'icp_snapshot', 'heading' => 'ICP snapshot', 'required' => true],
+                ['key' => 'firmographics', 'heading' => 'Firmographics', 'required' => true],
+                ['key' => 'psychographics', 'heading' => 'Psychographics', 'required' => true],
+                ['key' => 'disqualifiers', 'heading' => 'Disqualifiers (who this is not for)', 'aliases' => ['Disqualifiers'], 'required' => true],
+                ['key' => 'trigger_scene', 'heading' => 'Day-in-the-life trigger', 'required' => true],
+                ['key' => 'litmus_test', 'heading' => 'ICP litmus test', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Revenue band matches Pantry', 'help' => 'ICP honors the buyer range you entered, not a broader "all Shopify stores" definition.'],
-                ['label' => 'Disqualifiers are concrete', 'help' => 'At least one disqualifier names a segment you might wrongly chase (e.g., pre-revenue, EDI-heavy).'],
-                ['label' => 'Trigger scene is recognizable', 'help' => 'Ops/finance lead would say "that is my month-end" after reading the day-in-the-life section.'],
-                ['label' => 'Competitors inform stack context', 'help' => 'ICP mentions realistic adjacent tools from your competitor list, not invented logos.'],
+                ['label' => 'Revenue band matches Pantry', 'help' => 'ICP honors the buyer range you entered, not a broader "all Shopify stores" definition.',
+                 'evidence_sections' => ['icp_snapshot']],
+                ['label' => 'Disqualifiers are concrete', 'help' => 'At least one disqualifier names a segment you might wrongly chase (e.g., pre-revenue, EDI-heavy).',
+                 'evidence_sections' => ['disqualifiers']],
+                ['label' => 'Trigger scene is recognizable', 'help' => 'Ops/finance lead would say "that is my month-end" after reading the day-in-the-life section.',
+                 'evidence_sections' => ['trigger_scene']],
+                ['label' => 'Competitors inform stack context', 'help' => 'ICP mentions realistic adjacent tools from your competitor list, not invented logos.',
+                 'evidence_sections' => ['firmographics', 'psychographics']],
             ],
         ],
         [
@@ -697,8 +731,8 @@ Approved ideal customer profile:
 
 Produce Markdown with these exact section headings:
 
-## Primary access path: [channel name]
-Where to show up, approach tone (diagnostic not pitch), weekly activity targets, conversion signals. Use qualitative targets unless Pantry provides numbers.
+## Primary access path
+Open the body by naming the channel ({{reach_channel}}), then where to show up, approach tone (diagnostic not pitch), weekly activity targets, conversion signals. Use qualitative targets unless Pantry provides numbers.
 
 ## Secondary paths (if primary stalls)
 Two backup channels compatible with the ICP.
@@ -712,14 +746,25 @@ Simple table of activities by week.
 ## Success metric for access (from Pantry)
 Restate success signal and define a precursor metric (conversations, calls) achievable before product exists.
 
-Under 450 words. Do not claim prior outreach results.
+Under 450 words. Do not claim prior outreach results. Keep the five section headings exactly as written above, in that order; name the channel in the body, never in the heading.
 TXT,
             'example_response' => $buyerAccessPlanExample,
+            'output_sections' => [
+                ['key' => 'primary_path', 'heading' => 'Primary access path', 'required' => true],
+                ['key' => 'secondary_paths', 'heading' => 'Secondary paths (if primary stalls)', 'aliases' => ['Secondary paths'], 'required' => true],
+                ['key' => 'who_to_avoid', 'heading' => 'Who to avoid', 'required' => true],
+                ['key' => 'outreach_calendar', 'heading' => '2-week outreach calendar', 'aliases' => ['Two-week outreach calendar', 'Outreach calendar'], 'required' => true],
+                ['key' => 'access_metric', 'heading' => 'Success metric for access (from Pantry)', 'aliases' => ['Success metric for access'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Channel matches Pantry selection', 'help' => 'Primary path uses the reach channel you picked, not a random growth hack.'],
-                ['label' => 'Tone is diagnostic', 'help' => 'Outreach asks about workflows, not "book a demo" spam.'],
-                ['label' => 'Calendar fits decision deadline', 'help' => 'Two-week sprint plus follow-ups can repeat before your decision date.'],
-                ['label' => 'Success signal is restated measurably', 'help' => 'Precursor metrics tie to 5 paid pilots or your exact Pantry success signal.'],
+                ['label' => 'Channel matches Pantry selection', 'help' => 'Primary path uses the reach channel you picked, not a random growth hack.',
+                 'evidence_sections' => ['primary_path']],
+                ['label' => 'Tone is diagnostic', 'help' => 'Outreach asks about workflows, not "book a demo" spam.',
+                 'evidence_sections' => ['primary_path']],
+                ['label' => 'Calendar fits decision deadline', 'help' => 'Two-week sprint plus follow-ups can repeat before your decision date.',
+                 'evidence_sections' => ['outreach_calendar']],
+                ['label' => 'Success signal is restated measurably', 'help' => 'Precursor metrics tie to 5 paid pilots or your exact Pantry success signal.',
+                 'evidence_sections' => ['access_metric']],
             ],
         ],
         [
@@ -758,14 +803,25 @@ Three risks (incumbent expansion, platform, status quo).
 ## Unknowns (do not invent market share)
 What must be verified on vendor sites or in buyer calls.
 
-Under 450 words. Label all feature claims as public positioning unless sourced in Pantry.
+Under 450 words. Label all feature claims as public positioning unless sourced in Pantry. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $competitorLandscapeExample,
+            'output_sections' => [
+                ['key' => 'competitive_set', 'heading' => 'Competitive set (from Pantry, expanded honestly)', 'aliases' => ['Competitive set'], 'required' => true],
+                ['key' => 'category_placement', 'heading' => 'Category placement', 'required' => true],
+                ['key' => 'switching', 'heading' => 'Switching behavior', 'required' => true],
+                ['key' => 'competitive_risks', 'heading' => 'Competitive risks', 'required' => true],
+                ['key' => 'unknowns', 'heading' => 'Unknowns (do not invent market share)', 'aliases' => ['Unknowns'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Every Pantry competitor appears', 'help' => 'Each line from known_competitors has a row, including manual bookkeeper/workaround.'],
-                ['label' => 'Overlap vs gap is honest', 'help' => 'Bookkeep/A2X-style tools are credited for what they actually do before stating the gap.'],
-                ['label' => 'Unknowns section exists', 'help' => 'Market share and pricing are flagged unverified, not stated as facts.'],
-                ['label' => 'Category name fits Shopify ops pain', 'help' => 'Placement reads as supplier invoice reconciliation, not generic "fintech."'],
+                ['label' => 'Every Pantry competitor appears', 'help' => 'Each line from known_competitors has a row, including manual bookkeeper/workaround.',
+                 'evidence_sections' => ['competitive_set']],
+                ['label' => 'Overlap vs gap is honest', 'help' => 'Bookkeep/A2X-style tools are credited for what they actually do before stating the gap.',
+                 'evidence_sections' => ['competitive_set']],
+                ['label' => 'Unknowns section exists', 'help' => 'Market share and pricing are flagged unverified, not stated as facts.',
+                 'evidence_sections' => ['unknowns']],
+                ['label' => 'Category name fits Shopify ops pain', 'help' => 'Placement reads as supplier invoice reconciliation, not generic "fintech."',
+                 'evidence_sections' => ['category_placement']],
             ],
         ],
         [
@@ -809,14 +865,26 @@ Three tests that could prove you wrong.
 ## What we will not claim
 Honest limits (compliance, scope, integrations).
 
-Under 450 words. No fabricated pilot results.
+Under 450 words. No fabricated pilot results. Keep the six section headings exactly as written above, in that order.
 TXT,
             'example_response' => $differentiationHypothesisExample,
+            'output_sections' => [
+                ['key' => 'thesis', 'heading' => 'Differentiation thesis', 'required' => true],
+                ['key' => 'wedge', 'heading' => 'Wedge (first believable claim)', 'aliases' => ['Wedge'], 'required' => true],
+                ['key' => 'incumbents_miss', 'heading' => 'Why incumbents miss this wedge', 'required' => true],
+                ['key' => 'moat_seed', 'heading' => 'Founder insight as moat seed', 'required' => true],
+                ['key' => 'tests', 'heading' => 'Differentiation tests (falsifiable)', 'aliases' => ['Differentiation tests'], 'required' => true],
+                ['key' => 'not_claim', 'heading' => 'What we will not claim', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Wedge mentions invoice-to-order matching', 'help' => 'Core claim reflects supplier reconciliation, not generic automation.'],
-                ['label' => 'Tests could fail', 'help' => 'Each falsification test has a clear fail condition, not a vanity metric.'],
-                ['label' => 'Price ROI is framed as hypothesis', 'help' => '$79/month (or your price) is tied to buyer math to verify, not asserted as validated WTP.'],
-                ['label' => 'Incumbent bullets cite landscape gaps', 'help' => 'Why Bookkeep/A2X/Ramp miss the wedge references the competitor table, not strawmen.'],
+                ['label' => 'Wedge mentions invoice-to-order matching', 'help' => 'Core claim reflects supplier reconciliation, not generic automation.',
+                 'evidence_sections' => ['wedge']],
+                ['label' => 'Tests could fail', 'help' => 'Each falsification test has a clear fail condition, not a vanity metric.',
+                 'evidence_sections' => ['tests']],
+                ['label' => 'Price ROI is framed as hypothesis', 'help' => '$79/month (or your price) is tied to buyer math to verify, not asserted as validated WTP.',
+                 'evidence_sections' => ['tests']],
+                ['label' => 'Incumbent bullets cite landscape gaps', 'help' => 'Why Bookkeep/A2X/Ramp miss the wedge references the competitor table, not strawmen.',
+                 'evidence_sections' => ['incumbents_miss']],
             ],
         ],
         [
@@ -861,14 +929,23 @@ Which assumptions to test before writing code, with kill implication.
 ## Assumptions treated as facts today (flagged)
 List anything in prior artifacts still anecdote or hypothesis.
 
-Under 500 words. No invented experiment outcomes.
+Under 500 words. No invented experiment outcomes. Keep the three section headings exactly as written above, in that order.
 TXT,
             'example_response' => $riskiestAssumptionsRegisterExample,
+            'output_sections' => [
+                ['key' => 'assumption_stack', 'heading' => 'Assumption stack (ranked by risk)', 'aliases' => ['Assumption stack'], 'required' => true],
+                ['key' => 'top_three', 'heading' => 'Top 3 to test first', 'required' => true],
+                ['key' => 'flagged_facts', 'heading' => 'Assumptions treated as facts today (flagged)', 'aliases' => ['Assumptions treated as facts today'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Feasibility assumptions included', 'help' => 'At least one row covers invoice matching or data feasibility, not only "people want this."'],
-                ['label' => 'Top 3 map to kill scenarios', 'help' => 'Each priority assumption says what happens if it fails (kill, revise, or narrow).'],
-                ['label' => 'Founder anecdote flagged', 'help' => '$14K duplicate story or similar is listed as unverified anecdote, not customer proof.'],
-                ['label' => 'Channel assumption present', 'help' => 'Reach channel from Pantry appears as testable row with risk rationale.'],
+                ['label' => 'Feasibility assumptions included', 'help' => 'At least one row covers invoice matching or data feasibility, not only "people want this."',
+                 'evidence_sections' => ['assumption_stack']],
+                ['label' => 'Top 3 map to kill scenarios', 'help' => 'Each priority assumption says what happens if it fails (kill, revise, or narrow).',
+                 'evidence_sections' => ['top_three']],
+                ['label' => 'Founder anecdote flagged', 'help' => '$14K duplicate story or similar is listed as unverified anecdote, not customer proof.',
+                 'evidence_sections' => ['flagged_facts']],
+                ['label' => 'Channel assumption present', 'help' => 'Reach channel from Pantry appears as testable row with risk rationale.',
+                 'evidence_sections' => ['assumption_stack']],
             ],
         ],
         [
@@ -902,14 +979,23 @@ Short bullets: Strong / Weak / Missing areas. Honest about empty cells.
 ## Next 10 days: evidence collection priorities
 Ordered list of three actions tied to buyer access plan and matrix gaps.
 
-Under 500 words. Pass/fail thresholds must be numeric or countable where possible, but do not fabricate current results.
+Under 500 words. Pass/fail thresholds must be numeric or countable where possible, but do not fabricate current results. Keep the three section headings exactly as written above, in that order.
 TXT,
             'example_response' => $assumptionEvidenceMatrixExample,
+            'output_sections' => [
+                ['key' => 'matrix', 'heading' => 'Evidence matrix', 'required' => true],
+                ['key' => 'evidence_grade', 'heading' => 'Current evidence grade', 'aliases' => ['Evidence grade'], 'required' => true],
+                ['key' => 'priorities', 'heading' => 'Next 10 days: evidence collection priorities', 'aliases' => ['Next 10 days'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Every ranked assumption has a row', 'help' => 'Matrix covers the full register, not just top 3.'],
-                ['label' => 'Pass and fail thresholds differ', 'help' => 'Each row has distinct pass vs fail, not vague "learn more."'],
-                ['label' => 'Evidence we have cites Pantry only', 'help' => 'Current evidence column does not claim interviews you have not run.'],
-                ['label' => 'Priorities link to access plan', 'help' => '10-day actions mention outreach or teardown calls from your buyer access plan.'],
+                ['label' => 'Every ranked assumption has a row', 'help' => 'Matrix covers the full register, not just top 3.',
+                 'evidence_sections' => ['matrix']],
+                ['label' => 'Pass and fail thresholds differ', 'help' => 'Each row has distinct pass vs fail, not vague "learn more."',
+                 'evidence_sections' => ['matrix']],
+                ['label' => 'Evidence we have cites Pantry only', 'help' => 'Current evidence column does not claim interviews you have not run.',
+                 'evidence_sections' => ['matrix', 'evidence_grade']],
+                ['label' => 'Priorities link to access plan', 'help' => '10-day actions mention outreach or teardown calls from your buyer access plan.',
+                 'evidence_sections' => ['priorities']],
             ],
         ],
         [
@@ -947,14 +1033,24 @@ Rules tied to success signal and pass thresholds. Must be countable.
 ## Decision hygiene
 How to decide on deadline if evidence is incomplete. Default to revise, not go.
 
-Under 450 words. Do not state that any rule has already passed or failed unless Pantry provides that data (it does not).
+Under 450 words. Do not state that any rule has already passed or failed unless Pantry provides that data (it does not). Keep the four section headings exactly as written above, in that order.
 TXT,
             'example_response' => $killCriteriaExample,
+            'output_sections' => [
+                ['key' => 'stop_rules', 'heading' => 'Stop rules (idea dies if...)', 'aliases' => ['Stop rules'], 'required' => true],
+                ['key' => 'revise_rules', 'heading' => 'Revise rules (pivot scope if...)', 'aliases' => ['Revise rules'], 'required' => true],
+                ['key' => 'continue_rules', 'heading' => 'Continue rules (green light to build MVP if...)', 'aliases' => ['Continue rules'], 'required' => true],
+                ['key' => 'decision_hygiene', 'heading' => 'Decision hygiene', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Stop rules cite matrix fails', 'help' => 'At least three stop rules mirror fail thresholds (volume, match rate, WTP).'],
-                ['label' => 'Revise paths are actionable', 'help' => 'Each revise rule names a concrete pivot (segment, price, channel), not "keep learning."'],
-                ['label' => 'Continue rules reference success signal', 'help' => 'Green light includes your Pantry success signal verbatim or equivalent.'],
-                ['label' => 'Deadline hygiene is explicit', 'help' => 'Decision deadline triggers revise if cells are empty, not automatic go.'],
+                ['label' => 'Stop rules cite matrix fails', 'help' => 'At least three stop rules mirror fail thresholds (volume, match rate, WTP).',
+                 'evidence_sections' => ['stop_rules']],
+                ['label' => 'Revise paths are actionable', 'help' => 'Each revise rule names a concrete pivot (segment, price, channel), not "keep learning."',
+                 'evidence_sections' => ['revise_rules']],
+                ['label' => 'Continue rules reference success signal', 'help' => 'Green light includes your Pantry success signal verbatim or equivalent.',
+                 'evidence_sections' => ['continue_rules']],
+                ['label' => 'Deadline hygiene is explicit', 'help' => 'Decision deadline triggers revise if cells are empty, not automatic go.',
+                 'evidence_sections' => ['decision_hygiene']],
             ],
         ],
         [
@@ -995,14 +1091,24 @@ Qualitative slice (weeks), not fake story points. Gate eng on kill criteria.
 ## MVP success metrics (tie to Pantry)
 Restate success signal and measurable match/retention metrics as hypotheses.
 
-Under 450 words. No feature creep beyond testing top assumptions.
+Under 450 words. No feature creep beyond testing top assumptions. Keep the four section headings exactly as written above, in that order.
 TXT,
             'example_response' => $mvpScopeRecommendationExample,
+            'output_sections' => [
+                ['key' => 'mvp_definition', 'heading' => 'MVP definition (concierge-first)', 'aliases' => ['MVP definition'], 'required' => true],
+                ['key' => 'build_split', 'heading' => 'Build vs concierge split', 'required' => true],
+                ['key' => 'effort', 'heading' => 'Effort estimate', 'required' => true],
+                ['key' => 'success_metrics', 'heading' => 'MVP success metrics (tie to Pantry)', 'aliases' => ['MVP success metrics'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'In scope tests match feasibility', 'help' => 'Core MVP proves invoice ingest and line matching, not full AP automation.'],
-                ['label' => 'Out of scope lists tempting traps', 'help' => 'Bookkeep sync, EDI, and payments are explicitly deferred if not in v1.'],
-                ['label' => 'Concierge bias is explicit', 'help' => 'Plan allows human-in-loop matching before automated scale.'],
-                ['label' => 'Eng gated on kill criteria', 'help' => 'Build commitment waits on manual match test passing continue rules.'],
+                ['label' => 'In scope tests match feasibility', 'help' => 'Core MVP proves invoice ingest and line matching, not full AP automation.',
+                 'evidence_sections' => ['mvp_definition']],
+                ['label' => 'Out of scope lists tempting traps', 'help' => 'Bookkeep sync, EDI, and payments are explicitly deferred if not in v1.',
+                 'evidence_sections' => ['mvp_definition']],
+                ['label' => 'Concierge bias is explicit', 'help' => 'Plan allows human-in-loop matching before automated scale.',
+                 'evidence_sections' => ['build_split']],
+                ['label' => 'Eng gated on kill criteria', 'help' => 'Build commitment waits on manual match test passing continue rules.',
+                 'evidence_sections' => ['effort']],
             ],
         ],
         [
@@ -1045,14 +1151,23 @@ Table mapping date windows to milestones ending on decision deadline.
 ## Resources
 Founder time, budget, tools. Keep realistic for solo founder.
 
-Under 500 words. Label all metrics as targets, not achieved results.
+Under 500 words. Label all metrics as targets, not achieved results. Keep the three section headings exactly as written above, in that order.
 TXT,
             'example_response' => $validationExperimentPlanExample,
+            'output_sections' => [
+                ['key' => 'backlog', 'heading' => 'Experiment backlog (ordered)', 'aliases' => ['Experiment backlog'], 'required' => true],
+                ['key' => 'timeline', 'heading' => 'Timeline to decision deadline', 'aliases' => ['Timeline'], 'required' => true],
+                ['key' => 'resources', 'heading' => 'Resources', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Four experiments cover demand and feasibility', 'help' => 'Plan includes interviews, manual match test, outreach, and paid concierge pilot.'],
-                ['label' => 'Timeline ends on decision deadline', 'help' => 'Milestones anchor to your Pantry decision date, not vague "soon."'],
-                ['label' => 'Outreach experiment cites access plan', 'help' => 'Channel tactics match buyer access plan, not new channels.'],
-                ['label' => 'Success metrics tie to kill criteria', 'help' => 'Experiment pass/fail uses thresholds from kill criteria and matrix.'],
+                ['label' => 'Four experiments cover demand and feasibility', 'help' => 'Plan includes interviews, manual match test, outreach, and paid concierge pilot.',
+                 'evidence_sections' => ['backlog']],
+                ['label' => 'Timeline ends on decision deadline', 'help' => 'Milestones anchor to your Pantry decision date, not vague "soon."',
+                 'evidence_sections' => ['timeline']],
+                ['label' => 'Outreach experiment cites access plan', 'help' => 'Channel tactics match buyer access plan, not new channels.',
+                 'evidence_sections' => ['backlog']],
+                ['label' => 'Success metrics tie to kill criteria', 'help' => 'Experiment pass/fail uses thresholds from kill criteria and matrix.',
+                 'evidence_sections' => ['backlog']],
             ],
         ],
         [
@@ -1103,14 +1218,25 @@ One of GO, REVISE, or STOP with rationale. If evidence missing, default REVISE a
 ## Signed decision
 Checkbox lines for GO / REVISE / STOP, decision owner, review date from Pantry.
 
-Under 500 words. Never claim pilots or match rates exist unless user pasted real results (assume they do not).
+Under 500 words. Never claim pilots or match rates exist unless user pasted real results (assume they do not). Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $goReviseStopMemoExample,
+            'output_sections' => [
+                ['key' => 'exec_summary', 'heading' => 'Executive summary', 'required' => true],
+                ['key' => 'evidence_snapshot', 'heading' => 'Evidence snapshot (as of draft)', 'aliases' => ['Evidence snapshot'], 'required' => true],
+                ['key' => 'decision_options', 'heading' => 'Decision options', 'required' => true],
+                ['key' => 'recommendation', 'heading' => 'Preliminary recommendation', 'aliases' => ['Recommendation'], 'required' => true],
+                ['key' => 'signed_decision', 'heading' => 'Signed decision', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Recommendation matches evidence honesty', 'help' => 'If experiments are unrun, memo defaults to REVISE, not false GO.'],
-                ['label' => 'All three decision paths defined', 'help' => 'GO, REVISE, and STOP each have triggers tied to kill criteria.'],
-                ['label' => 'Success signal appears in GO path', 'help' => 'Continue option references 5 paid pilots or your exact Pantry success signal.'],
-                ['label' => 'Signed decision block is present', 'help' => 'Memo ends with checkboxes, owner, and decision deadline date.'],
+                ['label' => 'Recommendation matches evidence honesty', 'help' => 'If experiments are unrun, memo defaults to REVISE, not false GO.',
+                 'evidence_sections' => ['recommendation']],
+                ['label' => 'All three decision paths defined', 'help' => 'GO, REVISE, and STOP each have triggers tied to kill criteria.',
+                 'evidence_sections' => ['decision_options']],
+                ['label' => 'Success signal appears in GO path', 'help' => 'Continue option references 5 paid pilots or your exact Pantry success signal.',
+                 'evidence_sections' => ['decision_options']],
+                ['label' => 'Signed decision block is present', 'help' => 'Memo ends with checkboxes, owner, and decision deadline date.',
+                 'evidence_sections' => ['signed_decision']],
             ],
         ],
     ],

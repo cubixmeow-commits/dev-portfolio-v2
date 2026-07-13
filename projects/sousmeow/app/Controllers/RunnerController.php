@@ -12,12 +12,18 @@ use SousMeow\Models\PantryField;
 use SousMeow\Models\Project;
 use SousMeow\Models\Recipe;
 use SousMeow\Services\PromptBuilder;
+use SousMeow\Services\ResponseParser;
 
 /**
  * The Recipe Runner: the product's core loop. Each step renders one of
- * three states (gather, review, approved) and every transition is
- * validated server side: recipe order, version immutability, and the
+ * three durable states (gather, review, approved) and every transition
+ * is validated server side: recipe order, version immutability, and the
  * all-checks-confirmed gate on approval.
+ *
+ * The gather state is presented as a three-screen wizard (understand,
+ * prompt, paste) driven by a ?stage= query parameter. That parameter is
+ * instructional only: it is clamped server side, never stored, and a
+ * refresh always lands on the correct durable state.
  */
 final class RunnerController
 {
@@ -48,6 +54,62 @@ final class RunnerController
             $state = 'approved';
         } elseif ($latest !== null) {
             $state = 'review';
+        }
+
+        // Instructional wizard sub-stage within gather. Clamped so a
+        // stale or hand-edited URL can never contradict saved work.
+        $wizard = $state;
+        if ($state === 'gather') {
+            $requested = (string) ($_GET['stage'] ?? 'understand');
+            $wizard = in_array($requested, ['understand', 'prompt', 'paste'], true) ? $requested : 'understand';
+        }
+
+        // Structural evidence for the review flow: parse the latest
+        // (reviewable) version against the recipe's output contract.
+        // Recipes without a contract fall back to manual full-response
+        // review; parsing never blocks anything.
+        $contract = Recipe::outputContract($recipe);
+        $parsed = null;
+        if ($contract !== null && $latest !== null) {
+            $parsed = ResponseParser::parse((string) $latest['content'], $contract);
+        }
+        $headingByKey = [];
+        foreach ($contract ?? [] as $section) {
+            $headingByKey[$section['key']] = $section['heading'];
+        }
+
+        $reviewCards = [];
+        foreach ($checks as $check) {
+            $keys = Recipe::evidenceKeys($check);
+            $status = $parsed !== null
+                ? ResponseParser::checkStatus($keys, $parsed)
+                : ResponseParser::STATUS_MANUAL;
+            $evidence = [];
+            $missingHeadings = [];
+            if ($parsed !== null) {
+                foreach ($keys as $key) {
+                    $blocks = $parsed['sections'][$key] ?? [];
+                    if ($blocks === []) {
+                        $missingHeadings[] = $headingByKey[$key] ?? $key;
+                        continue;
+                    }
+                    foreach ($blocks as $block) {
+                        $evidence[] = [
+                            'key'       => $key,
+                            'heading'   => $block['heading'],
+                            'content'   => $block['content'],
+                            'empty'     => $block['empty'],
+                            'duplicate' => count($blocks) > 1,
+                        ];
+                    }
+                }
+            }
+            $reviewCards[] = [
+                'check'           => $check,
+                'status'          => $status,
+                'evidence'        => $evidence,
+                'missingHeadings' => $missingHeadings,
+            ];
         }
 
         $prompt = PromptBuilder::build($recipe, $project);
@@ -87,6 +149,11 @@ final class RunnerController
             'checks'       => $checks,
             'confirmed'    => $confirmed,
             'state'        => $state,
+            'wizard'       => $wizard,
+            'contract'     => $contract,
+            'parsed'       => $parsed,
+            'headingByKey' => $headingByKey,
+            'reviewCards'  => $reviewCards,
             'prompt'       => $prompt,
             'ingredients'  => $ingredients,
             'approvedCount' => $approvedCount,

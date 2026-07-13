@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS recipes (
     unlocks_text    TEXT NOT NULL DEFAULT '',
     prompt_template TEXT,                -- NULL for preview-only recipes
     example_response TEXT,               -- one realistic sample per runnable recipe
+    output_contract TEXT,                -- JSON section list the prompt requests (NULL = no contract)
     est_minutes     INTEGER NOT NULL DEFAULT 5,
     UNIQUE (cookbook_id, position),
     UNIQUE (cookbook_id, slug)
@@ -72,6 +73,7 @@ CREATE TABLE IF NOT EXISTS recipe_checks (
     position  INTEGER NOT NULL,
     label     TEXT NOT NULL,
     help      TEXT NOT NULL DEFAULT '',
+    evidence_keys TEXT,                  -- JSON list of output_contract section keys (NULL = manual review)
     UNIQUE (recipe_id, position)
 );
 

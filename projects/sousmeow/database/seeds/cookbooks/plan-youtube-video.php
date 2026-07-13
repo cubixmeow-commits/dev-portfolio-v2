@@ -110,13 +110,13 @@ Hook A is strong for Shorts cutdowns. Hook B needs a quick before/after b-roll i
 MD;
 
 $videoOutlineExample = <<<'MD'
-## Opening (0:00-0:30)
+## Opening
 
-Deliver Hook C on camera. Quick shot of one dirty pot vs. one clean pan. State the promise: one pan, five ingredients, under 30 minutes.
+**Timing:** 0:00-0:30. Deliver Hook C on camera. Quick shot of one dirty pot vs. one clean pan. State the promise: one pan, five ingredients, under 30 minutes.
 
-## Setup (0:30-1:30)
+## Setup
 
-Show five ingredients on counter. Explain partial boil in one sentence: small pot of water, pasta par-cooked, water saved for sauce. This is the honesty beat competitors skip.
+**Timing:** 0:30-1:30. Show five ingredients on counter. Explain partial boil in one sentence: small pot of water, pasta par-cooked, water saved for sauce. This is the honesty beat competitors skip.
 
 ## Main steps
 
@@ -135,23 +135,27 @@ On-screen grocery list. Ask for their protein swap in comments. Tease next weekn
 MD;
 
 $retentionBeatsExample = <<<'MD'
-## Beat 1 (0:45)
+## Beat 1
 
+**Timestamp:** 0:45.
 **Drop-off risk:** Ingredient list feels like every other pasta video.
 **Fix:** Hold up the single pan and say "this is the only thing you wash" before listing items.
 
-## Beat 2 (2:30)
+## Beat 2
 
+**Timestamp:** 2:30.
 **Drop-off risk:** Simmer wait with nothing new happening.
 **Fix:** Split screen or cutaway: par-boil pasta in small pot while sauce bubbles; text overlay "yes, one small pot of water still counts as easy cleanup."
 
-## Beat 3 (4:15)
+## Beat 3
 
+**Timestamp:** 4:15.
 **Drop-off risk:** Viewer thinks sauce looks wrong.
 **Fix:** Show side-by-side too dry vs. fixed with pasta water; narrate the fix in one sentence.
 
-## Beat 4 (6:00)
+## Beat 4
 
+**Timestamp:** 6:00.
 **Drop-off risk:** Outro drag after plate shot.
 **Fix:** Grocery list on screen at 6:00 while you say one line; end at 6:30 max for under-8-min target.
 
@@ -383,13 +387,25 @@ Two or three real risks (competition, expectations, production limits). Bullet l
 ## Angle recommendation
 One ownable angle that fits the niche, not a generic trend chase.
 
-Keep the whole output under 400 words. Plain language, no jargon.
+Keep the whole output under 400 words. Plain language, no jargon. Keep the seven section headings exactly as written above, in that order.
 TXT,
             'example_response' => $researchBriefExample,
+            'output_sections' => [
+                ['key' => 'topic_snapshot', 'heading' => 'Topic snapshot', 'required' => true],
+                ['key' => 'search_intent', 'heading' => 'Search intent', 'required' => true],
+                ['key' => 'why_now', 'heading' => 'Why this topic now', 'required' => true],
+                ['key' => 'viewers_know', 'heading' => 'What viewers already know', 'required' => true],
+                ['key' => 'must_deliver', 'heading' => 'What this video must deliver', 'required' => true],
+                ['key' => 'risks', 'heading' => 'Risks to flag', 'aliases' => ['Risks'], 'required' => true],
+                ['key' => 'angle', 'heading' => 'Angle recommendation', 'aliases' => ['Recommended angle'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Search intent is specific', 'help' => 'You can name what someone typed into YouTube before they found a video like this.'],
-                ['label' => 'Risks are honest', 'help' => 'At least one real downside or competitor overlap is named, not hand-waved.'],
-                ['label' => 'Angle is ownable', 'help' => 'The recommended angle could not belong to any channel in any niche.'],
+                ['label' => 'Search intent is specific', 'help' => 'You can name what someone typed into YouTube before they found a video like this.',
+                 'evidence_sections' => ['search_intent']],
+                ['label' => 'Risks are honest', 'help' => 'At least one real downside or competitor overlap is named, not hand-waved.',
+                 'evidence_sections' => ['risks']],
+                ['label' => 'Angle is ownable', 'help' => 'The recommended angle could not belong to any channel in any niche.',
+                 'evidence_sections' => ['angle']],
             ],
         ],
         [
@@ -428,13 +444,23 @@ What they can do or repeat after watching, tied to target length.
 ## Tone for this video
 Two or three sentences on voice and what to avoid (hype, jargon, borrowed creator slang).
 
-Keep the whole output under 400 words. The promise must fit {{video_length}}.
+Keep the whole output under 400 words. The promise must fit {{video_length}}. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $audienceAngleExample,
+            'output_sections' => [
+                ['key' => 'primary_viewer', 'heading' => 'Primary viewer', 'required' => true],
+                ['key' => 'promise', 'heading' => 'One-sentence promise', 'aliases' => ['The promise'], 'required' => true],
+                ['key' => 'fears', 'heading' => 'What they fear', 'required' => true],
+                ['key' => 'success', 'heading' => 'What success looks like', 'required' => true],
+                ['key' => 'tone', 'heading' => 'Tone for this video', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'One clear viewer', 'help' => 'You can picture one person and what they need tonight, not a demographic list.'],
-                ['label' => 'Promise matches length', 'help' => 'What you promise fits the target length you set in the Pantry.'],
-                ['label' => 'Fits your niche', 'help' => 'A subscriber of your channel would recognize this as yours, not a trend chase.'],
+                ['label' => 'One clear viewer', 'help' => 'You can picture one person and what they need tonight, not a demographic list.',
+                 'evidence_sections' => ['primary_viewer']],
+                ['label' => 'Promise matches length', 'help' => 'What you promise fits the target length you set in the Pantry.',
+                 'evidence_sections' => ['promise']],
+                ['label' => 'Fits your niche', 'help' => 'A subscriber of your channel would recognize this as yours, not a trend chase.',
+                 'evidence_sections' => ['promise', 'tone']],
             ],
         ],
         [
@@ -475,13 +501,23 @@ Three actionable gaps your video can fill using your approved angle.
 ## What to avoid copying
 Hooks, titles, or structures to deliberately not repeat.
 
-Keep the whole output under 400 words. Focus on patterns useful for filming, not gossip.
+Keep the whole output under 400 words. Focus on patterns useful for filming, not gossip. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $competitorVideoNotesExample,
+            'output_sections' => [
+                ['key' => 'video_1', 'heading' => 'Video 1 notes', 'required' => true],
+                ['key' => 'video_2', 'heading' => 'Video 2 notes', 'required' => true],
+                ['key' => 'video_3', 'heading' => 'Video 3 notes', 'required' => true],
+                ['key' => 'gaps', 'heading' => 'Gaps to exploit', 'required' => true],
+                ['key' => 'avoid', 'heading' => 'What to avoid copying', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Three real references', 'help' => 'Each note ties to a specific video, not a vague genre.'],
-                ['label' => 'Gaps are actionable', 'help' => 'At least one competitor weakness becomes something your video will do differently.'],
-                ['label' => 'No copying hooks', 'help' => 'What you borrow is structure or proof, not their opening line word for word.'],
+                ['label' => 'Three real references', 'help' => 'Each note ties to a specific video, not a vague genre.',
+                 'evidence_sections' => ['video_1', 'video_2', 'video_3']],
+                ['label' => 'Gaps are actionable', 'help' => 'At least one competitor weakness becomes something your video will do differently.',
+                 'evidence_sections' => ['gaps']],
+                ['label' => 'No copying hooks', 'help' => 'What you borrow is structure or proof, not their opening line word for word.',
+                 'evidence_sections' => ['avoid']],
             ],
         ],
         [
@@ -525,13 +561,23 @@ Which hook to film first and why, tied to competitor gaps.
 ## Why the others stay in reserve
 One line each on when Hook A or B might work better (Shorts, alternate thumbnail, etc.).
 
-Keep the whole output under 400 words. Hooks must differ from competitor openings flagged in the notes.
+Keep the whole output under 400 words. Hooks must differ from competitor openings flagged in the notes. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $hookOptionsExample,
+            'output_sections' => [
+                ['key' => 'hook_a', 'heading' => 'Hook A', 'required' => true],
+                ['key' => 'hook_b', 'heading' => 'Hook B', 'required' => true],
+                ['key' => 'hook_c', 'heading' => 'Hook C', 'required' => true],
+                ['key' => 'recommended', 'heading' => 'Recommended hook', 'required' => true],
+                ['key' => 'reserve', 'heading' => 'Why the others stay in reserve', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'First line earns attention', 'help' => 'Each hook opens with tension, a result, or a relatable problem, not "hey guys".'],
-                ['label' => 'Distinct from competitors', 'help' => 'None of the three repeat an opening you flagged in competitor notes.'],
-                ['label' => 'Readable aloud', 'help' => 'You would say at least one hook on camera without sounding like you are reading ad copy.'],
+                ['label' => 'First line earns attention', 'help' => 'Each hook opens with tension, a result, or a relatable problem, not "hey guys".',
+                 'evidence_sections' => ['hook_a', 'hook_b', 'hook_c']],
+                ['label' => 'Distinct from competitors', 'help' => 'None of the three repeat an opening you flagged in competitor notes.',
+                 'evidence_sections' => ['hook_a', 'hook_b', 'hook_c']],
+                ['label' => 'Readable aloud', 'help' => 'You would say at least one hook on camera without sounding like you are reading ad copy.',
+                 'evidence_sections' => ['recommended']],
             ],
         ],
         [
@@ -560,11 +606,11 @@ Approved hook options (use the recommended hook in the opening):
 
 Produce, in Markdown with the exact section headings given:
 
-## Opening (0:00-0:30)
-Hook delivery plus promise restated for {{video_length}} pacing.
+## Opening
+Start the body with a timing range (for example 0:00-0:30), then hook delivery plus promise restated for {{video_length}} pacing.
 
-## Setup (0:30-1:30)
-Ingredients, tools, or context needed before the main action.
+## Setup
+Start the body with a timing range, then ingredients, tools, or context needed before the main action.
 
 ## Main steps
 Numbered beats with rough timing notes scaled to {{video_length}}.
@@ -575,13 +621,23 @@ The visual and verbal payoff the audience angle promised.
 ## Outro and next step
 CTA, comment prompt, or tease that fits the niche without overpromising.
 
-Keep the whole output under 400 words. Section count and depth must match {{video_length}}.
+Keep the whole output under 400 words. Section count and depth must match {{video_length}}. Keep the five section headings exactly as written above, in that order; timing ranges belong in the body, never in the headings.
 TXT,
             'example_response' => $videoOutlineExample,
+            'output_sections' => [
+                ['key' => 'opening', 'heading' => 'Opening', 'aliases' => ['Opening (0:00-0:30)'], 'required' => true],
+                ['key' => 'setup', 'heading' => 'Setup', 'aliases' => ['Setup (0:30-1:30)'], 'required' => true],
+                ['key' => 'main_steps', 'heading' => 'Main steps', 'required' => true],
+                ['key' => 'payoff', 'heading' => 'Payoff and plate', 'required' => true],
+                ['key' => 'outro', 'heading' => 'Outro and next step', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Payoff is explicit', 'help' => 'The viewer knows what they will have or know by the final frame.'],
-                ['label' => 'Beats match target length', 'help' => 'Section count and depth fit the length you chose in the Pantry.'],
-                ['label' => 'Hook leads the outline', 'help' => 'The approved hook is reflected in the first two beats, not bolted on after.'],
+                ['label' => 'Payoff is explicit', 'help' => 'The viewer knows what they will have or know by the final frame.',
+                 'evidence_sections' => ['payoff']],
+                ['label' => 'Beats match target length', 'help' => 'Section count and depth fit the length you chose in the Pantry.',
+                 'evidence_sections' => ['main_steps']],
+                ['label' => 'Hook leads the outline', 'help' => 'The approved hook is reflected in the first two beats, not bolted on after.',
+                 'evidence_sections' => ['opening']],
             ],
         ],
         [
@@ -606,7 +662,7 @@ Approved video outline:
 Produce, in Markdown with the exact section headings given:
 
 ## Beat 1
-Timestamp range, drop-off risk, and one concrete fix (visual, line, or text overlay).
+Timestamp range in the body, drop-off risk, and one concrete fix (visual, line, or text overlay).
 
 ## Beat 2
 Same structure; middle of video.
@@ -620,13 +676,25 @@ Optional fourth beat if {{video_length}} is 8-15 min or 15+ min; for Under 8 min
 ## Pattern breaks summary
 One short paragraph: how often to change shot or energy across the runtime.
 
-Keep the whole output under 400 words. Fixes must be specific, not "make it engaging."
+Keep the whole output under 400 words. Fixes must be specific, not "make it engaging." Keep the five section headings exactly as written above, in that order; timestamps belong in the body, never in the headings.
 TXT,
             'example_response' => $retentionBeatsExample,
+            'output_sections' => [
+                ['key' => 'beat_1', 'heading' => 'Beat 1', 'required' => true],
+                ['key' => 'beat_2', 'heading' => 'Beat 2', 'required' => true],
+                ['key' => 'beat_3', 'heading' => 'Beat 3', 'required' => true],
+                // Optional for short videos despite the prompt asking for a
+                // placeholder line; a missing Beat 4 should not warn.
+                ['key' => 'beat_4', 'heading' => 'Beat 4', 'required' => false],
+                ['key' => 'pattern_breaks', 'heading' => 'Pattern breaks summary', 'aliases' => ['Pattern breaks'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Drop-off points named', 'help' => 'Each beat names where attention usually fades in this type of video.'],
-                ['label' => 'Fixes are concrete', 'help' => 'Every retention beat suggests a specific visual or line, not "make it engaging".'],
-                ['label' => 'Spread across the runtime', 'help' => 'Beats appear in the middle and late sections, not only the opening.'],
+                ['label' => 'Drop-off points named', 'help' => 'Each beat names where attention usually fades in this type of video.',
+                 'evidence_sections' => ['beat_1', 'beat_2', 'beat_3']],
+                ['label' => 'Fixes are concrete', 'help' => 'Every retention beat suggests a specific visual or line, not "make it engaging".',
+                 'evidence_sections' => ['beat_1', 'beat_2', 'beat_3']],
+                ['label' => 'Spread across the runtime', 'help' => 'Beats appear in the middle and late sections, not only the opening.',
+                 'evidence_sections' => ['beat_2', 'beat_3', 'pattern_breaks']],
             ],
         ],
         [
@@ -666,13 +734,23 @@ One shot or cut idea per retention beat from the approved doc.
 ## Setup notes
 Order to film, safety or lighting notes specific to {{filming_setup}}.
 
-Keep the whole output under 400 words. Every shot must be achievable with the listed setup.
+Keep the whole output under 400 words. Every shot must be achievable with the listed setup. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $brollShotListExample,
+            'output_sections' => [
+                ['key' => 'wide_shots', 'heading' => 'Wide and establishing', 'aliases' => ['Wide shots'], 'required' => true],
+                ['key' => 'closeups', 'heading' => 'Close-ups and texture', 'aliases' => ['Close-ups'], 'required' => true],
+                ['key' => 'action_shots', 'heading' => 'Action shots', 'required' => true],
+                ['key' => 'beat_coverage', 'heading' => 'Retention beat coverage', 'required' => true],
+                ['key' => 'setup_notes', 'heading' => 'Setup notes', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Matches your setup', 'help' => 'Every shot is achievable with the filming setup you listed in the Pantry.'],
-                ['label' => 'Covers retention beats', 'help' => 'At least one shot is tied to each retention beat from the prior Recipe.'],
-                ['label' => 'Enough for editing', 'help' => 'You have wide, close, and action shots, not ten identical angles.'],
+                ['label' => 'Matches your setup', 'help' => 'Every shot is achievable with the filming setup you listed in the Pantry.',
+                 'evidence_sections' => ['wide_shots', 'closeups', 'action_shots', 'setup_notes']],
+                ['label' => 'Covers retention beats', 'help' => 'At least one shot is tied to each retention beat from the prior Recipe.',
+                 'evidence_sections' => ['beat_coverage']],
+                ['label' => 'Enough for editing', 'help' => 'You have wide, close, and action shots, not ten identical angles.',
+                 'evidence_sections' => ['wide_shots', 'closeups', 'action_shots']],
             ],
         ],
         [
@@ -715,13 +793,24 @@ Different angle again.
 ## Recommended direction
 Which title to test first and why, tied to search intent from the research brief.
 
-Keep the whole output under 400 words. No clickbait the video cannot fulfill.
+Keep the whole output under 400 words. No clickbait the video cannot fulfill. Keep the six section headings exactly as written above, in that order.
 TXT,
             'example_response' => $titleConceptsExample,
+            'output_sections' => [
+                ['key' => 'title_1', 'heading' => 'Title option 1', 'required' => true],
+                ['key' => 'title_2', 'heading' => 'Title option 2', 'required' => true],
+                ['key' => 'title_3', 'heading' => 'Title option 3', 'required' => true],
+                ['key' => 'title_4', 'heading' => 'Title option 4', 'required' => true],
+                ['key' => 'title_5', 'heading' => 'Title option 5', 'required' => true],
+                ['key' => 'recommended', 'heading' => 'Recommended direction', 'aliases' => ['Recommended title'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Promise matches content', 'help' => 'No title claims a result the outline does not deliver.'],
-                ['label' => 'Readable on mobile', 'help' => 'Each title is short enough to scan in a suggested feed without truncating the hook.'],
-                ['label' => 'Five distinct angles', 'help' => 'Options explore different hooks (speed, ease, outcome), not the same words rearranged.'],
+                ['label' => 'Promise matches content', 'help' => 'No title claims a result the outline does not deliver.',
+                 'evidence_sections' => ['title_1', 'title_2', 'title_3', 'title_4', 'title_5']],
+                ['label' => 'Readable on mobile', 'help' => 'Each title is short enough to scan in a suggested feed without truncating the hook.',
+                 'evidence_sections' => ['title_1', 'title_2', 'title_3', 'title_4', 'title_5']],
+                ['label' => 'Five distinct angles', 'help' => 'Options explore different hooks (speed, ease, outcome), not the same words rearranged.',
+                 'evidence_sections' => ['title_1', 'title_2', 'title_3', 'title_4', 'title_5']],
             ],
         ],
         [
@@ -760,13 +849,23 @@ When to use text, max word count, legibility at small size.
 ## Recommended concept
 Which concept pairs with the recommended title and why it differs from competitor thumbnails noted.
 
-Keep the whole output under 400 words. Align with the recommended title direction.
+Keep the whole output under 400 words. Align with the recommended title direction. Keep the five section headings exactly as written above, in that order.
 TXT,
             'example_response' => $thumbnailDirectionsExample,
+            'output_sections' => [
+                ['key' => 'concept_a', 'heading' => 'Concept A', 'required' => true],
+                ['key' => 'concept_b', 'heading' => 'Concept B', 'required' => true],
+                ['key' => 'concept_c', 'heading' => 'Concept C', 'required' => true],
+                ['key' => 'text_rules', 'heading' => 'Text overlay rules', 'required' => true],
+                ['key' => 'recommended', 'heading' => 'Recommended concept', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Readable at small size', 'help' => 'Each concept uses at most three words of overlay text, or none.'],
-                ['label' => 'Aligned with title', 'help' => 'The thumbnail and title promise the same outcome, not two different videos.'],
-                ['label' => 'Distinct from competitors', 'help' => 'Color or composition deliberately differs from the competitor thumbnails you noted.'],
+                ['label' => 'Readable at small size', 'help' => 'Each concept uses at most three words of overlay text, or none.',
+                 'evidence_sections' => ['concept_a', 'concept_b', 'concept_c', 'text_rules']],
+                ['label' => 'Aligned with title', 'help' => 'The thumbnail and title promise the same outcome, not two different videos.',
+                 'evidence_sections' => ['recommended']],
+                ['label' => 'Distinct from competitors', 'help' => 'Color or composition deliberately differs from the competitor thumbnails you noted.',
+                 'evidence_sections' => ['concept_a', 'concept_b', 'concept_c']],
             ],
         ],
         [
@@ -817,13 +916,24 @@ Where to place end screen and cards using retention beat timestamps.
 ## Post-publish checks
 First-hour and 48-hour checks (visibility, mobile truncate, comment pin).
 
-Keep the whole output under 400 words. Reference {{publish_day}} for timing.
+Keep the whole output under 400 words. Reference {{publish_day}} for timing. Keep the six section headings exactly as written above, in that order.
 TXT,
             'example_response' => $publishingChecklistExample,
+            'output_sections' => [
+                ['key' => 'pre_upload', 'heading' => 'Pre-upload (48 hours out)', 'aliases' => ['Pre-upload'], 'required' => true],
+                ['key' => 'upload_day', 'heading' => 'Upload day tasks', 'aliases' => ['Upload day'], 'required' => true],
+                ['key' => 'description', 'heading' => 'Description draft', 'required' => true],
+                ['key' => 'tags', 'heading' => 'Tags and metadata', 'required' => true],
+                ['key' => 'end_screens', 'heading' => 'End screens and cards', 'required' => true],
+                ['key' => 'post_publish', 'heading' => 'Post-publish checks', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Timed to publish day', 'help' => 'Prep steps reference the day you set in the Pantry, with realistic lead time.'],
-                ['label' => 'Description is useful', 'help' => 'The description draft includes timestamps, links, and one sentence a searcher would care about.'],
-                ['label' => 'Nothing critical missing', 'help' => 'End screens, cards, playlist, and visibility setting each have a checkbox item.'],
+                ['label' => 'Timed to publish day', 'help' => 'Prep steps reference the day you set in the Pantry, with realistic lead time.',
+                 'evidence_sections' => ['pre_upload', 'upload_day']],
+                ['label' => 'Description is useful', 'help' => 'The description draft includes timestamps, links, and one sentence a searcher would care about.',
+                 'evidence_sections' => ['description']],
+                ['label' => 'Nothing critical missing', 'help' => 'End screens, cards, playlist, and visibility setting each have a checkbox item.',
+                 'evidence_sections' => ['tags', 'end_screens', 'post_publish']],
             ],
         ],
     ],

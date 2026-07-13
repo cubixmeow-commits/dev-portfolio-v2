@@ -1,10 +1,18 @@
-/* The Recipe Runner. Calm, focused, and fully usable at 390px. */
+/* The Recipe Runner wizard. One primary task per screen, calm and
+   focused, fully usable at 375px. */
 
-.runner-page { max-width: 1160px; }
+.runner-page { max-width: 54rem; }
 
-/* ---------- Step rail ---------- */
+/* ---------- Compact progress header ---------- */
 
-.runner-rail { padding: var(--space-4) var(--space-5); margin-bottom: var(--space-5); }
+.runner-head { padding: var(--space-3) var(--space-5); margin-bottom: var(--space-5); }
+.runner-head-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2);
+}
+.runner-head-step { margin: 0; font-size: 0.85rem; font-weight: 600; color: var(--terracotta-deep); }
+.runner-head-summary { margin: 0; font-size: 0.82rem; color: var(--ink-faint); }
+
 .rail-steps {
   list-style: none; margin: 0; padding: 0;
   display: flex; align-items: center; gap: var(--space-2);
@@ -12,33 +20,29 @@
 }
 .rail-step { display: flex; align-items: center; flex-shrink: 0; }
 .rail-step:not(:last-child)::after {
-  content: ""; width: 1.6rem; height: 2px; margin: 0 var(--space-2);
+  content: ""; width: 1.2rem; height: 2px; margin: 0 var(--space-1);
   background: var(--line-strong); border-radius: 2px;
 }
 .rail-link {
   display: inline-flex; align-items: center; gap: var(--space-2);
   text-decoration: none; color: var(--ink-soft);
   padding: var(--space-1); border-radius: var(--radius-s);
+  min-height: 2rem;
 }
 .rail-link:hover .rail-title { color: var(--ink); }
 .rail-link.is-locked { cursor: not-allowed; opacity: 0.7; }
-.rail-title { font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
-.rail-step.is-current .rail-title { color: var(--terracotta-deep); }
+.rail-title { display: none; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.rail-step.is-current .rail-title { display: inline; color: var(--terracotta-deep); }
 .rail-step-kit .rail-title { font-family: var(--font-mono); font-size: 0.8rem; }
-.rail-summary { margin: var(--space-2) 0 0; font-size: 0.82rem; color: var(--ink-faint); }
 
-/* ---------- Layout ---------- */
+/* ---------- Wizard column ---------- */
 
-.runner-grid { display: grid; grid-template-columns: minmax(0, 1fr) 19rem; gap: var(--space-5); align-items: start; }
-.runner-main { display: grid; gap: var(--space-5); min-width: 0; }
-.runner-side { display: grid; gap: var(--space-4); position: sticky; top: 4.5rem; }
-
-@media (max-width: 900px) {
-  .runner-grid { grid-template-columns: 1fr; }
-  .runner-side { position: static; }
+.wizard { display: grid; gap: var(--space-5); max-width: 46rem; margin: 0 auto; }
+.wizard-card { min-width: 0; }
+.wizard-actions {
+  display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap;
+  margin-top: var(--space-5);
 }
-
-/* ---------- Recipe intro ---------- */
 
 .recipe-eyebrow {
   text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem;
@@ -49,10 +53,16 @@
 .recipe-why p { margin-bottom: var(--space-2); }
 .recipe-unlocks { color: var(--sage-deep); font-weight: 500; }
 
-/* ---------- Step flags ---------- */
+/* ---------- Progressive disclosure ---------- */
 
-.step-flag { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
-.step-flag h2 { margin: 0; font-size: 1.25rem; }
+.disclose > summary {
+  cursor: pointer; font-weight: 600; color: var(--ink-soft);
+  padding: var(--space-2) 0;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.disclose > summary:hover, .disclose > summary:focus-visible { color: var(--ink); }
+.disclose-body { padding-top: var(--space-3); display: grid; gap: var(--space-3); justify-items: start; }
+.disclose-body .response-body, .disclose-body .prompt-block { justify-self: stretch; }
 
 /* ---------- Prompt ---------- */
 
@@ -60,13 +70,17 @@
   background: rgba(242, 194, 126, 0.35); color: #7A5316;
   border-radius: 4px; padding: 0 0.25em; font-weight: 600;
 }
-.prompt-card .prompt-block { margin-top: var(--space-4); }
+.wizard-card .prompt-block { margin: var(--space-4) 0; }
 .prompt-missing { margin-bottom: var(--space-3); border-left: 3px solid var(--amber); }
 .prompt-missing p { margin: 0; font-size: 0.9rem; }
 
+.ingredient-list { margin: 0; display: grid; gap: var(--space-2); }
+.ingredient-row dt { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
+.ingredient-row dd { margin: 0; font-size: 0.88rem; color: var(--ink); overflow-wrap: break-word; }
+
 /* ---------- Paste ---------- */
 
-.paste-textarea { margin-bottom: var(--space-3); }
+.paste-textarea { width: 100%; min-height: 14rem; }
 .demo-divider {
   display: flex; align-items: center; gap: var(--space-3);
   margin: var(--space-5) 0 var(--space-4);
@@ -80,31 +94,83 @@
 /* ---------- Response ---------- */
 
 .response-wrap { padding: var(--space-5); }
-.response-header { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.response-header { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3); }
 .old-version-note { margin-bottom: var(--space-4); border-left: 3px solid var(--lilac); }
 .old-version-note p { font-size: 0.9rem; margin-bottom: var(--space-3); }
 .old-version-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+.full-response-disclose { border-top: 1px solid var(--line); }
+.full-response-disclose .response-body { max-height: 30rem; overflow-y: auto; }
 
-/* ---------- Revise ---------- */
-
-.revise-details > summary, .revise-option > summary {
-  cursor: pointer; font-weight: 600; color: var(--ink-soft);
-  padding: var(--space-1) 0;
-  transition: color var(--dur-fast) var(--ease-out);
-  list-style-position: outside;
-}
-.revise-details > summary:hover, .revise-option > summary:hover { color: var(--ink); }
-.revise-body { padding-top: var(--space-3); display: grid; gap: var(--space-3); }
-.revise-option { border: 1px solid var(--line); border-radius: var(--radius-m); padding: var(--space-3) var(--space-4); background: #fff; }
-.revise-option form { display: grid; gap: var(--space-3); justify-items: start; margin-top: var(--space-3); }
-.revise-textarea { width: 100%; }
-
-/* ---------- Quality Checks ---------- */
+/* ---------- Review cards ---------- */
 
 .checks-lede { margin-bottom: var(--space-4); }
 .checks-fallback { margin-top: var(--space-3); }
 .js-on .checks-fallback { display: none; }
-.approve-form { margin-top: var(--space-5); border-top: 1px solid var(--line); padding-top: var(--space-5); display: grid; gap: var(--space-3); justify-items: start; }
+
+.review-list { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: grid; gap: var(--space-4); }
+.review-card {
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: var(--space-4); background: #fff;
+  display: grid; gap: var(--space-3);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.review-card.is-checked { border-color: #C4D6AE; background: var(--sage-wash); }
+.review-card-head { display: grid; gap: 0.15rem; }
+.review-card-head .check-label { font-weight: 600; }
+.review-card-head .check-help { font-size: 0.85rem; color: var(--ink-soft); }
+
+/* Statuses describe structure, never quality. Each pairs a text label
+   with a distinct mark so meaning never rides on color alone. */
+.evidence-status {
+  margin: 0; display: inline-flex; align-items: center; gap: var(--space-2);
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em;
+  padding: 0.15rem 0.65rem; border-radius: var(--radius-pill);
+  justify-self: start;
+}
+.evidence-mark { font-weight: 700; }
+.status-located  { background: var(--sage-wash); color: var(--sage-deep); }
+.status-missing  { background: var(--amber-wash); color: #8A5A14; }
+.status-manual   { background: var(--lilac-wash); color: #6A5290; }
+.status-multiple { background: var(--amber-wash); color: #8A5A14; }
+
+.evidence-note { margin: 0; font-size: 0.88rem; color: var(--ink-soft); }
+
+.evidence-block {
+  border: 1px solid var(--line); border-left: 3px solid var(--line-strong);
+  border-radius: var(--radius-s); background: var(--card-sunken);
+  padding: var(--space-3) var(--space-4); min-width: 0;
+}
+.evidence-block.is-duplicate { border-left-color: var(--amber); }
+.evidence-heading {
+  margin: 0 0 var(--space-2); font-family: var(--font-mono); font-size: 0.8rem;
+  font-weight: 600; color: var(--ink-soft);
+  display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+}
+.evidence-text { font-size: 0.9rem; overflow-wrap: break-word; }
+.evidence-text > :first-child { margin-top: 0; }
+.evidence-text > :last-child { margin-bottom: 0; }
+
+.review-card-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-3); flex-wrap: wrap;
+  border-top: 1px solid var(--line); padding-top: var(--space-3);
+}
+.review-confirm { display: inline-flex; align-items: center; gap: var(--space-2); }
+.review-confirm input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--sage); }
+.review-confirm label { font-weight: 600; cursor: pointer; padding: var(--space-1) 0; }
+.needs-revision { font-size: 0.88rem; padding: var(--space-1) 0; }
+
+/* ---------- Review summary (approve or revise) ---------- */
+
+.review-summary { border-color: var(--line-strong); }
+.review-summary.is-ready { border-color: #C4D6AE; }
+.review-summary h2 { margin-bottom: var(--space-3); }
+.summary-list { list-style: none; margin: 0 0 var(--space-4); padding: 0; display: grid; gap: var(--space-2); }
+.summary-list li { font-size: 0.92rem; color: var(--ink-soft); padding-left: var(--space-4); position: relative; }
+.summary-list li::before { content: "·"; position: absolute; left: var(--space-1); color: var(--ink-faint); font-weight: 700; }
+.summary-warning { color: #8A5A14; }
+.approve-form { display: grid; gap: var(--space-2); }
+.approve-form .wizard-actions { margin-top: 0; }
 .approve-note { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
 
 /* ---------- Approved ---------- */
@@ -116,33 +182,41 @@
   padding: var(--space-5); border-radius: var(--radius-l) var(--radius-l) 0 0;
 }
 .approved-banner .mascot { width: 64px; height: 64px; color: var(--sage-deep); flex-shrink: 0; }
-.approved-banner h2 { color: var(--sage-deep); margin-bottom: var(--space-1); }
+.approved-banner h1 { color: var(--sage-deep); margin-bottom: var(--space-1); font-size: 1.5rem; }
 .approved-banner p { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
 .approved-actions {
   display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;
   padding: var(--space-4) var(--space-5) var(--space-5);
 }
 
-/* ---------- Sidebar ---------- */
+/* ---------- Response options ---------- */
 
-.side-card h3 { margin-bottom: var(--space-1); font-size: 1rem; }
-.side-sub { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: var(--space-3); }
-.loop-reminder { background: var(--card-sunken); }
-
-.ingredient-list { margin: 0 0 var(--space-4); display: grid; gap: var(--space-2); }
-.ingredient-row dt { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); }
-.ingredient-row dd { margin: 0; font-size: 0.88rem; color: var(--ink); overflow-wrap: break-word; }
-
+.response-options .disclose-body { justify-items: stretch; }
+.revise-option {
+  border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: var(--space-3) var(--space-4); background: #fff;
+}
+.revise-option > summary {
+  cursor: pointer; font-weight: 600; color: var(--ink-soft);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.revise-option > summary:hover, .revise-option > summary:focus-visible { color: var(--ink); }
+.revise-option form { display: grid; gap: var(--space-3); justify-items: start; margin-top: var(--space-3); }
+.revise-option .field-help { margin-top: var(--space-2); }
+.revise-textarea { width: 100%; }
+.version-list { margin-top: var(--space-3); }
 .version-view { font-size: 0.82rem; }
 
-/* ---------- 390px assurance ---------- */
+/* ---------- 375px assurance ---------- */
 
 @media (max-width: 480px) {
   .runner-page { padding-left: var(--space-3); padding-right: var(--space-3); }
+  .runner-head { padding: var(--space-3); }
   .response-wrap, .card-pad { padding: var(--space-4); }
   .prompt-block pre { padding: var(--space-4); font-size: 0.8rem; max-height: 20rem; }
-  .approve-form .button { width: 100%; }
-  .paste-card .button-large { width: 100%; }
-  .rail-title { display: none; }
-  .rail-step.is-current .rail-title { display: inline; }
+  .wizard-actions .button-large { width: 100%; }
+  .review-card { padding: var(--space-3); }
+  .review-card-actions { flex-direction: column; align-items: stretch; }
+  .review-confirm { justify-content: flex-start; }
+  .needs-revision { text-align: left; }
 }
