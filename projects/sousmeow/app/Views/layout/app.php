@@ -9,7 +9,7 @@ use SousMeow\Core\Flash;
  * @var string|null $bodyClass Extra class on <body>.
  * @var list<string>|string|null $pageCss Page stylesheet names under css/pages/.
  */
-$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Cook better work with AI';
+$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Guided AI workflows';
 $pageCssList = isset($pageCss) ? (array) $pageCss : [];
 $flash = Flash::pull();
 $isAdmin = ($auth['role'] ?? '') === 'admin';
@@ -20,7 +20,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="SousMeow turns big writing jobs into short, guided Recipes. Copy a ready-made prompt, run it in your own AI, paste the answer back, approve it, and export a finished Project Kit.">
+<meta name="description" content="SousMeow provides guided AI workflows for complex projects. Copy ready-made prompts, run them in ChatGPT, Claude, or Gemini, review responses, and export finished project files. No API required.">
 <link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">
@@ -46,8 +46,8 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
       </button>
       <div class="nav-links" id="nav-links">
         <?php if ($auth): ?>
-          <a href="<?= e(url('/kitchen')) ?>">My Kitchen</a>
-          <a href="<?= e(url('/marketplace')) ?>">Marketplace</a>
+          <a href="<?= e(url('/kitchen')) ?>">My projects</a>
+          <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
           <?php if ($isAdmin): ?><a href="<?= e(url('/admin')) ?>">Admin</a><?php endif; ?>
           <form method="post" action="<?= e(url('/logout')) ?>" class="nav-logout">
             <?= Csrf::field() ?>
@@ -55,9 +55,9 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
           </form>
           <span class="nav-user" title="Signed in as <?= e($auth['email']) ?>"><?= e($auth['name']) ?></span>
         <?php else: ?>
-          <a href="<?= e(url('/marketplace')) ?>">Marketplace</a>
+          <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
           <a href="<?= e(url('/login')) ?>">Sign in</a>
-          <a class="button button-primary button-small" href="<?= e(url('/register')) ?>">Start cooking</a>
+          <a class="button button-primary button-small" href="<?= e(url('/register')) ?>">Start free</a>
         <?php endif; ?>
       </div>
     </nav>
@@ -86,7 +86,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
     </p>
     <nav class="footer-links" aria-label="Footer">
       <a href="<?= e(url('/')) ?>">How it works</a>
-      <a href="<?= e(url('/marketplace')) ?>">Marketplace</a>
+      <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
       <?php if (!$auth): ?><a href="<?= e(url('/register')) ?>">Create an account</a><?php endif; ?>
     </nav>
   </div>

@@ -312,11 +312,11 @@ final class SiteStats
     {
         $who = self::firstName($event['name']);
         return match ($event['kind']) {
-            'completed' => ['prefix' => $who . ' completed', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => ''],
-            'cooking'   => ['prefix' => $who . ' is cooking', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => (string) ($event['detail'] ?? '')],
-            'pantry'    => ['prefix' => $who . ' stocked a Pantry for', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => ''],
-            'joined'    => ['prefix' => $who, 'emphasis' => 'joined the kitchen', 'suffix' => ''],
-            default     => ['prefix' => $who, 'emphasis' => 'is active in the kitchen', 'suffix' => ''],
+            'completed' => ['prefix' => $who . ' finished', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => ''],
+            'cooking'   => ['prefix' => $who . ' is working on', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => (string) ($event['detail'] ?? '')],
+            'pantry'    => ['prefix' => $who . ' added project details for', 'emphasis' => (string) ($event['cookbook_title'] ?? ''), 'suffix' => ''],
+            'joined'    => ['prefix' => $who, 'emphasis' => 'joined SousMeow', 'suffix' => ''],
+            default     => ['prefix' => $who, 'emphasis' => 'is active', 'suffix' => ''],
         };
     }
 

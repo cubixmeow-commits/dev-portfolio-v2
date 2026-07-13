@@ -14,6 +14,19 @@
 }
 .hero h1 { font-size: clamp(2rem, 5.4vw, 3.1rem); margin-bottom: var(--space-4); }
 .hero-lede { font-size: 1.08rem; color: var(--ink-soft); max-width: 40rem; margin: 0 auto var(--space-5); }
+.terms-callout {
+  max-width: 40rem;
+  margin: var(--space-4) auto 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  background: rgba(255, 253, 248, 0.75);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  line-height: 1.5;
+}
+.terms-callout strong { color: var(--ink); font-weight: 600; }
+.hero-footnote { margin-top: var(--space-3); }
 
 /* ---------- Kitchen dashboard (portfolio simulation metrics) ---------- */
 
@@ -531,6 +544,61 @@
 .loop-step .step-dot { margin-bottom: var(--space-3); }
 .loop-step h3 { margin-bottom: var(--space-1); font-size: 1.05rem; }
 .loop-step p { color: var(--ink-soft); font-size: 0.9rem; margin: 0; }
+.step-plain { margin-top: var(--space-1); }
+.loop-steps-four { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+
+.featured-steps-heading {
+  font-size: 1rem;
+  margin: var(--space-4) 0 var(--space-3);
+  color: var(--ink);
+}
+
+.marketplace-teaser { padding: var(--space-6) var(--space-4); }
+.marketplace-teaser-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.marketplace-teaser-inner .section-sub { margin: var(--space-2) 0 0; max-width: 36rem; }
+
+.community-section {
+  padding: var(--space-6) var(--space-4);
+  background: rgba(244, 234, 217, 0.35);
+  border-top: 1px solid var(--line);
+}
+.community-inner { max-width: 52rem; margin: 0 auto; }
+.community-header { margin-bottom: var(--space-5); text-align: left; }
+.community-header h2 { margin-bottom: var(--space-2); }
+.community-section .kitchen-dashboard { margin-bottom: 0; }
+
+.dashboard-theme-line,
+.panel-theme-line {
+  margin: var(--space-1) 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+.panel-heading h3 { margin: 0; }
+.dashboard-title { margin-bottom: 0; }
+
+.final-cta-theme {
+  margin-top: var(--space-3);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+.kitchen-theme-line,
+.empty-theme-line {
+  margin-top: var(--space-2);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--ink-faint);
+}
 
 /* ---------- Featured cookbook ---------- */
 

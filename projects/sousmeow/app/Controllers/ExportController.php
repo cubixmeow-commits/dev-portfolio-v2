@@ -49,7 +49,7 @@ final class ExportController
         $recipes = Recipe::forCookbook((int) $project['cookbook_id']);
         $approved = Artifact::approvedByRecipe($projectId);
         if (count($recipes) === 0 || count($approved) < count($recipes)) {
-            Flash::set('notice', 'The kit exports once every Recipe is approved; that is what makes it publish-ready.');
+            Flash::set('notice', 'Export is available once every step is approved.');
             redirect('/projects/' . $projectId . '/export');
         }
 
@@ -58,7 +58,7 @@ final class ExportController
         $exportId = Export::record($projectId, $kit['filename'], $kit['size'], $kit['count']);
         Project::touch($projectId);
 
-        Flash::set('celebrate', 'Project Kit packed: ' . $kit['count'] . ' files, kit.html reader, and a manifest. Download it below.');
+        Flash::set('celebrate', 'Project exported: ' . $kit['count'] . ' files, kit.html reader, and a manifest. Download it below.');
         redirect('/projects/' . $projectId . '/export#export-' . $exportId);
     }
 

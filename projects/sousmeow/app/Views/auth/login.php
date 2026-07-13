@@ -3,13 +3,14 @@
   <div class="auth-split card rise-in">
     <aside class="auth-aside">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
-      <h2>Back to the kitchen</h2>
-      <p>Everything is where you left it. Sign in and pick up the next Recipe.</p>
+      <h2>Pick up where you left off</h2>
+      <p>Sign in to access your projects, saved responses, and exports.</p>
       <ul class="auth-points">
         <li>Projects resume at the exact step you stopped at</li>
-        <li>Every pasted response is versioned; nothing is ever lost</li>
-        <li>Finished Cookbooks export as a Project Kit</li>
+        <li>Every pasted response is versioned — nothing is ever lost</li>
+        <li>Completed workflows export as a Project Kit</li>
       </ul>
+      <p class="auth-aside-note">The kitchen remembers everything.</p>
     </aside>
     <div class="auth-form-col">
       <h1>Sign in</h1>
