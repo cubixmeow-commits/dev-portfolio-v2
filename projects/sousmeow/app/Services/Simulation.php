@@ -13,7 +13,7 @@ final class Simulation
     public const EMAIL_DOMAIN = 'demo.local';
     public const EMAIL_PREFIX = 'kitchen+';
     public const PASSWORD = 'demo-kitchen-2026';
-    public const POOL_SIZE = 500;
+    public const POOL_SIZE = 772;
 
     public static function emailForId(int $id): string
     {
@@ -86,6 +86,6 @@ final class Simulation
         if (!is_array($data)) {
             throw new \RuntimeException('Invalid personas.json');
         }
-        return $data;
+        return array_slice($data, 0, self::POOL_SIZE);
     }
 }

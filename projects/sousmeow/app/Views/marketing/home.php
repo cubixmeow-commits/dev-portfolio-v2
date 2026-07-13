@@ -1,6 +1,7 @@
 <?php
 use SousMeow\Core\Csrf;
 use SousMeow\Services\SiteStats;
+use SousMeow\Services\Simulation;
 
 /**
  * @var array<string, mixed>|null  $featured
@@ -161,7 +162,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
               <div class="insight-kpi" role="listitem">
                 <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['chefs'])) ?></span>
                 <span class="insight-kpi-label">Creators</span>
-                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(($stats['chefs'] / 500) * 100)) ?>%"></span>
+                <span class="insight-kpi-bar" style="--fill: <?= min(100, (int) round(($stats['chefs'] / Simulation::POOL_SIZE) * 100)) ?>%"></span>
               </div>
               <div class="insight-kpi" role="listitem">
                 <span class="insight-kpi-value"><?= e(SiteStats::formatCompact($stats['kits_total'])) ?></span>
