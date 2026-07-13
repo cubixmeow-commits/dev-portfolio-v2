@@ -32,14 +32,14 @@ $primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
       <span class="wash-blob wash-butter" style="width: 12rem; height: 12rem; top: 40%; left: 12%;"></span>
     </div>
     <div class="hero-inner">
-      <p class="hero-eyebrow">Guided AI workflows · no API required</p>
-      <h1>Turn complex projects into guided AI workflows</h1>
+      <div class="hero-mascot" aria-hidden="true">
+        <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
+      </div>
+      <p class="hero-eyebrow">Use the AI you already have</p>
+      <h1>Finish projects with AI, one step at a time.</h1>
       <p class="hero-lede">
-        SousMeow walks you through demanding work one step at a time. It prepares the prompts, carries your
-        project context forward, helps you review each result, and organizes approved work into finished files.
-      </p>
-      <p class="hero-lede hero-lede-sub">
-        Use ChatGPT, Claude, Gemini, or another AI subscription you already have. No API key and no separate token bill.
+        Instead of staring at a blank chat, follow a guided workflow that shows you exactly what to do next.
+        Use ChatGPT, Claude, Gemini, or another AI you already have, and build complete projects from start to finish.
       </p>
       <div class="hero-actions">
         <a class="button button-primary button-large" href="<?= e($primaryCta) ?>"><?= e($primaryLabel) ?></a>
