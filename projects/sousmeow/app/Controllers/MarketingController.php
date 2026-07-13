@@ -6,24 +6,34 @@ namespace SousMeow\Controllers;
 
 use SousMeow\Core\View;
 use SousMeow\Models\Cookbook;
-use SousMeow\Services\HomepageActivityPresenter;
+use SousMeow\Models\CookbookStage;
+use SousMeow\Models\Recipe;
 
 final class MarketingController
 {
     public function home(): void
     {
-        $allCookbooks = Cookbook::marketplace();
-        $featuredCookbooks = array_values(array_filter(
-            $allCookbooks,
-            static fn(array $c): bool => (int) $c['is_executable'] === 1
-        ));
-        $featuredCookbooks = array_slice($featuredCookbooks, 0, 3);
+        $cookbooks = Cookbook::marketplace();
+
+        // The featured Cookbook is shown as a full artifact: cover facts,
+        // its stages, and every Recipe with its estimated time.
+        $featured = Cookbook::featured();
+        $featuredStages = [];
+        $featuredRecipes = [];
+        if ($featured !== null) {
+            $featuredStages = CookbookStage::forCookbook((int) $featured['id']);
+            $featuredRecipes = Recipe::forCookbook((int) $featured['id']);
+        }
 
         View::render('marketing/home', [
-            'title'             => '',
-            'pageCss'           => 'marketing',
-            'featuredCookbooks' => $featuredCookbooks,
-            'activityBoard'     => HomepageActivityPresenter::bundle(),
+            'title'           => '',
+            'pageCss'         => 'marketing',
+            'pageJs'          => 'marketing',
+            'bodyClass'       => 'theme-twilight',
+            'featured'        => $featured,
+            'featuredStages'  => $featuredStages,
+            'featuredRecipes' => $featuredRecipes,
+            'cookbooks'       => $cookbooks,
         ]);
     }
 }
