@@ -8,6 +8,16 @@
 .hero-wash { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .hero-inner { position: relative; max-width: 46rem; margin: 0 auto; text-align: center; }
 .hero .kitchen-dashboard { width: 100%; }
+.hero-mascot {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+}
+.hero-mascot .mascot {
+  width: clamp(7.5rem, 24vw, 9.75rem);
+  height: clamp(7.5rem, 24vw, 9.75rem);
+  color: var(--ink);
+}
 .hero-eyebrow {
   text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.76rem; font-weight: 700;
   color: var(--terracotta); margin-bottom: var(--space-3);
