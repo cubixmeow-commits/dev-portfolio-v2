@@ -24,6 +24,9 @@ Edit `config/config.php`:
 
 - `app.env` to `'production'` (hides error detail from visitors),
 - `app.base_url` to your https URL,
+- `app.base_path` if the app is not at the domain root (for example
+  `/iain/projects/sousmeow/public` when the document root is
+  `public_html` rather than `sousmeow/public`),
 - `session.secure` to `true`,
 - either keep `db.driver = 'sqlite'` (simplest; the database file lives
   in `storage/`, outside the web root), or set `db.driver = 'mysql'`
@@ -88,6 +91,25 @@ needed: `php scripts/seed.php --admin-email you@yourdomain.tld`.
 
 Copy export zip files separately: they live in `storage/exports/` on disk,
 not inside the database.
+
+### Email link 404s
+
+Verification and password-reset links use `APP_URL` and `APP_BASE_PATH`
+from `.env` (or `config.php`). If links in email show "Page not found" but
+the site works in the browser, the base path is wrong.
+
+```sh
+php scripts/print-url-config.php
+```
+
+Set `.env` to match how you open My Kitchen in the browser:
+
+```env
+APP_URL=https://cubixmeow.com
+APP_BASE_PATH=/iain/projects/sousmeow/public
+```
+
+Then resend verification from the account page.
 
 ## 4. Verify
 

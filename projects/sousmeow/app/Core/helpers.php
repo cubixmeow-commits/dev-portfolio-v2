@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use SousMeow\Core\Config;
+use SousMeow\Core\Env;
 
 /**
  * Escape for HTML output. Every piece of dynamic data printed in a
@@ -13,18 +14,44 @@ function e(mixed $value): string
     return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+/** Public URL origin for email links (no trailing slash). */
+function app_origin(): string
+{
+    $url = rtrim(Config::string('app.url'), '/');
+    if ($url !== '') {
+        return $url;
+    }
+    $url = rtrim(Config::string('app.base_url'), '/');
+    if ($url !== '') {
+        return $url;
+    }
+    return rtrim(Env::get('APP_URL', ''), '/');
+}
+
+/** Path prefix when the app is not served from the domain root. */
+function app_base_path(): string
+{
+    $base = rtrim(Config::string('app.base_path'), '/');
+    if ($base !== '') {
+        return $base;
+    }
+    return rtrim(Env::get('APP_BASE_PATH', ''), '/');
+}
+
 /** Build an app URL from a path, respecting the configured base path. */
 function url(string $path = '/'): string
 {
-    $base = rtrim(Config::string('app.base_path'), '/');
-    return $base . '/' . ltrim($path, '/');
+    return app_base_path() . '/' . ltrim($path, '/');
 }
 
 /** Absolute URL for email links: APP_URL + base path + route path. */
 function full_url(string $path = '/'): string
 {
-    $appUrl = rtrim(Config::string('app.url', Config::string('app.base_url')), '/');
-    return $appUrl . url($path);
+    $origin = app_origin();
+    if ($origin === '') {
+        $origin = 'http://localhost';
+    }
+    return $origin . url($path);
 }
 
 /**
