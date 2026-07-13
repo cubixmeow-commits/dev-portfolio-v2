@@ -233,7 +233,7 @@ Features (the complete list, do not add to it):
 {{key_features}}
 Voice: {{tone}}
 
-Produce, in Markdown with the exact section headings given:
+Produce, in Markdown with the exact section headings given. Write each heading as a plain ATX Markdown heading on its own line, like "## Section name". Do not bold the headings, do not number them, and do not wrap your whole response in a code block or code fence:
 
 ## Positioning statement
 A short paragraph: what it is, who it is for, the pain it removes, and the outcome. Plain language, no hype words (revolutionary, game-changing, seamless).
@@ -289,7 +289,7 @@ Features (complete list, do not add to it):
 Approved positioning (treat as ground truth):
 {{artifact:position-the-dish}}
 
-Produce, in Markdown with the exact section headings given:
+Produce, in Markdown with the exact section headings given. Write each heading as a plain ATX Markdown heading on its own line, like "## Section name". Do not bold the headings, do not number them, and do not wrap your whole response in a code block or code fence:
 
 ## Hero
 A headline of at most 8 words that passes the glance test, a subheadline of at most 35 words, a primary button label of at most 4 words, and one secondary link label.
@@ -341,7 +341,7 @@ Channels to write for: {{channels}}
 Approved positioning (ground truth):
 {{artifact:position-the-dish}}
 
-For each listed channel, produce one Markdown section whose heading is exactly "## [channel name] launch post" — for example "## Product Hunt launch post" or "## Email newsletter launch post". Keep these heading labels exactly as given and put each post under its own heading, shaped for that channel:
+For each listed channel, produce one Markdown section whose heading is exactly "## [channel name] launch post" — for example "## Product Hunt launch post" or "## Email newsletter launch post". Write each heading as a plain ATX Markdown heading on its own line; do not bold or number the headings, and do not wrap your whole response in a code block or code fence. Keep these heading labels exactly as given and put each post under its own heading, shaped for that channel:
 - Product Hunt: a tagline of at most 60 characters plus a founder's first comment of 120 to 180 words that tells the honest origin story.
 - X (Twitter): a thread of 3 to 5 numbered posts, each under 260 characters, first post hooks with the problem.
 - LinkedIn: one post of 120 to 180 words, professional but human, no hashtag spam (at most 3).
@@ -391,7 +391,7 @@ Features (complete list):
 Approved positioning (ground truth):
 {{artifact:position-the-dish}}
 
-Produce, in Markdown with the exact section headings given:
+Produce, in Markdown with the exact section headings given. Write each heading as a plain ATX Markdown heading on its own line, like "## Section name". Do not bold the headings, do not number them, and do not wrap your whole response in a code block or code fence:
 
 ## Frequently asked questions
 Five questions a skeptical first-time visitor would actually ask (about how it works, data or privacy if relevant, price, and switching costs), each answered in 2 to 4 plain sentences. State the price plainly in one of them.

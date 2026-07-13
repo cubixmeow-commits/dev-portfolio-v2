@@ -103,6 +103,21 @@ check('fenced content stays in surrounding section',
 $r = ResponseParser::parse("~~~\n## Core Promise\n~~~\n## Target Audience\nA.", $contract);
 check('tilde fences respected', in_array('beta', $r['missing'], true) && isset($r['sections']['alpha']));
 
+// Whole response wrapped in a ```markdown fence: unwrap and parse.
+$r = ResponseParser::parse("```markdown\n## Target Audience\nA.\n## Core Promise\nB.\n```", $contract);
+check('wrapper fence unwrapped (backticks + info string)', isset($r['sections']['alpha'], $r['sections']['beta']));
+$r = ResponseParser::parse("```\n## Target Audience\nA.\n```", $contract);
+check('wrapper fence unwrapped (bare backticks)', isset($r['sections']['alpha']));
+$r = ResponseParser::parse("~~~md\n## Core Promise\nB.\n~~~", $contract);
+check('wrapper fence unwrapped (tildes)', isset($r['sections']['beta']));
+$r = ResponseParser::parse("Sure!\n```markdown\n## Target Audience\nA.\n```", $contract);
+check('wrapper only fires when fence is the whole response',
+    !isset($r['sections']['alpha']) && str_contains($r['preamble'], 'Sure!'));
+// A real document that merely contains a code block must be untouched.
+$r = ResponseParser::parse("## Target Audience\nBefore.\n```\n## Core Promise\nnot a section\n```\nAfter.", $contract);
+check('genuine embedded code block still ignored after fix',
+    isset($r['sections']['alpha']) && in_array('beta', $r['missing'], true));
+
 // Content before the first recognized heading.
 $r = ResponseParser::parse("Sure! Here's what you asked for.\n\n## Target Audience\nA.", $contract);
 check('preamble captured', $r['preamble'] === "Sure! Here's what you asked for.");

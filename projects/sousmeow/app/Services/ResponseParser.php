@@ -42,6 +42,14 @@ final class ResponseParser
         $text = str_replace(["\r\n", "\r"], "\n", $content);
         $lines = explode("\n", $text);
 
+        // Some assistants return the whole answer wrapped in a single
+        // ```markdown code fence. Taken literally, every heading inside
+        // would be code and nothing would match. When the entire response
+        // is one wrapper fence, unwrap it once so the real document is
+        // parsed. Genuine embedded code blocks are untouched (they never
+        // start on the very first line and close on the very last).
+        $lines = self::unwrapWrapperFence($lines);
+
         // Map every normalized heading and alias to its section key.
         // Contract validation guarantees these are collision-free.
         $lookup = [];
@@ -167,6 +175,51 @@ final class ResponseParser
             'unexpected'       => $unexpected,
             'preamble'         => $preamble,
         ];
+    }
+
+    /**
+     * If the entire response is a single fenced block (optionally with a
+     * `markdown`/`md` info string), return its inner lines; otherwise
+     * return the lines unchanged. This only fires when the first non-blank
+     * line opens a fence and the last non-blank line closes the matching
+     * fence with no same-marker fence in between — i.e. a pure wrapper,
+     * never a document that merely contains a code block.
+     *
+     * @param list<string> $lines
+     * @return list<string>
+     */
+    private static function unwrapWrapperFence(array $lines): array
+    {
+        $firstIdx = null;
+        $lastIdx = null;
+        foreach ($lines as $i => $line) {
+            if (trim($line) !== '') {
+                $firstIdx ??= $i;
+                $lastIdx = $i;
+            }
+        }
+        if ($firstIdx === null || $firstIdx === $lastIdx) {
+            return $lines;
+        }
+        // Opening fence may carry an info string (```markdown); closing
+        // fence must be bare. Both must use the same marker character.
+        if (preg_match('/^\s{0,3}(`{3,}|~{3,})\s*[A-Za-z0-9_+-]*\s*$/', $lines[$firstIdx], $open) !== 1) {
+            return $lines;
+        }
+        if (preg_match('/^\s{0,3}(`{3,}|~{3,})\s*$/', $lines[$lastIdx], $close) !== 1) {
+            return $lines;
+        }
+        if ($open[1][0] !== $close[1][0]) {
+            return $lines;
+        }
+        // Any same-marker fence between the outer pair means this is not a
+        // clean wrapper (a real embedded block); leave it alone.
+        for ($i = $firstIdx + 1; $i < $lastIdx; $i++) {
+            if (preg_match('/^\s{0,3}(`{3,}|~{3,})/', $lines[$i], $inner) === 1 && $inner[1][0] === $open[1][0]) {
+                return $lines;
+            }
+        }
+        return array_slice($lines, $firstIdx + 1, $lastIdx - $firstIdx - 1);
     }
 
     /**
