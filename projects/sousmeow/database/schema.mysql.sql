@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS recipes (
     unlocks_text     VARCHAR(255) NOT NULL DEFAULT '',
     prompt_template  MEDIUMTEXT NULL,
     example_response MEDIUMTEXT NULL,
+    output_contract  MEDIUMTEXT NULL,
     est_minutes      INT UNSIGNED NOT NULL DEFAULT 5,
     UNIQUE KEY uq_recipes_pos (cookbook_id, position),
     UNIQUE KEY uq_recipes_slug (cookbook_id, slug),
@@ -72,8 +73,9 @@ CREATE TABLE IF NOT EXISTS recipe_checks (
     id        INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     recipe_id INT UNSIGNED NOT NULL,
     position  INT UNSIGNED NOT NULL,
-    label     VARCHAR(190) NOT NULL,
-    help      VARCHAR(255) NOT NULL DEFAULT '',
+    label         VARCHAR(190) NOT NULL,
+    help          VARCHAR(255) NOT NULL DEFAULT '',
+    evidence_keys TEXT NULL,
     UNIQUE KEY uq_checks_pos (recipe_id, position),
     CONSTRAINT fk_checks_recipe FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

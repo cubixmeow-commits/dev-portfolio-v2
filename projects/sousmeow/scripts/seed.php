@@ -122,6 +122,8 @@ function column_definition(string $driver, string $column): string
             'demo_avg_rating'     => 'DECIMAL(2,1) NULL',
             'stage_position'      => 'INT UNSIGNED NULL',
             'simulation'          => 'TINYINT(1) NOT NULL DEFAULT 0',
+            'output_contract'     => 'MEDIUMTEXT NULL',
+            'evidence_keys'       => 'TEXT NULL',
             default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
         };
     }
@@ -132,6 +134,8 @@ function column_definition(string $driver, string $column): string
         'demo_avg_rating'     => 'REAL',
         'stage_position'      => 'INTEGER',
         'simulation'          => 'INTEGER NOT NULL DEFAULT 0',
+        'output_contract'     => 'TEXT',
+        'evidence_keys'       => 'TEXT',
         default               => throw new \InvalidArgumentException("Unknown column: {$column}"),
     };
 }
@@ -144,6 +148,8 @@ function migrate_schema(PDO $pdo, string $driver): void
     ensure_column($pdo, $driver, 'cookbooks', 'demo_avg_rating', column_definition($driver, 'demo_avg_rating'));
     ensure_column($pdo, $driver, 'recipes', 'stage_position', column_definition($driver, 'stage_position'));
     ensure_column($pdo, $driver, 'users', 'simulation', column_definition($driver, 'simulation'));
+    ensure_column($pdo, $driver, 'recipes', 'output_contract', column_definition($driver, 'output_contract'));
+    ensure_column($pdo, $driver, 'recipe_checks', 'evidence_keys', column_definition($driver, 'evidence_keys'));
 
     $hasStages = (int) Database::fetchValue(
         $driver === 'mysql'
@@ -408,6 +414,7 @@ function sync_recipes(int $cookbookId, array $recipes, bool $executable): void
             'unlocks_text'     => $recipe['unlocks_text'] ?? '',
             'prompt_template'  => $prompt,
             'example_response' => $example,
+            'output_contract'  => \SousMeow\Services\OutputContract::encode($recipe['output_sections'] ?? null),
             'est_minutes'      => (int) ($recipe['est_minutes'] ?? 5),
         ];
         if ($existing !== null) {
@@ -415,24 +422,25 @@ function sync_recipes(int $cookbookId, array $recipes, bool $executable): void
             Database::run(
                 'UPDATE recipes SET stage_position = ?, position = ?, title = ?, summary = ?,
                                     why_it_matters = ?, unlocks_text = ?, prompt_template = ?,
-                                    example_response = ?, est_minutes = ?
+                                    example_response = ?, output_contract = ?, est_minutes = ?
                  WHERE id = ?',
                 [
                     $row['stage_position'], $row['position'], $row['title'], $row['summary'],
                     $row['why_it_matters'], $row['unlocks_text'], $row['prompt_template'],
-                    $row['example_response'], $row['est_minutes'], $recipeId,
+                    $row['example_response'], $row['output_contract'], $row['est_minutes'], $recipeId,
                 ]
             );
         } else {
             Database::run(
                 'INSERT INTO recipes (cookbook_id, stage_position, position, slug, title, summary,
                                       why_it_matters, unlocks_text, prompt_template, example_response,
-                                      est_minutes)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                      output_contract, est_minutes)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $cookbookId, $row['stage_position'], $row['position'], $slug,
                     $row['title'], $row['summary'], $row['why_it_matters'], $row['unlocks_text'],
-                    $row['prompt_template'], $row['example_response'], $row['est_minutes'],
+                    $row['prompt_template'], $row['example_response'], $row['output_contract'],
+                    $row['est_minutes'],
                 ]
             );
             $recipeId = Database::lastInsertId();
@@ -455,26 +463,29 @@ function sync_recipes(int $cookbookId, array $recipes, bool $executable): void
     }
 }
 
-/** @param list<array{label: string, help?: string}> $checks */
+/** @param list<array{label: string, help?: string, evidence_sections?: list<string>}> $checks */
 function sync_checks(int $recipeId, array $checks): void
 {
     $keepPositions = [];
     foreach ($checks as $checkPos => $check) {
         $pos = $checkPos + 1;
         $keepPositions[] = $pos;
+        $evidence = isset($check['evidence_sections']) && $check['evidence_sections'] !== []
+            ? json_encode(array_values($check['evidence_sections']), JSON_UNESCAPED_SLASHES)
+            : null;
         $existing = Database::fetch(
             'SELECT id FROM recipe_checks WHERE recipe_id = ? AND position = ?',
             [$recipeId, $pos]
         );
         if ($existing !== null) {
             Database::run(
-                'UPDATE recipe_checks SET label = ?, help = ? WHERE id = ?',
-                [$check['label'], $check['help'] ?? '', $existing['id']]
+                'UPDATE recipe_checks SET label = ?, help = ?, evidence_keys = ? WHERE id = ?',
+                [$check['label'], $check['help'] ?? '', $evidence, $existing['id']]
             );
         } else {
             Database::run(
-                'INSERT INTO recipe_checks (recipe_id, position, label, help) VALUES (?, ?, ?, ?)',
-                [$recipeId, $pos, $check['label'], $check['help'] ?? '']
+                'INSERT INTO recipe_checks (recipe_id, position, label, help, evidence_keys) VALUES (?, ?, ?, ?, ?)',
+                [$recipeId, $pos, $check['label'], $check['help'] ?? '', $evidence]
             );
         }
     }
@@ -542,6 +553,31 @@ function verify_seed_files(): void
         fwrite(STDERR, "Deploy the full projects/sousmeow folder, then re-run seed.\n");
         exit(1);
     }
+}
+
+/**
+ * Validate every recipe's output contract and evidence mappings before
+ * any database write. Malformed contracts abort the seed run so they can
+ * never surface as runtime surprises in the Runner.
+ *
+ * @param array{cookbooks: list<array<string, mixed>>} $content
+ * @return list<string> Problem lines; empty means valid.
+ */
+function output_contract_issues(array $content): array
+{
+    $issues = [];
+    foreach ($content['cookbooks'] as $book) {
+        foreach ($book['recipes'] as $recipe) {
+            $errors = \SousMeow\Services\OutputContract::validate(
+                $recipe['output_sections'] ?? null,
+                $recipe['checks'] ?? []
+            );
+            foreach ($errors as $error) {
+                $issues[] = "{$book['slug']}/{$recipe['slug']}: {$error}";
+            }
+        }
+    }
+    return $issues;
 }
 
 /**
@@ -690,6 +726,15 @@ migrate_schema($pdo, $driver);
 verify_seed_files();
 /** @var array{cookbooks: list<array<string, mixed>>} $content */
 $content = require __DIR__ . '/../database/seeds/content.php';
+
+$contractIssues = output_contract_issues($content);
+if ($contractIssues !== []) {
+    fwrite(STDERR, "Invalid output contracts in seed content; nothing was synced:\n");
+    foreach ($contractIssues as $issue) {
+        fwrite(STDERR, "  - {$issue}\n");
+    }
+    exit(1);
+}
 
 if ($options['status']) {
     print_cookbook_status($content);

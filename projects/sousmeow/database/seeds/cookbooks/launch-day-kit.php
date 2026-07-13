@@ -70,7 +70,7 @@ Driftlog takes a different approach to time tracking: there is no timer. It pass
 
 It is 9 dollars a month, works offline, and your data stays on your device until you share it. I would love to hear how you all handle the "what did I even do on Tuesday" problem.
 
-## X (Twitter) thread
+## X (Twitter) launch post
 
 **Post 1:** I lost about 10 percent of my billable hours to bad memory. Not bad work. Bad memory. So I built Driftlog: time logging with no timer.
 
@@ -80,7 +80,7 @@ It is 9 dollars a month, works offline, and your data stays on your device until
 
 **Post 4:** It is live today at https://driftlog.example, 9 dollars a month, works offline. If you have ever reconstructed a Tuesday from file timestamps, this one is for you.
 
-## Email newsletter announcement
+## Email newsletter launch post
 
 **Subject:** Stop reconstructing your week from memory
 
@@ -250,13 +250,23 @@ A numbered list, one item per real feature, each framed as the customer's gain r
 ## What we deliberately do not claim
 Two or three honest limits. This section builds trust; do not skip it.
 
-Keep the whole thing under 450 words. Voice: {{tone}}.
+Keep the five section headings exactly as written above, in that order, with each part under its heading. Keep the whole thing under 450 words. Voice: {{tone}}.
 TXT,
             'example_response' => $positioningExample,
+            'output_sections' => [
+                ['key' => 'positioning_statement', 'heading' => 'Positioning statement', 'required' => true],
+                ['key' => 'one_sentence_version', 'heading' => 'The one-sentence version', 'aliases' => ['One-sentence version'], 'required' => true],
+                ['key' => 'who_it_is_for', 'heading' => 'Who it is for', 'aliases' => ["Who it's for"], 'required' => true],
+                ['key' => 'why_it_wins', 'heading' => 'Why it wins', 'required' => true],
+                ['key' => 'honest_limits', 'heading' => 'What we deliberately do not claim', 'aliases' => ['What we do not claim'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'It sounds like your product', 'help' => 'No borrowed hype and nothing you could not say out loud to a customer.'],
-                ['label' => 'No invented features or claims', 'help' => 'Every capability mentioned appears in your Pantry feature list.'],
-                ['label' => 'A stranger could repeat it', 'help' => 'After one read, someone could explain your product to a friend.'],
+                ['label' => 'It sounds like your product', 'help' => 'No borrowed hype and nothing you could not say out loud to a customer.',
+                 'evidence_sections' => ['positioning_statement', 'one_sentence_version']],
+                ['label' => 'No invented features or claims', 'help' => 'Every capability mentioned appears in your Pantry feature list.',
+                 'evidence_sections' => ['why_it_wins']],
+                ['label' => 'A stranger could repeat it', 'help' => 'After one read, someone could explain your product to a friend.',
+                 'evidence_sections' => ['one_sentence_version']],
             ],
         ],
         [
@@ -293,13 +303,22 @@ One short line plus the button label again.
 ## Footer reassurance
 One or two sentences that remove the biggest hesitation (privacy, effort, or lock-in), using only true facts from the positioning.
 
-No emoji, no exclamation marks, under 350 words total. Voice: {{tone}}.
+Keep the four section headings exactly as written above, in that order, with each part under its heading. No emoji, no exclamation marks, under 350 words total. Voice: {{tone}}.
 TXT,
             'example_response' => $landingExample,
+            'output_sections' => [
+                ['key' => 'hero', 'heading' => 'Hero', 'required' => true],
+                ['key' => 'feature_blocks', 'heading' => 'Feature blocks', 'aliases' => ['Features'], 'required' => true],
+                ['key' => 'closing_cta', 'heading' => 'Closing call to action', 'aliases' => ['Call to action'], 'required' => true],
+                ['key' => 'footer_reassurance', 'heading' => 'Footer reassurance', 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Headline passes the glance test', 'help' => 'Someone skimming for three seconds still learns what this is.'],
-                ['label' => 'Every feature claim is real', 'help' => 'The three blocks only describe features from your Pantry list.'],
-                ['label' => 'One clear next step', 'help' => 'A single primary action, stated the same way each time it appears.'],
+                ['label' => 'Headline passes the glance test', 'help' => 'Someone skimming for three seconds still learns what this is.',
+                 'evidence_sections' => ['hero']],
+                ['label' => 'Every feature claim is real', 'help' => 'The three blocks only describe features from your Pantry list.',
+                 'evidence_sections' => ['feature_blocks']],
+                ['label' => 'One clear next step', 'help' => 'A single primary action, stated the same way each time it appears.',
+                 'evidence_sections' => ['hero', 'closing_cta']],
             ],
         ],
         [
@@ -322,7 +341,7 @@ Channels to write for: {{channels}}
 Approved positioning (ground truth):
 {{artifact:position-the-dish}}
 
-For each listed channel, produce a Markdown section titled "## [channel name] launch post" containing a post shaped for that channel:
+For each listed channel, produce one Markdown section whose heading is exactly "## [channel name] launch post" — for example "## Product Hunt launch post" or "## Email newsletter launch post". Keep these heading labels exactly as given and put each post under its own heading, shaped for that channel:
 - Product Hunt: a tagline of at most 60 characters plus a founder's first comment of 120 to 180 words that tells the honest origin story.
 - X (Twitter): a thread of 3 to 5 numbered posts, each under 260 characters, first post hooks with the problem.
 - LinkedIn: one post of 120 to 180 words, professional but human, no hashtag spam (at most 3).
@@ -332,9 +351,22 @@ For each listed channel, produce a Markdown section titled "## [channel name] la
 Only write sections for the channels listed above. Include the link naturally in each. Voice: {{tone}}.
 TXT,
             'example_response' => $announcementExample,
+            'output_sections' => [
+                // Channels are user-chosen in the Pantry, so every channel
+                // section is optional; only the picked ones should appear.
+                ['key' => 'product_hunt_post', 'heading' => 'Product Hunt launch post', 'required' => false],
+                ['key' => 'x_twitter_post', 'heading' => 'X (Twitter) launch post', 'aliases' => ['X launch post', 'Twitter launch post', 'X (Twitter) thread'], 'required' => false],
+                ['key' => 'linkedin_post', 'heading' => 'LinkedIn launch post', 'required' => false],
+                ['key' => 'email_newsletter_post', 'heading' => 'Email newsletter launch post', 'aliases' => ['Email newsletter announcement', 'Email launch post'], 'required' => false],
+                ['key' => 'indie_hackers_post', 'heading' => 'Indie Hackers launch post', 'required' => false],
+            ],
             'checks' => [
-                ['label' => 'Each post fits its channel', 'help' => 'The Product Hunt comment, thread, and email read differently, not one blurb copied around.'],
-                ['label' => 'Links and price are correct', 'help' => 'Every post points at your URL and any price mentioned matches your Pantry.'],
+                ['label' => 'Each post fits its channel', 'help' => 'The Product Hunt comment, thread, and email read differently, not one blurb copied around.',
+                 'evidence_sections' => ['product_hunt_post', 'x_twitter_post', 'linkedin_post', 'email_newsletter_post', 'indie_hackers_post']],
+                ['label' => 'Links and price are correct', 'help' => 'Every post points at your URL and any price mentioned matches your Pantry.',
+                 'evidence_sections' => ['product_hunt_post', 'x_twitter_post', 'linkedin_post', 'email_newsletter_post', 'indie_hackers_post']],
+                // Voice is judged across the whole response, so this check
+                // deliberately keeps manual full-response review.
                 ['label' => 'It reads in your voice', 'help' => 'You would post each of these under your own name without editing the tone.'],
             ],
         ],
@@ -367,13 +399,20 @@ Five questions a skeptical first-time visitor would actually ask (about how it w
 ## Objections, answered honestly
 The three hardest objections, each as a bold quoted objection followed by an answer that concedes what is true before making the counterpoint. No objection may be a softball.
 
-Under 450 words total. Voice: {{tone}}.
+Keep both section headings exactly as written above, in that order, with each part under its heading. Under 450 words total. Voice: {{tone}}.
 TXT,
             'example_response' => $faqExample,
+            'output_sections' => [
+                ['key' => 'faq', 'heading' => 'Frequently asked questions', 'aliases' => ['FAQ'], 'required' => true],
+                ['key' => 'objections', 'heading' => 'Objections, answered honestly', 'aliases' => ['Objections'], 'required' => true],
+            ],
             'checks' => [
-                ['label' => 'Answers are honest', 'help' => 'Real limits are admitted; at least one answer says who this is not for.'],
-                ['label' => 'Price is stated plainly', 'help' => 'The price appears in the FAQ exactly as set in your Pantry.'],
-                ['label' => 'No unbuilt promises', 'help' => 'Nothing is promised that is not in your feature list today.'],
+                ['label' => 'Answers are honest', 'help' => 'Real limits are admitted; at least one answer says who this is not for.',
+                 'evidence_sections' => ['faq', 'objections']],
+                ['label' => 'Price is stated plainly', 'help' => 'The price appears in the FAQ exactly as set in your Pantry.',
+                 'evidence_sections' => ['faq']],
+                ['label' => 'No unbuilt promises', 'help' => 'Nothing is promised that is not in your feature list today.',
+                 'evidence_sections' => ['faq', 'objections']],
             ],
         ],
     ],
