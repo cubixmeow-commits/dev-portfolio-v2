@@ -33,7 +33,7 @@ use SousMeow\Models\User;
           <select class="input" id="timezone" name="timezone">
             <option value="">Use server default</option>
             <?php foreach ($timezones as $tz): ?>
-            <option value="<?= e($tz) ?>" <?= ($user['timezone'] ?? '') === $tz ? 'selected' : '' ?>><?= e($tz) ?></option>
+            <option value="<?= e($tz['id']) ?>" <?= ($user['timezone'] ?? '') === $tz['id'] ? 'selected' : '' ?>><?= e($tz['label']) ?></option>
             <?php endforeach; ?>
           </select>
           <?php if (isset($errors['timezone'])): ?><p class="field-error"><?= e($errors['timezone']) ?></p><?php endif; ?>

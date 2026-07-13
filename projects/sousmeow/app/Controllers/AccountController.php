@@ -9,6 +9,7 @@ use SousMeow\Core\Flash;
 use SousMeow\Core\RateLimiter;
 use SousMeow\Core\Session;
 use SousMeow\Core\View;
+use SousMeow\Data\TimezoneOptions;
 use SousMeow\Models\PasswordReset;
 use SousMeow\Models\User;
 use SousMeow\Services\AccountDataExport;
@@ -103,7 +104,7 @@ final class AccountController
             'pageCss'   => 'account',
             'user'      => Auth::user(),
             'errors'    => [],
-            'timezones' => self::timezones(),
+            'timezones' => TimezoneOptions::forSelect((string) (Auth::user()['timezone'] ?? '')),
             'section'   => 'preferences',
         ]);
     }
@@ -125,7 +126,7 @@ final class AccountController
         if ($experience !== '' && !in_array($experience, User::EXPERIENCE_LEVELS, true)) {
             $errors['ai_experience_level'] = 'Choose a valid experience level.';
         }
-        if ($timezone !== '' && !in_array($timezone, self::timezones(), true)) {
+        if ($timezone !== '' && !TimezoneOptions::isValid($timezone)) {
             $errors['timezone'] = 'Choose a valid timezone.';
         }
         if (!in_array($theme, User::THEME_OPTIONS, true)) {
@@ -139,7 +140,7 @@ final class AccountController
                 'pageCss'   => 'account',
                 'user'      => Auth::user(),
                 'errors'    => $errors,
-                'timezones' => self::timezones(),
+                'timezones' => TimezoneOptions::forSelect((string) (Auth::user()['timezone'] ?? '')),
                 'section'   => 'preferences',
             ]);
             return;
@@ -370,7 +371,7 @@ final class AccountController
             'title'     => 'Welcome to SousMeow',
             'pageCss'   => 'account',
             'user'      => $user,
-            'timezones' => self::timezones(),
+            'timezones' => TimezoneOptions::forSelect((string) (Auth::user()['timezone'] ?? '')),
             'errors'    => [],
         ]);
     }
@@ -396,7 +397,7 @@ final class AccountController
             if (in_array($experience, User::EXPERIENCE_LEVELS, true)) {
                 User::updatePreferences($userId, ['ai_experience_level' => $experience]);
             }
-            if ($timezone !== '' && in_array($timezone, self::timezones(), true)) {
+            if ($timezone !== '' && TimezoneOptions::isValid($timezone)) {
                 User::updatePreferences($userId, ['timezone' => $timezone]);
             }
         }
@@ -411,11 +412,5 @@ final class AccountController
 
         Flash::set('success', 'You are ready to go.');
         Auth::redirectIntended('/kitchen');
-    }
-
-    /** @return list<string> */
-    private static function timezones(): array
-    {
-        return \DateTimeZone::listIdentifiers();
     }
 }
