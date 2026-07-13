@@ -20,7 +20,7 @@ $isAdmin = ($auth['role'] ?? '') === 'admin';
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="SousMeow provides guided AI workflows for complex projects. Copy ready-made prompts, run them in ChatGPT, Claude, or Gemini, review responses, and export finished project files. No API required.">
+<meta name="description" content="SousMeow turns complex projects into guided AI workflows. Use ChatGPT, Claude, or Gemini subscriptions you already have — no API key. Discover structured workflows with quality checks and finished project exports.">
 <link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">

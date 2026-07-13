@@ -6,6 +6,7 @@ use SousMeow\Services\Simulation;
 /**
  * @var array<string, mixed>|null  $featured
  * @var list<array<string, mixed>> $featuredRecipes
+ * @var list<array<string, mixed>> $cookbooks
  * @var array{chefs:int,kits_today:int,kits_total:int,approved_today:int,rating:float,cookbooks:int,recipes:int,active_today:int} $stats
  * @var array{weeks:list<list<array{date:string,count:int,level:int}|null>>,max:int,total:int,end:string,month_labels:list<array{label:string,col:int}>} $heatmap
  * @var list<array<string, mixed>> $popular
@@ -18,9 +19,12 @@ $activityBadge = static fn(string $kind): string => match ($kind) {
 $activityLabel = static fn(string $kind): string => match ($kind) {
     'completed' => 'Project complete', 'cooking' => 'In progress', 'pantry' => 'Details added', 'joined' => 'New member', default => 'Active',
 };
+$primaryCta = $auth ? url('/kitchen') : url('/marketplace');
+$primaryLabel = $auth ? 'Continue my project' : 'Explore workflows';
 ?>
 <div class="marketing-home">
 
+  <!-- 1. Hero -->
   <section class="hero">
     <div class="hero-wash" aria-hidden="true">
       <span class="wash-blob wash-peach" style="width: 22rem; height: 22rem; top: -6rem; right: -5rem;"></span>
@@ -29,108 +33,214 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
     </div>
     <div class="hero-inner">
       <p class="hero-eyebrow">Guided AI workflows · no API required</p>
-      <h1>Build complete projects using the AI subscriptions you already have.</h1>
+      <h1>Turn complex projects into guided AI workflows</h1>
       <p class="hero-lede">
-        SousMeow provides guided workflows for complex projects. Each step prepares a prompt for you to run in
-        ChatGPT, Claude, Gemini, or another assistant. Bring the responses back, review them, approve them,
-        and export finished project files.
+        SousMeow walks you through demanding work one step at a time. It prepares the prompts, carries your
+        project context forward, helps you review each result, and organizes approved work into finished files.
+      </p>
+      <p class="hero-lede hero-lede-sub">
+        Use ChatGPT, Claude, Gemini, or another AI subscription you already have. No API key and no separate token bill.
       </p>
       <div class="hero-actions">
-        <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
-          <?= $auth ? 'Open my projects' : 'Start free' ?>
-        </a>
-        <a class="button button-ghost button-large" href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+        <a class="button button-primary button-large" href="<?= e($primaryCta) ?>"><?= e($primaryLabel) ?></a>
+        <a class="button button-ghost button-large" href="#how-it-works">See how it works</a>
       </div>
-      <p class="terms-callout">
-        In SousMeow, workflows are called <strong>Cookbooks</strong>, each step is a <strong>Recipe</strong>,
-        your project details live in the <strong>Pantry</strong>, and finished files export as a <strong>Project Kit</strong>.
-      </p>
-      <p class="hero-footnote">
-        Works with the AI you already use. SousMeow never calls one for you — no API keys, no token markup.
-        Built-in sample responses let you tour the full loop without opening an AI at all.
+      <p class="terms-callout terms-callout-compact">
+        In SousMeow, workflows are called <strong>Cookbooks</strong> and their steps are called <strong>Recipes</strong>.
       </p>
     </div>
   </section>
 
-  <section class="loop-section" aria-labelledby="loop-heading">
+  <!-- 2. Three product pillars -->
+  <section class="pillars-section" aria-labelledby="pillars-heading">
+    <div class="pillars-inner">
+      <h2 id="pillars-heading" class="visually-hidden">Three reasons to use SousMeow</h2>
+      <div class="pillars-grid">
+        <article class="pillar-card card card-pad">
+          <p class="pillar-number" aria-hidden="true">1</p>
+          <h3>Guided workflows</h3>
+          <p>Complex projects become clear, manageable steps — one goal and one action at a time. No blank page, no giant prompt, no guessing what comes next.</p>
+          <p class="pillar-theme">From idea to finished project, step by step.</p>
+        </article>
+        <article class="pillar-card card card-pad">
+          <p class="pillar-number" aria-hidden="true">2</p>
+          <h3>Your AI, your subscription</h3>
+          <p>Run each prepared prompt in ChatGPT, Claude, Gemini, or another assistant you already pay for. SousMeow provides the process — not another AI bill.</p>
+          <p class="pillar-theme">Bring your own AI.</p>
+        </article>
+        <article class="pillar-card card card-pad">
+          <p class="pillar-number" aria-hidden="true">3</p>
+          <h3>Reusable processes</h3>
+          <p>Discover structured workflows with defined inputs, ordered steps, quality checks, and finished exports — more predictable than isolated prompts.</p>
+          <p class="pillar-theme">A marketplace direction for trustworthy workflows.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. The loop -->
+  <section class="loop-section" id="how-it-works" aria-labelledby="loop-heading">
     <div class="loop-inner">
       <h2 id="loop-heading">How it works</h2>
-      <p class="section-sub loop-sub">Four stages. Same honest cycle for every workflow. No black box, no surprise bills.</p>
+      <p class="section-sub loop-sub">Four stages. You stay in control at every step.</p>
       <ol class="loop-steps loop-steps-four">
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">1</span>
           <h3>Choose a workflow</h3>
-          <p class="step-plain">Pick a guided workflow from the Marketplace — we call these Cookbooks.</p>
+          <p class="step-plain">Select a guided workflow built for the outcome you want — a Cookbook.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">2</span>
-          <h3>Add project details</h3>
-          <p class="step-plain">Tell SousMeow about your project once. Every prompt is built from those facts — your Pantry.</p>
+          <h3>Add your project details</h3>
+          <p class="step-plain">Provide the information the workflow reuses throughout your project — your Pantry.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-active">3</span>
-          <h3>Run each prompt</h3>
-          <p class="step-plain">Copy the ready-made prompt, run it in your own AI, and paste the response back for review.</p>
+          <h3>Run each step in your AI</h3>
+          <p class="step-plain">SousMeow prepares the prompt. You run it in your assistant and paste the response back.</p>
         </li>
         <li class="loop-step card card-hover">
           <span class="step-dot is-done">&check;</span>
-          <h3>Review and export</h3>
-          <p class="step-plain">Approve each step, then download your Project Kit — clean files ready to publish.</p>
+          <h3>Review and finish</h3>
+          <p class="step-plain">Check the response, approve it, and continue until your finished project files are ready.</p>
         </li>
       </ol>
     </div>
   </section>
 
-  <?php if ($featured !== null): ?>
-  <section class="featured-section" aria-labelledby="featured-heading">
-    <div class="featured-inner card">
-      <div class="featured-copy">
-        <p class="hero-eyebrow">Featured workflow</p>
-        <h2 id="featured-heading"><?= e($featured['title']) ?></h2>
-        <p class="featured-tagline"><?= e($featured['tagline']) ?></p>
-        <p>A guided Cookbook — <?= e($featured['outcome']) ?>. Built for <?= e(strtolower((string) $featured['audience'])) ?>;
-           about <?= (int) $featured['est_minutes'] ?> minutes of your attention. Free to start.</p>
-        <h3 class="featured-steps-heading">Example steps</h3>
-        <ul class="featured-recipes">
-          <?php foreach ($featuredRecipes as $recipe): ?>
-            <li><span class="step-dot"><?= (int) $recipe['position'] ?></span> <strong><?= e($recipe['title']) ?></strong> <span class="featured-recipe-sub"><?= e($recipe['summary']) ?></span></li>
-          <?php endforeach; ?>
-        </ul>
-        <div class="hero-actions">
-          <?php if ($auth): ?>
-            <form method="post" action="<?= e(url('/projects')) ?>" data-loading>
-              <?= Csrf::field() ?>
-              <input type="hidden" name="cookbook" value="<?= e($featured['slug']) ?>">
-              <button type="submit" class="button button-primary button-large">Start this workflow</button>
-            </form>
-          <?php else: ?>
-            <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Create a free account</a>
-          <?php endif; ?>
-          <a class="button button-ghost" href="<?= e(url('/cookbooks/' . $featured['slug'])) ?>">View all steps</a>
+  <!-- 4. Comparison: prompts vs workflows -->
+  <section class="compare-section" aria-labelledby="compare-heading">
+    <div class="compare-inner">
+      <h2 id="compare-heading">A prompt gives you an answer. A workflow gets you to the finish line.</h2>
+      <p class="section-sub compare-sub">SousMeow is a process system — not a prompt library.</p>
+      <div class="compare-grid">
+        <article class="compare-card card card-pad">
+          <h3>Individual prompts</h3>
+          <ul class="compare-list">
+            <li>Solve one moment</li>
+            <li>Depend on you knowing what comes next</li>
+            <li>Lose context between chats</li>
+            <li>Produce inconsistent formats</li>
+            <li>Leave results scattered</li>
+          </ul>
+        </article>
+        <article class="compare-card compare-card-highlight card card-pad">
+          <h3>SousMeow workflows</h3>
+          <ul class="compare-list">
+            <li>Guide a complete project</li>
+            <li>Run steps in the correct order</li>
+            <li>Reuse your project context</li>
+            <li>Request predictable output structures</li>
+            <li>Apply quality checks you answer</li>
+            <li>Organize approved work into finished files</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Subscription advantage -->
+  <section class="subscription-section" aria-labelledby="subscription-heading">
+    <div class="subscription-inner card card-pad">
+      <h2 id="subscription-heading">The workflow layer for the AI tools you already use</h2>
+      <p class="section-sub">You choose the assistant. SousMeow handles structure, memory, review, and export.</p>
+      <ol class="flow-steps" aria-label="How SousMeow works with your AI subscription">
+        <li><span class="flow-label">SousMeow workflow</span></li>
+        <li class="flow-arrow" aria-hidden="true">↓</li>
+        <li><span class="flow-label">Prepared prompt</span></li>
+        <li class="flow-arrow" aria-hidden="true">↓</li>
+        <li><span class="flow-label flow-label-ai">ChatGPT · Claude · Gemini · another AI</span></li>
+        <li class="flow-arrow" aria-hidden="true">↓</li>
+        <li><span class="flow-label">Response returned to SousMeow</span></li>
+        <li class="flow-arrow" aria-hidden="true">↓</li>
+        <li><span class="flow-label">Review · approval · next step</span></li>
+      </ol>
+      <ul class="subscription-points">
+        <li>No API key or setup</li>
+        <li>No token markup from SousMeow</li>
+        <li>Model freedom — pick the best assistant per job</li>
+        <li>Your data goes where you run the prompt</li>
+      </ul>
+      <p class="subscription-note">SousMeow never calls an AI for you. The loop is intentional: you run the prompt, you paste the result, you approve what earns its place.</p>
+    </div>
+  </section>
+
+  <!-- 6. Trust: definition of done -->
+  <section class="trust-section" aria-labelledby="trust-heading">
+    <div class="trust-inner">
+      <h2 id="trust-heading">Workflows with a definition of done</h2>
+      <p class="section-sub trust-sub">Strong workflows do more than generate prompts. Each one can define what you need, what each step produces, and what you verify before moving on.</p>
+      <div class="trust-grid">
+        <div class="trust-item card card-pad">
+          <h3>Required inputs</h3>
+          <p>Project details collected once and reused in every prompt — no re-explaining your product each step.</p>
+        </div>
+        <div class="trust-item card card-pad">
+          <h3>Expected outputs</h3>
+          <p>Each step can request a predictable response structure, making results easier to review and reuse.</p>
+        </div>
+        <div class="trust-item card card-pad">
+          <h3>Quality checks</h3>
+          <p>Questions only you can answer. SousMeow records your judgement — it does not grade your work.</p>
+        </div>
+        <div class="trust-item card card-pad">
+          <h3>Finished export</h3>
+          <p>Approved steps assemble into organized project files — a Project Kit ready to publish.</p>
         </div>
       </div>
-      <div class="featured-art" aria-hidden="true">
-        <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cooking']); ?>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
-
-  <section class="marketplace-teaser" aria-labelledby="marketplace-teaser-heading">
-    <div class="marketplace-teaser-inner card card-pad">
-      <div>
-        <h2 id="marketplace-teaser-heading">Explore workflows</h2>
-        <p class="section-sub">Five guided Cookbooks cover launch campaigns, SaaS validation, portfolio building, YouTube planning, and novel development. Three are fully available today.</p>
-      </div>
-      <a class="button button-primary button-large" href="<?= e(url('/marketplace')) ?>">Browse the Marketplace</a>
+      <p class="trust-direction">This structure is what makes workflows shareable and trustworthy — the foundation for a future marketplace of reusable processes.</p>
     </div>
   </section>
 
+  <!-- 7. Explore guided workflows -->
+  <section class="workflows-section" aria-labelledby="workflows-heading">
+    <div class="workflows-inner">
+      <header class="workflows-header">
+        <h2 id="workflows-heading">Explore guided workflows</h2>
+        <p class="section-sub">Complete outcomes, not one-off answers. Every workflow below is a real Cookbook in this build.</p>
+      </header>
+      <div class="home-workflow-grid">
+        <?php foreach ($cookbooks as $cookbook):
+          $executable = (int) $cookbook['is_executable'] === 1;
+        ?>
+          <a class="home-workflow-card card card-hover <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
+            <div class="home-workflow-top">
+              <span class="badge badge-outline"><?= e($cookbook['category']) ?></span>
+              <?php if ($executable): ?>
+                <span class="badge badge-sage badge-dot">Available now</span>
+              <?php else: ?>
+                <span class="badge badge-neutral">Preview</span>
+              <?php endif; ?>
+            </div>
+            <h3 class="home-workflow-title"><?= e($cookbook['title']) ?></h3>
+            <p class="home-workflow-tagline"><?= e($cookbook['tagline']) ?></p>
+            <div class="home-workflow-meta">
+              <span><?= e(plural((int) $cookbook['recipe_count'], 'step')) ?></span>
+              <span>·</span>
+              <span>~<?= (int) $cookbook['est_minutes'] ?> min</span>
+              <span>·</span>
+              <span><?= e(strtolower((string) $cookbook['audience'])) ?></span>
+            </div>
+            <p class="home-workflow-receive">You receive: <?= e($cookbook['outcome']) ?></p>
+          </a>
+        <?php endforeach; ?>
+      </div>
+      <div class="workflows-footer">
+        <a class="button button-primary button-large" href="<?= e(url('/marketplace')) ?>">Browse all workflows</a>
+        <?php if (!$auth): ?>
+          <a class="button button-ghost button-large" href="<?= e(url('/register')) ?>">Create an account</a>
+        <?php endif; ?>
+      </div>
+      <p class="workflows-honesty">Three workflows are fully runnable today. Two are designed previews — every step, input, and quality check is real, but the Runner is not open yet. No purchases or creator payouts in this build.</p>
+    </div>
+  </section>
+
+  <!-- 8. Community activity dashboard -->
   <section class="community-section" aria-labelledby="community-heading">
     <div class="community-inner">
       <header class="community-header">
         <h2 id="community-heading">Community activity</h2>
-        <p class="section-sub">Live metrics from the portfolio demonstration. Simulated creators, real workflow structure.</p>
+        <p class="section-sub">Portfolio demonstration metrics — simulated creators, real workflow structure. Pacific time.</p>
       </header>
 
       <section class="kitchen-dashboard rise-in" aria-labelledby="dashboard-heading">
@@ -140,7 +250,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
             <h3 id="dashboard-heading" class="dashboard-title">Workflow activity today</h3>
             <p class="dashboard-theme-line">Fresh from the kitchen.</p>
           </div>
-          <p class="dashboard-honesty">Simulated activity · Pacific time</p>
+          <p class="dashboard-honesty">Simulated activity</p>
         </div>
 
         <div class="insights-hero" aria-labelledby="insights-heading">
@@ -186,7 +296,7 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
             <div class="heatmap-head">
               <div>
                 <h4 class="heatmap-title">Workflow activity</h4>
-                <p class="heatmap-sub"><?= e(SiteStats::formatCompact($heatmap['total'])) ?> actions across <?= count($heatmap['weeks']) ?> weeks · Pacific time</p>
+                <p class="heatmap-sub"><?= e(SiteStats::formatCompact($heatmap['total'])) ?> actions across <?= count($heatmap['weeks']) ?> weeks</p>
               </div>
               <div class="heatmap-legend" aria-hidden="true">
                 <span>Less</span>
@@ -288,35 +398,19 @@ $activityLabel = static fn(string $kind): string => match ($kind) {
     </div>
   </section>
 
-  <section class="honesty-section" aria-labelledby="honesty-heading">
-    <div class="honesty-inner">
-      <h2 id="honesty-heading">Why SousMeow is different</h2>
-      <div class="honesty-grid">
-        <div class="honesty-item">
-          <h3>It never calls an AI for you</h3>
-          <p>No API keys, no markup on tokens, no surprise bills. You run each prompt in ChatGPT, Claude, Gemini, or whatever you already pay for.</p>
-        </div>
-        <div class="honesty-item">
-          <h3>It never grades your work</h3>
-          <p>Quality Checks are questions only you can answer. SousMeow records your judgement — it does not fake having one.</p>
-        </div>
-        <div class="honesty-item">
-          <h3>It never loses a version</h3>
-          <p>Pasted responses are kept exactly as pasted. Edits stack as new versions, so the original is always one click away.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
+  <!-- 9. Final CTA -->
   <section class="final-cta">
     <div class="final-cta-inner card card-pad">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'cheering']); ?>
-      <h2>Try a full workflow in ten minutes</h2>
-      <p class="section-sub">The Launch Day Kit is free. Every step includes a sample response, so you can finish an entire workflow before deciding if SousMeow is for you.</p>
-      <a class="button button-primary button-large" href="<?= e(url($auth ? '/kitchen' : '/register')) ?>">
-        <?= $auth ? 'Open my projects' : 'Start free' ?>
-      </a>
-      <p class="final-cta-theme">The kitchen is ready when you are.</p>
+      <h2>Start with a workflow, not a blank page</h2>
+      <p class="section-sub">Choose a guided process, use the AI assistant you already have, and work through your project one clear step at a time.</p>
+      <div class="hero-actions">
+        <a class="button button-primary button-large" href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+        <?php if (!$auth): ?>
+          <a class="button button-ghost button-large" href="<?= e(url('/register')) ?>">Create an account</a>
+        <?php endif; ?>
+      </div>
+      <p class="final-cta-theme">Your first Cookbook is ready when you are.</p>
     </div>
   </section>
 </div>
