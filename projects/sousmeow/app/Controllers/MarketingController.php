@@ -6,23 +6,24 @@ namespace SousMeow\Controllers;
 
 use SousMeow\Core\View;
 use SousMeow\Models\Cookbook;
-use SousMeow\Models\Recipe;
 use SousMeow\Services\HomepageActivityPresenter;
 
 final class MarketingController
 {
     public function home(): void
     {
-        $featured = Cookbook::featured();
-        $featuredRecipes = $featured !== null ? Recipe::forCookbook((int) $featured['id']) : [];
+        $allCookbooks = Cookbook::marketplace();
+        $featuredCookbooks = array_values(array_filter(
+            $allCookbooks,
+            static fn(array $c): bool => (int) $c['is_executable'] === 1
+        ));
+        $featuredCookbooks = array_slice($featuredCookbooks, 0, 3);
 
         View::render('marketing/home', [
-            'title'           => '',
-            'pageCss'         => 'marketing',
-            'featured'        => $featured,
-            'featuredRecipes' => $featuredRecipes,
-            'cookbooks'       => Cookbook::marketplace(),
-            'activityBoard'   => HomepageActivityPresenter::bundle(),
+            'title'             => '',
+            'pageCss'           => 'marketing',
+            'featuredCookbooks' => $featuredCookbooks,
+            'activityBoard'     => HomepageActivityPresenter::bundle(),
         ]);
     }
 }
