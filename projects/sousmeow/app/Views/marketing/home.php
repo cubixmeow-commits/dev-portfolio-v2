@@ -101,24 +101,24 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
           <div class="diagram">
             <svg viewBox="0 0 340 220" role="img" aria-label="Diagram: three isolated prompts drift apart, each trailing off into nothing.">
               <g class="pr-chip" transform="rotate(-4 70 46)">
-                <rect x="18" y="28" width="150" height="34" rx="8"/>
+                <rect x="18" y="28" width="198" height="34" rx="8"/>
                 <text x="34" y="50">“write me a landing page”</text>
               </g>
-              <path class="pr-trail" d="M168 46 C 210 46, 240 30, 268 24"/>
+              <path class="pr-trail" d="M216 46 C 236 42, 252 30, 268 24"/>
               <circle class="pr-end" cx="278" cy="22" r="2.2"/><circle class="pr-end" cx="290" cy="20" r="2.2"/><circle class="pr-end" cx="302" cy="19" r="2.2"/>
 
               <g class="pr-chip" transform="rotate(2 110 106)">
-                <rect x="46" y="88" width="118" height="34" rx="8"/>
+                <rect x="46" y="88" width="172" height="34" rx="8"/>
                 <text x="62" y="110">“hmm. make it better”</text>
               </g>
-              <path class="pr-trail" d="M164 106 C 210 108, 238 118, 262 130"/>
+              <path class="pr-trail" d="M218 106 C 234 110, 248 120, 262 130"/>
               <circle class="pr-end" cx="272" cy="134" r="2.2"/><circle class="pr-end" cx="284" cy="139" r="2.2"/>
 
               <g class="pr-chip" transform="rotate(-2 96 168)">
-                <rect x="26" y="150" width="140" height="34" rx="8"/>
+                <rect x="26" y="150" width="192" height="34" rx="8"/>
                 <text x="42" y="172">“wait, who is this for?”</text>
               </g>
-              <path class="pr-trail" d="M166 168 C 204 172, 224 186, 240 198"/>
+              <path class="pr-trail" d="M218 168 C 228 174, 234 186, 240 198"/>
               <text class="pr-q" x="252" y="210">?</text>
             </svg>
           </div>
