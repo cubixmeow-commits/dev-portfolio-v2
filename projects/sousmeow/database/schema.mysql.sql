@@ -119,8 +119,15 @@ CREATE TABLE IF NOT EXISTS sousmeow_cookbook_collections (
     created_at    DATETIME NOT NULL,
     PRIMARY KEY (cookbook_id, collection_id),
     KEY idx_cookbook_collections_collection (collection_id, position),
-    CONSTRAINT fk_cc_cookbook   FOREIGN KEY (cookbook_id)   REFERENCES cookbooks(id)   ON DELETE CASCADE,
-    CONSTRAINT fk_cc_collection FOREIGN KEY (collection_id) REFERENCES sousmeow_collections(id) ON DELETE CASCADE
+    -- InnoDB requires FOREIGN KEY constraint names to be unique across the
+    -- whole schema, not just the table. On a database shared with other
+    -- apps, short generic names like fk_cc_cookbook can collide with
+    -- something else entirely (as they did here, with an orphaned table
+    -- of the same shape left behind by an earlier failed deploy attempt
+    -- on this same feature). Naming them after the table keeps them
+    -- effectively namespaced.
+    CONSTRAINT fk_sousmeow_cc_cookbook   FOREIGN KEY (cookbook_id)   REFERENCES cookbooks(id)   ON DELETE CASCADE,
+    CONSTRAINT fk_sousmeow_cc_collection FOREIGN KEY (collection_id) REFERENCES sousmeow_collections(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS cookbook_stages (
