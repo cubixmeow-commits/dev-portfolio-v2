@@ -49,6 +49,7 @@ $needsVerification = $auth && !Auth::isVerified();
       <div class="nav-links" id="nav-links">
         <?php if ($auth): ?>
           <a href="<?= e(url('/kitchen')) ?>">My projects</a>
+          <a href="<?= e(url('/categories')) ?>">Categories</a>
           <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
           <a href="<?= e(url('/account')) ?>">Account</a>
           <?php if ($isAdmin): ?><a href="<?= e(url('/admin')) ?>">Admin</a><?php endif; ?>
@@ -58,6 +59,7 @@ $needsVerification = $auth && !Auth::isVerified();
           </form>
           <span class="nav-user" title="Signed in as <?= e($auth['email']) ?>"><?= e($auth['name']) ?></span>
         <?php else: ?>
+          <a href="<?= e(url('/categories')) ?>">Categories</a>
           <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
           <a href="<?= e(url('/login')) ?>">Sign in</a>
           <a class="button button-primary button-small" href="<?= e(url('/register')) ?>">Start free</a>

@@ -1,0 +1,179 @@
+/* Category discovery pages: shared index and shared category detail.
+   Warm daylight palette (tokens.css); accent hues arrive through the
+   .accent-* classes set by Services\Accent. Loaded alongside
+   marketplace.css, so badges, crumbs, and empty-state styles are reused. */
+
+/* ---------- Index hero ---------- */
+
+.cat-hero {
+  max-width: 44rem;
+  margin-bottom: var(--space-7);
+}
+.cat-kicker {
+  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--teal); margin: 0 0 var(--space-3);
+}
+.categories-index h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 var(--space-3);
+}
+.cat-hero-lede {
+  font-size: 1.05rem; line-height: 1.6; color: var(--ink-soft);
+  margin: 0 0 var(--space-5);
+}
+.cat-search { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.cat-search .input { flex: 1 1 22rem; }
+
+/* ---------- Category grid ---------- */
+
+.category-grid {
+  list-style: none; margin: 0 0 var(--space-8); padding: 0;
+  display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+}
+
+.category-card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent, var(--terracotta));
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  transition: box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.category-card:hover,
+.category-card:focus-within {
+  box-shadow: var(--shadow-lift); transform: translateY(-2px);
+  border-color: var(--line-strong); border-top-color: var(--accent, var(--terracotta));
+}
+
+.category-mark {
+  display: inline-flex; width: 2.25rem; height: 2.25rem;
+  color: var(--accent, var(--terracotta));
+  background: var(--accent-wash, var(--terracotta-wash));
+  border-radius: var(--radius-m);
+  padding: 0.4rem; margin-bottom: var(--space-3);
+}
+.category-mark svg { width: 100%; height: 100%; }
+
+.category-name { font-size: 1.2rem; margin: 0 0 var(--space-1); letter-spacing: -0.01em; }
+.category-name a { color: var(--ink); text-decoration: none; }
+.category-name a::after { content: ""; position: absolute; inset: 0; }
+.category-name a:hover { color: var(--accent, var(--terracotta)); }
+
+.category-tagline { color: var(--ink-soft); font-size: 0.95rem; margin: 0 0 var(--space-3); }
+
+.category-outcomes {
+  list-style: none; margin: 0 0 var(--space-4); padding: 0;
+  display: grid; gap: 0.3rem;
+  font-size: 0.8rem; color: var(--ink-soft);
+}
+.category-outcomes li { display: flex; align-items: baseline; gap: 0.5rem; }
+.category-outcomes li::before {
+  content: ""; flex-shrink: 0;
+  width: 0.4rem; height: 0.4rem; border-radius: 50%;
+  background: var(--accent, var(--terracotta)); transform: translateY(-0.1em);
+}
+
+.category-foot {
+  margin: auto 0 0; padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3);
+}
+.category-count { font-size: 0.82rem; color: var(--ink-faint); }
+.category-explore {
+  position: relative; z-index: 1;
+  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  color: var(--accent, var(--terracotta)); white-space: nowrap;
+}
+.category-explore:hover { text-decoration: underline; }
+
+/* ---------- Discovery sections (Start Here + strips) ---------- */
+
+.disc-section { margin-bottom: var(--space-7); }
+.disc-section-head { margin-bottom: var(--space-4); }
+.disc-section-head h2 { margin: 0 0 var(--space-1); font-size: 1.3rem; }
+
+.disc-grid {
+  display: grid; gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+}
+
+.disc-rail {
+  display: grid; grid-auto-flow: column;
+  grid-auto-columns: minmax(17rem, 18rem);
+  gap: var(--space-4);
+  overflow-x: auto; scroll-snap-type: x proximity;
+  padding-bottom: var(--space-3); margin-inline: calc(-1 * var(--space-1)); padding-inline: var(--space-1);
+  scrollbar-width: thin;
+}
+.disc-rail .disc-card { scroll-snap-align: start; }
+
+/* ---------- Discovery card ---------- */
+
+.disc-card {
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-soft);
+  text-decoration: none; color: inherit;
+  transition: box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.disc-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--line-strong); }
+.disc-band { height: 4px; background: linear-gradient(90deg, var(--accent, var(--terracotta)), var(--accent-wash, var(--terracotta-wash))); }
+.disc-body { display: flex; flex-direction: column; gap: 0.4rem; padding: var(--space-4); }
+.disc-top { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-1); }
+.disc-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+.disc-tagline { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.5; flex: 1; }
+.disc-meta { font-size: 0.76rem; color: var(--ink-faint); margin-top: var(--space-1); }
+
+/* ---------- Category detail ---------- */
+
+.cat-detail-hero { max-width: 46rem; margin-bottom: var(--space-6); }
+.category-detail .cat-detail-hero .category-mark { width: 2.75rem; height: 2.75rem; }
+.cat-detail-hero h1 { font-size: clamp(1.9rem, 4.5vw, 2.6rem); letter-spacing: -0.03em; margin: 0 0 var(--space-2); }
+.cat-detail-tagline { font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 var(--space-4); }
+.cat-detail-hero .category-outcomes {
+  grid-auto-flow: column; grid-template-columns: repeat(3, auto); justify-content: start;
+  gap: var(--space-4); font-size: 0.85rem; margin-bottom: var(--space-4);
+}
+.cat-detail-desc { font-size: 1rem; line-height: 1.65; color: var(--ink); max-width: 42rem; margin: 0 0 var(--space-3); }
+.cat-detail-count { font-size: 0.82rem; color: var(--ink-faint); margin: 0; }
+
+.cat-filters {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.cat-filter-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-right: var(--space-1); }
+.chip {
+  font-size: 0.85rem; font-weight: 500; text-decoration: none;
+  color: var(--ink-soft);
+  background: var(--card); border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill); padding: 0.35rem 0.9rem;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.chip:hover { border-color: var(--ink-faint); color: var(--ink); }
+.chip.is-on { background: var(--accent, var(--terracotta)); border-color: var(--accent, var(--terracotta)); color: #fff; }
+
+.cat-detail-grid { margin-bottom: var(--space-7); }
+
+.cat-featured-in { border-top: 1px solid var(--line); padding-top: var(--space-5); }
+.cat-featured-in h2 { font-size: 1.1rem; margin: 0 0 var(--space-3); }
+.collection-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.collection-tag {
+  font-size: 0.85rem; font-weight: 500; color: var(--ink);
+  background: var(--accent-wash, var(--terracotta-wash));
+  border: 1px solid transparent;
+  border-left: 3px solid var(--accent, var(--terracotta));
+  border-radius: var(--radius-s); padding: 0.3rem 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .category-grid { grid-template-columns: 1fr; }
+  .disc-grid { grid-template-columns: 1fr; }
+  .cat-detail-hero .category-outcomes { grid-auto-flow: row; grid-template-columns: 1fr; gap: 0.3rem; }
+}

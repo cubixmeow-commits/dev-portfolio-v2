@@ -61,6 +61,31 @@ final class Cookbook
         return Database::fetchAll($sql, $params);
     }
 
+    /**
+     * Cookbooks in one primary category, ordered for display, with optional
+     * difficulty and availability filters.
+     *
+     * @param string|null $difficulty   Beginner|Intermediate|Advanced, or null for any.
+     * @param string|null $availability  'available' (executable) | 'preview', or null for any.
+     * @return list<array<string, mixed>>
+     */
+    public static function inCategory(int $categoryId, ?string $difficulty = null, ?string $availability = null): array
+    {
+        $sql = self::LISTING_SELECT . ' WHERE c.primary_category_id = ?';
+        $params = [$categoryId];
+        if ($difficulty !== null && $difficulty !== '') {
+            $sql .= ' AND c.difficulty = ?';
+            $params[] = $difficulty;
+        }
+        if ($availability === 'available') {
+            $sql .= ' AND c.is_executable = 1';
+        } elseif ($availability === 'preview') {
+            $sql .= ' AND c.is_executable = 0';
+        }
+        $sql .= ' ORDER BY c.sort_order, c.title';
+        return Database::fetchAll($sql, $params);
+    }
+
     /** @return array<string, mixed>|null The single executable sample cookbook. */
     public static function featured(): ?array
     {
