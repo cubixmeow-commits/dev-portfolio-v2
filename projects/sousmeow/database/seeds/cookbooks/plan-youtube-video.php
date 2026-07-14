@@ -277,8 +277,8 @@ MD;
 return [
     'slug'                => 'plan-youtube-video',
     'title'               => 'Plan a YouTube Video',
-    'tagline'             => 'From a rough idea to a publish-ready plan, one small Recipe at a time.',
-    'description'         => "Most YouTube videos fail before anyone presses record: the idea is vague, the hook is borrowed, and the outline is a list of things to say instead of reasons to keep watching. This Cookbook moves fast through ten small outputs, so you leave with research, a hook, a retention map, B-roll shots, titles, thumbnail direction, and a publish checklist. Stock the Pantry once with your topic and channel context; every Recipe builds on the last. Beginner-friendly, no jargon, no pretending you need a studio.",
+    'tagline'             => 'From a rough idea to a publish-ready plan, one small step at a time.',
+    'description'         => "Most YouTube videos fail before anyone presses record: the idea is vague, the hook is borrowed, and the outline is a list of things to say instead of reasons to keep watching. This Cookbook moves fast through ten small outputs, so you leave with research, a hook, a retention map, B-roll shots, titles, thumbnail direction, and a publish checklist. Enter your topic and channel context once; every step builds on the last. Beginner-friendly — no pretending you need a studio.",
     'primary_category'    => 'content-audience',
     'collections'         => ['start-here', 'selected-by-sousmeow'],
     'audience'            => 'New YouTube creators planning their next upload',

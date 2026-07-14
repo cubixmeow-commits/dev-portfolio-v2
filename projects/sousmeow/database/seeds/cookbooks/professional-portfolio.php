@@ -31,7 +31,7 @@ return [
     'slug'                => 'build-professional-portfolio',
     'title'               => 'Build a Professional Portfolio',
     'tagline'             => 'Modular case-study tracks that converge into one site brief you can actually build.',
-    'description'         => "Most portfolios fail because they try to tell every story at once. This Cookbook splits the work into four tracks: lock your positioning, choose the projects that prove it, write each case study on a repeatable skeleton, then assemble a site brief a recruiter can scan in ninety seconds. Stock the Pantry once with your real projects and career facts; every Recipe builds on the last until you leave with homepage copy, two case study drafts, a navigation plan, and an implementation brief ready for your platform of choice.",
+    'description'         => "Most portfolios fail because they try to tell every story at once. This Cookbook splits the work into four tracks: lock your positioning, choose the projects that prove it, write each case study on a repeatable skeleton, then assemble a site brief a recruiter can scan in ninety seconds. Enter your real projects and career facts once; every step builds on the last until you leave with homepage copy, two case study drafts, a navigation plan, and a build brief for your platform of choice.",
     'primary_category'    => 'career-freelance',
     'collections'         => [],
     'audience'            => 'Designers, developers, and product people rebuilding a portfolio for their next role',

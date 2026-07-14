@@ -32,7 +32,7 @@ final class CategoryController
         }
 
         View::render('categories/index', [
-            'title'      => 'Categories',
+            'title'      => 'Browse by topic',
             'pageCss'    => ['marketplace', 'categories'],
             'categories' => Category::allVisibleWithCounts(),
             'startHere'  => $startHere,

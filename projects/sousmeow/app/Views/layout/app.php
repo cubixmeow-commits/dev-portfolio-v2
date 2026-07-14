@@ -10,7 +10,7 @@ use SousMeow\Core\Flash;
  * @var string|null $bodyClass Extra class on <body>.
  * @var list<string>|string|null $pageCss Page stylesheet names under css/pages/.
  */
-$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Guided AI workflows';
+$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Finish what AI started';
 $pageCssList = isset($pageCss) ? (array) $pageCss : [];
 $flash = Flash::pull();
 $isAdmin = ($auth['role'] ?? '') === 'admin';
@@ -22,7 +22,7 @@ $needsVerification = $auth && !Auth::isVerified();
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="SousMeow helps people who struggle to get reliable results from AI. Every Cookbook hides the complicated parts so you don't have to become a prompt engineer — bring the AI you already use.">
+<meta name="description" content="SousMeow helps when AI won't give you exactly what you meant. Guided steps, the assistant you already use, finished files — without becoming a prompt expert.">
 <link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">
@@ -49,8 +49,7 @@ $needsVerification = $auth && !Auth::isVerified();
       <div class="nav-links" id="nav-links">
         <?php if ($auth): ?>
           <a href="<?= e(url('/kitchen')) ?>">My projects</a>
-          <a href="<?= e(url('/categories')) ?>">Categories</a>
-          <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+          <a href="<?= e(url('/marketplace')) ?>">Find something</a>
           <a href="<?= e(url('/account')) ?>">Account</a>
           <?php if ($isAdmin): ?><a href="<?= e(url('/admin')) ?>">Admin</a><?php endif; ?>
           <form method="post" action="<?= e(url('/logout')) ?>" class="nav-logout">
@@ -59,8 +58,8 @@ $needsVerification = $auth && !Auth::isVerified();
           </form>
           <span class="nav-user" title="Signed in as <?= e($auth['email']) ?>"><?= e($auth['name']) ?></span>
         <?php else: ?>
-          <a href="<?= e(url('/categories')) ?>">Categories</a>
-          <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+          <a href="<?= e(url('/#how-it-works')) ?>">How it works</a>
+          <a href="<?= e(url('/marketplace')) ?>">Find something</a>
           <a href="<?= e(url('/login')) ?>">Sign in</a>
           <a class="button button-primary button-small" href="<?= e(url('/register')) ?>">Start free</a>
         <?php endif; ?>
@@ -71,7 +70,7 @@ $needsVerification = $auth && !Auth::isVerified();
 
 <?php if ($needsVerification): ?>
 <div class="verify-banner" role="status">
-  Verify your email to start projects and export kits.
+  Verify your email to start a project and export finished files.
   <a href="<?= e(url('/verify-email/pending')) ?>">Resend verification</a>
 </div>
 <?php endif; ?>
@@ -97,11 +96,12 @@ $needsVerification = $auth && !Auth::isVerified();
       you bring your own assistant.
     </p>
     <nav class="footer-links" aria-label="Footer">
-      <a href="<?= e(url('/')) ?>">How it works</a>
-      <a href="<?= e(url('/marketplace')) ?>">Explore workflows</a>
+      <a href="<?= e(url('/#how-it-works')) ?>">How it works</a>
+      <a href="<?= e(url('/marketplace')) ?>">Find something</a>
+      <a href="<?= e(url('/categories')) ?>">Browse by topic</a>
       <a href="<?= e(url('/terms')) ?>">Terms</a>
       <a href="<?= e(url('/privacy')) ?>">Privacy</a>
-      <?php if (!$auth): ?><a href="<?= e(url('/register')) ?>">Create an account</a><?php endif; ?>
+      <?php if (!$auth): ?><a href="<?= e(url('/register')) ?>">Start free</a><?php endif; ?>
     </nav>
   </div>
 </footer>

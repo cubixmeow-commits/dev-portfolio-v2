@@ -17,7 +17,7 @@ $accent = Accent::cssClass((string) $collection['accent']);
 <div class="page collection-detail <?= e($accent) ?>">
 
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="<?= e(url('/categories')) ?>">Categories</a>
+    <a href="<?= e(url('/categories')) ?>">Browse by topic</a>
     <span aria-hidden="true">/</span>
     <span><?= e($collection['name']) ?></span>
   </nav>

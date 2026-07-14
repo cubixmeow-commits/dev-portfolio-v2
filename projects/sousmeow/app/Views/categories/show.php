@@ -35,7 +35,7 @@ $noFilter = $filterLevel === '' && $filterShow === '';
 <div class="page category-detail <?= e($accent) ?>">
 
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="<?= e(url('/categories')) ?>">Categories</a>
+    <a href="<?= e(url('/categories')) ?>">Browse by topic</a>
     <span aria-hidden="true">/</span>
     <span><?= e($category['name']) ?></span>
   </nav>
@@ -72,9 +72,9 @@ $noFilter = $filterLevel === '' && $filterShow === '';
       <?php View::partial('partials/mascot', ['pose' => 'searching']); ?>
       <?php if ($totalInCategory === 0): ?>
         <h2>No Cookbooks here yet</h2>
-        <p>This category is ready for its first Cookbooks. In the meantime,
-           <a href="<?= e(url('/categories')) ?>">browse another category</a> or
-           <a href="<?= e(url('/marketplace')) ?>">explore all workflows</a>.</p>
+        <p>This topic is ready for its first Cookbooks. In the meantime,
+           <a href="<?= e(url('/categories')) ?>">browse another topic</a> or
+           <a href="<?= e(url('/marketplace')) ?>">find something to finish</a>.</p>
       <?php else: ?>
         <h2>Nothing matches those filters</h2>
         <p>Try a different filter, or <a href="<?= e(url('/categories/' . $slug)) ?>">see every Cookbook in <?= e($category['name']) ?></a>.</p>
