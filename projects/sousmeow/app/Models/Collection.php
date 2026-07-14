@@ -16,13 +16,13 @@ final class Collection
     /** @return array<string, mixed>|null */
     public static function find(int $id): ?array
     {
-        return Database::fetch('SELECT * FROM collections WHERE id = ?', [$id]);
+        return Database::fetch('SELECT * FROM sousmeow_collections WHERE id = ?', [$id]);
     }
 
     /** @return array<string, mixed>|null */
     public static function findBySlug(string $slug): ?array
     {
-        return Database::fetch('SELECT * FROM collections WHERE slug = ?', [$slug]);
+        return Database::fetch('SELECT * FROM sousmeow_collections WHERE slug = ?', [$slug]);
     }
 
     /**
@@ -35,7 +35,7 @@ final class Collection
     public static function allVisible(): array
     {
         return Database::fetchAll(
-            'SELECT * FROM collections WHERE is_visible = 1 ORDER BY sort_order, name'
+            'SELECT * FROM sousmeow_collections WHERE is_visible = 1 ORDER BY sort_order, name'
         );
     }
 }
