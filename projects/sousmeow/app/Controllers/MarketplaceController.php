@@ -6,10 +6,12 @@ namespace SousMeow\Controllers;
 
 use SousMeow\Core\View;
 use SousMeow\Models\Category;
+use SousMeow\Models\Collection;
 use SousMeow\Models\Cookbook;
 use SousMeow\Models\CookbookStage;
 use SousMeow\Models\PantryField;
 use SousMeow\Models\Recipe;
+use SousMeow\Services\CollectionResolver;
 
 final class MarketplaceController
 {
@@ -42,11 +44,23 @@ final class MarketplaceController
             }
         }
 
+        // Surfaced Collections this Cookbook belongs to, for cross-links.
+        $collections = [];
+        foreach (CollectionResolver::surfaced(Collection::allVisible()) as $entry) {
+            foreach ($entry['cookbooks'] as $member) {
+                if ((int) $member['id'] === (int) $cookbook['id']) {
+                    $collections[] = $entry['collection'];
+                    break;
+                }
+            }
+        }
+
         View::render('marketplace/show', [
             'title'        => (string) $cookbook['title'],
             'pageCss'      => 'marketplace',
             'cookbook'     => $cookbook,
             'category'     => Category::forCookbook((int) $cookbook['id']),
+            'collections'  => $collections,
             'stages'       => CookbookStage::forCookbook((int) $cookbook['id']),
             'recipes'      => $recipes,
             'recipeChecks' => $recipeChecks,

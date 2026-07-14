@@ -93,7 +93,9 @@ $noFilter = $filterLevel === '' && $filterShow === '';
       <h2 id="featured-in-h">Also appears in</h2>
       <ul class="collection-tags">
         <?php foreach ($featuredIn as $col): ?>
-          <li class="collection-tag <?= e(Accent::cssClass((string) $col['accent'])) ?>"><?= e($col['name']) ?></li>
+          <li class="collection-tag <?= e(Accent::cssClass((string) $col['accent'])) ?>">
+            <a href="<?= e(url('/collections/' . $col['slug'])) ?>"><?= e($col['name']) ?></a>
+          </li>
         <?php endforeach; ?>
       </ul>
     </section>

@@ -165,12 +165,17 @@
 .cat-featured-in h2 { font-size: 1.1rem; margin: 0 0 var(--space-3); }
 .collection-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .collection-tag {
-  font-size: 0.85rem; font-weight: 500; color: var(--ink);
+  font-size: 0.85rem; font-weight: 500;
   background: var(--accent-wash, var(--terracotta-wash));
   border: 1px solid transparent;
   border-left: 3px solid var(--accent, var(--terracotta));
-  border-radius: var(--radius-s); padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-s);
 }
+.collection-tag a {
+  display: block; padding: 0.3rem 0.75rem;
+  color: var(--ink); text-decoration: none;
+}
+.collection-tag a:hover { text-decoration: underline; text-decoration-color: var(--accent, var(--terracotta)); }
 
 @media (max-width: 560px) {
   .category-grid { grid-template-columns: 1fr; }
