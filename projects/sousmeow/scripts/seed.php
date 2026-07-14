@@ -38,6 +38,7 @@ if (PHP_SAPI !== 'cli') {
 require __DIR__ . '/../app/bootstrap.php';
 
 use SousMeow\Core\Database;
+use SousMeow\Services\Accent;
 
 $args = $argv;
 array_shift($args);
@@ -117,6 +118,7 @@ function column_definition(string $driver, string $column): string
 {
     if ($driver === 'mysql') {
         return match ($column) {
+            'primary_category_id'      => 'INT UNSIGNED NULL',
             'difficulty'               => "VARCHAR(20) NOT NULL DEFAULT 'Intermediate'",
             'demo_completed_runs'        => 'INT UNSIGNED NOT NULL DEFAULT 0',
             'demo_avg_rating'          => 'DECIMAL(2,1) NULL',
@@ -145,6 +147,7 @@ function column_definition(string $driver, string $column): string
     }
 
     return match ($column) {
+        'primary_category_id'      => 'INTEGER NULL',
         'difficulty'               => "TEXT NOT NULL DEFAULT 'Intermediate'",
         'demo_completed_runs'      => 'INTEGER NOT NULL DEFAULT 0',
         'demo_avg_rating'          => 'REAL',
@@ -172,9 +175,52 @@ function column_definition(string $driver, string $column): string
     };
 }
 
+/** Create an index if it does not already exist, in either dialect. */
+function ensure_index(PDO $pdo, string $driver, string $index, string $table, string $columns): void
+{
+    if ($driver === 'mysql') {
+        $exists = (int) Database::fetchValue(
+            "SELECT COUNT(*) FROM information_schema.STATISTICS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ?",
+            [$table, $index]
+        ) > 0;
+        if (!$exists) {
+            $pdo->exec("CREATE INDEX {$index} ON {$table} {$columns}");
+            echo "Migrated index {$index}\n";
+        }
+        return;
+    }
+    $pdo->exec("CREATE INDEX IF NOT EXISTS {$index} ON {$table} {$columns}");
+}
+
 /** Apply additive schema changes on existing databases. */
 function migrate_schema(PDO $pdo, string $driver): void
 {
+    // Discovery taxonomy: the categories/collections/cookbook_collections
+    // tables are created by the schema file's CREATE TABLE IF NOT EXISTS on
+    // every run, so they already exist by the time we get here. What the
+    // schema file cannot retrofit onto an existing cookbooks table is the
+    // primary_category_id column, its index, and (MySQL) its foreign key.
+    ensure_column($pdo, $driver, 'cookbooks', 'primary_category_id', column_definition($driver, 'primary_category_id'));
+    ensure_index($pdo, $driver, 'idx_cookbooks_primary_category', 'cookbooks', '(primary_category_id)');
+    // SQLite cannot ALTER-add a foreign key, so an upgraded SQLite dev DB
+    // gets the column + index only; fresh installs get the full FK. On
+    // MySQL (the production target) we add the FK to existing tables too.
+    if ($driver === 'mysql') {
+        $hasFk = (int) Database::fetchValue(
+            "SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cookbooks'
+               AND CONSTRAINT_NAME = 'fk_cookbooks_category'"
+        ) > 0;
+        if (!$hasFk) {
+            $pdo->exec(
+                "ALTER TABLE cookbooks ADD CONSTRAINT fk_cookbooks_category
+                 FOREIGN KEY (primary_category_id) REFERENCES categories(id) ON DELETE SET NULL"
+            );
+            echo "Migrated cookbooks.primary_category_id foreign key\n";
+        }
+    }
+
     ensure_column($pdo, $driver, 'cookbooks', 'difficulty', column_definition($driver, 'difficulty'));
     ensure_column($pdo, $driver, 'cookbooks', 'demo_completed_runs', column_definition($driver, 'demo_completed_runs'));
     ensure_column($pdo, $driver, 'cookbooks', 'demo_avg_rating', column_definition($driver, 'demo_avg_rating'));
@@ -306,35 +352,145 @@ SQL);
 }
 
 /**
+ * Upsert the discovery taxonomy (categories, then collections) and return
+ * lookup maps keyed by slug. Both are upserted by slug and safe to re-run;
+ * orphans removed from the seed are pruned (a category only when no
+ * Cookbook still points at it; a collection freely, its join rows cascade).
+ *
+ * @param array{categories: list<array<string, mixed>>, collections: list<array<string, mixed>>} $content
+ * @return array{categories: array<string, array{id: int, name: string}>, collections: array<string, array{id: int, type: string, name: string}>}
+ */
+function sync_taxonomy(array $content): array
+{
+    $categories = [];
+    $collections = [];
+    $now = now_utc();
+
+    Database::transaction(function () use ($content, $now, &$categories, &$collections): void {
+        $catSlugs = [];
+        foreach ($content['categories'] as $sortIndex => $cat) {
+            $slug = (string) $cat['slug'];
+            $catSlugs[] = $slug;
+            $outcomes = json_encode(array_values($cat['outcomes']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $sortOrder = (int) ($cat['sort_order'] ?? ($sortIndex + 1));
+            $existing = Database::fetch('SELECT id FROM categories WHERE slug = ?', [$slug]);
+            if ($existing !== null) {
+                Database::run(
+                    'UPDATE categories SET name = ?, short_name = ?, tagline = ?, description = ?, outcomes_json = ?,
+                                           accent = ?, icon_key = ?, sort_order = ?, is_visible = ?, updated_at = ?
+                     WHERE id = ?',
+                    [$cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
+                     $cat['accent'], $cat['icon_key'] ?? null, $sortOrder, (int) ($cat['is_visible'] ?? 1), $now, $existing['id']]
+                );
+                $id = (int) $existing['id'];
+            } else {
+                Database::run(
+                    'INSERT INTO categories (slug, name, short_name, tagline, description, outcomes_json, accent,
+                                             icon_key, sort_order, is_visible, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [$slug, $cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
+                     $cat['accent'], $cat['icon_key'] ?? null, $sortOrder, (int) ($cat['is_visible'] ?? 1), $now, $now]
+                );
+                $id = Database::lastInsertId();
+            }
+            $categories[$slug] = ['id' => $id, 'name' => (string) $cat['name']];
+        }
+        prune_orphan_categories($catSlugs);
+
+        $colSlugs = [];
+        foreach ($content['collections'] as $sortIndex => $col) {
+            $slug = (string) $col['slug'];
+            $colSlugs[] = $slug;
+            $sortOrder = (int) ($col['sort_order'] ?? ($sortIndex + 1));
+            $existing = Database::fetch('SELECT id FROM collections WHERE slug = ?', [$slug]);
+            if ($existing !== null) {
+                Database::run(
+                    'UPDATE collections SET name = ?, tagline = ?, description = ?, accent = ?, collection_type = ?,
+                                            min_display_count = ?, sort_order = ?, is_visible = ?, updated_at = ?
+                     WHERE id = ?',
+                    [$col['name'], $col['tagline'], $col['description'], $col['accent'], $col['collection_type'],
+                     (int) ($col['min_display_count'] ?? 1), $sortOrder, (int) ($col['is_visible'] ?? 1), $now, $existing['id']]
+                );
+                $id = (int) $existing['id'];
+            } else {
+                Database::run(
+                    'INSERT INTO collections (slug, name, tagline, description, accent, collection_type,
+                                              min_display_count, sort_order, is_visible, created_at, updated_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [$slug, $col['name'], $col['tagline'], $col['description'], $col['accent'], $col['collection_type'],
+                     (int) ($col['min_display_count'] ?? 1), $sortOrder, (int) ($col['is_visible'] ?? 1), $now, $now]
+                );
+                $id = Database::lastInsertId();
+            }
+            $collections[$slug] = ['id' => $id, 'type' => (string) $col['collection_type'], 'name' => (string) $col['name']];
+        }
+        prune_orphan_collections($colSlugs);
+    });
+
+    return ['categories' => $categories, 'collections' => $collections];
+}
+
+/**
+ * Reconcile a Cookbook's editorial Collection membership from its seed
+ * `collections` slug list. Rows are rebuilt from the seed each run; only
+ * editorial Collections carry join rows (dynamic/attribute resolve by
+ * query). Position mirrors the Cookbook's global sort_order for a stable
+ * order inside every Collection.
+ *
+ * @param list<string>                                                     $collectionSlugs
+ * @param array<string, array{id: int, type: string, name: string}>        $colBySlug
+ */
+function sync_cookbook_memberships(int $cookbookId, array $collectionSlugs, int $position, array $colBySlug): void
+{
+    Database::run('DELETE FROM cookbook_collections WHERE cookbook_id = ?', [$cookbookId]);
+    foreach ($collectionSlugs as $slug) {
+        $collection = $colBySlug[(string) $slug];   // pre-validated as an editorial slug
+        Database::run(
+            'INSERT INTO cookbook_collections (cookbook_id, collection_id, position, is_featured, created_at)
+             VALUES (?, ?, ?, ?, ?)',
+            [$cookbookId, $collection['id'], $position, 0, now_utc()]
+        );
+    }
+}
+
+/**
  * Upsert first-party Cookbook content from seed files. Preserves user
  * projects and artifact history; only prunes unused catalog rows.
  *
  * @param array{cookbooks: list<array<string, mixed>>} $content
+ * @param array<string, array{id: int, name: string}>  $catBySlug
+ * @param array<string, array{id: int, type: string, name: string}> $colBySlug
  * @return array{inserted: int, updated: int, removed: int, executable: int, preview: int}
  */
-function sync_content(array $content): array
+function sync_content(array $content, array $catBySlug, array $colBySlug): array
 {
     $stats = ['inserted' => 0, 'updated' => 0, 'removed' => 0, 'executable' => 0, 'preview' => 0];
     $seedSlugs = [];
 
-    Database::transaction(function () use ($content, &$stats, &$seedSlugs): void {
+    Database::transaction(function () use ($content, $catBySlug, $colBySlug, &$stats, &$seedSlugs): void {
         foreach ($content['cookbooks'] as $book) {
             $slug = (string) $book['slug'];
             $seedSlugs[] = $slug;
             $executable = !empty($book['is_executable']);
 
+            // Resolve the primary category by slug. The legacy `category`
+            // string is derived from the category name (rollback only).
+            $category = $catBySlug[(string) $book['primary_category']];  // pre-validated
+            $categoryId = $category['id'];
+            $legacyCategory = $category['name'];
+
             $existing = Database::fetch('SELECT id, created_at FROM cookbooks WHERE slug = ?', [$slug]);
             if ($existing !== null) {
                 $cookbookId = (int) $existing['id'];
                 Database::run(
-                    'UPDATE cookbooks SET title = ?, tagline = ?, description = ?, category = ?, audience = ?,
-                                          outcome = ?, price_cents = ?, is_executable = ?, status = ?, accent = ?,
-                                          difficulty = ?, est_minutes = ?, demo_completed_runs = ?,
+                    'UPDATE cookbooks SET title = ?, tagline = ?, description = ?, category = ?, primary_category_id = ?,
+                                          audience = ?, outcome = ?, price_cents = ?, is_executable = ?, status = ?,
+                                          accent = ?, difficulty = ?, est_minutes = ?, demo_completed_runs = ?,
                                           demo_avg_rating = ?, sort_order = ?
                      WHERE id = ?',
                     [
                         $book['title'], $book['tagline'], $book['description'],
-                        $book['category'], $book['audience'], $book['outcome'],
+                        $legacyCategory, $categoryId, $book['audience'], $book['outcome'],
                         $book['price_cents'] ?? null,
                         $executable ? 1 : 0,
                         $executable ? 'available' : 'coming_soon',
@@ -351,13 +507,13 @@ function sync_content(array $content): array
             } else {
                 $now = now_utc();
                 Database::run(
-                    'INSERT INTO cookbooks (slug, title, tagline, description, category, audience, outcome,
-                                            price_cents, is_executable, status, accent, difficulty, est_minutes,
+                    'INSERT INTO cookbooks (slug, title, tagline, description, category, primary_category_id, audience,
+                                            outcome, price_cents, is_executable, status, accent, difficulty, est_minutes,
                                             demo_completed_runs, demo_avg_rating, sort_order, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         $slug, $book['title'], $book['tagline'], $book['description'],
-                        $book['category'], $book['audience'], $book['outcome'],
+                        $legacyCategory, $categoryId, $book['audience'], $book['outcome'],
                         $book['price_cents'] ?? null,
                         $executable ? 1 : 0,
                         $executable ? 'available' : 'coming_soon',
@@ -383,6 +539,7 @@ function sync_content(array $content): array
             sync_stages($cookbookId, $book['stages'] ?? []);
             sync_pantry_fields($cookbookId, $book['fields'] ?? []);
             sync_recipes($cookbookId, $book['recipes'], $executable);
+            sync_cookbook_memberships($cookbookId, $book['collections'] ?? [], (int) ($book['sort_order'] ?? 100), $colBySlug);
             echo "  Synced {$slug} (" . ($executable ? 'executable' : 'preview') . ", " . count($book['recipes']) . " recipes)\n";
         }
 
@@ -615,6 +772,53 @@ function prune_orphan_cookbooks(array $seedSlugs): int
     return count($orphans);
 }
 
+/**
+ * Remove categories dropped from the seed, but only when no Cookbook still
+ * points at them (the FK is ON DELETE SET NULL, so a live pointer would be
+ * silently nulled otherwise).
+ *
+ * @param list<string> $seedSlugs
+ */
+function prune_orphan_categories(array $seedSlugs): void
+{
+    if ($seedSlugs === []) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($seedSlugs), '?'));
+    $orphans = Database::fetchAll(
+        "SELECT c.id, c.slug FROM categories c
+         WHERE c.slug NOT IN ({$placeholders})
+           AND NOT EXISTS (SELECT 1 FROM cookbooks b WHERE b.primary_category_id = c.id)",
+        $seedSlugs
+    );
+    foreach ($orphans as $row) {
+        Database::run('DELETE FROM categories WHERE id = ?', [$row['id']]);
+        echo "Removed orphan category: {$row['slug']}\n";
+    }
+}
+
+/**
+ * Remove collections dropped from the seed. Membership rows cascade, so no
+ * guard is needed.
+ *
+ * @param list<string> $seedSlugs
+ */
+function prune_orphan_collections(array $seedSlugs): void
+{
+    if ($seedSlugs === []) {
+        return;
+    }
+    $placeholders = implode(',', array_fill(0, count($seedSlugs), '?'));
+    $orphans = Database::fetchAll(
+        "SELECT id, slug FROM collections WHERE slug NOT IN ({$placeholders})",
+        $seedSlugs
+    );
+    foreach ($orphans as $row) {
+        Database::run('DELETE FROM collections WHERE id = ?', [$row['id']]);
+        echo "Removed orphan collection: {$row['slug']}\n";
+    }
+}
+
 /** @return list<string> Expected cookbook seed filenames from content.php. */
 function expected_seed_files(): array
 {
@@ -669,6 +873,81 @@ function output_contract_issues(array $content): array
             }
         }
     }
+    return $issues;
+}
+
+/**
+ * Validate the discovery taxonomy before any write. Every accent is an
+ * allowlisted key, every collection_type is known, every category carries
+ * exactly three outcomes, every Cookbook's primary_category resolves to a
+ * known category slug, and every declared Collection membership resolves
+ * to a known *editorial* Collection. Any failure aborts the seed loudly.
+ *
+ * @param array{cookbooks: list<array<string, mixed>>, categories: list<array<string, mixed>>, collections: list<array<string, mixed>>} $content
+ * @return list<string> Problem lines; empty means valid.
+ */
+function taxonomy_issues(array $content): array
+{
+    $issues = [];
+    $validTypes = ['editorial', 'dynamic', 'attribute'];
+
+    $categorySlugs = [];
+    foreach ($content['categories'] as $cat) {
+        $slug = (string) ($cat['slug'] ?? '');
+        if ($slug === '') {
+            $issues[] = 'category with no slug';
+            continue;
+        }
+        $categorySlugs[$slug] = true;
+        if (!Accent::isValid((string) ($cat['accent'] ?? ''))) {
+            $issues[] = "category {$slug}: accent '{$cat['accent']}' is not in the allowlist";
+        }
+        $outcomes = $cat['outcomes'] ?? null;
+        if (!is_array($outcomes) || count($outcomes) !== 3) {
+            $issues[] = "category {$slug}: outcomes must be exactly three";
+        }
+    }
+
+    $collectionSlugs = [];
+    $editorialSlugs = [];
+    foreach ($content['collections'] as $col) {
+        $slug = (string) ($col['slug'] ?? '');
+        if ($slug === '') {
+            $issues[] = 'collection with no slug';
+            continue;
+        }
+        $collectionSlugs[$slug] = true;
+        $type = (string) ($col['collection_type'] ?? '');
+        if (!in_array($type, $validTypes, true)) {
+            $issues[] = "collection {$slug}: collection_type '{$type}' is not one of editorial/dynamic/attribute";
+        }
+        if ($type === 'editorial') {
+            $editorialSlugs[$slug] = true;
+        }
+        if (!Accent::isValid((string) ($col['accent'] ?? ''))) {
+            $issues[] = "collection {$slug}: accent '{$col['accent']}' is not in the allowlist";
+        }
+    }
+
+    foreach ($content['cookbooks'] as $book) {
+        $slug = (string) $book['slug'];
+        $pc = (string) ($book['primary_category'] ?? '');
+        if ($pc === '' || !isset($categorySlugs[$pc])) {
+            $issues[] = "cookbook {$slug}: unknown primary_category slug '{$pc}'";
+        }
+        if (!Accent::isValid((string) ($book['accent'] ?? ''))) {
+            $issues[] = "cookbook {$slug}: accent '{$book['accent']}' is not in the allowlist";
+        }
+        foreach ((array) ($book['collections'] ?? []) as $cs) {
+            $cs = (string) $cs;
+            if (!isset($collectionSlugs[$cs])) {
+                $issues[] = "cookbook {$slug}: unknown collection slug '{$cs}'";
+            } elseif (!isset($editorialSlugs[$cs])) {
+                $issues[] = "cookbook {$slug}: collection '{$cs}' is not editorial (only editorial Collections take membership rows)";
+            }
+        }
+    }
+
     return $issues;
 }
 
@@ -787,7 +1066,8 @@ if ($options['fresh']) {
         exit(0);
     }
     $tables = ['artifact_checks', 'artifact_versions', 'artifacts', 'exports', 'pantry_values',
-               'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbook_stages', 'cookbooks',
+               'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbook_stages',
+               'cookbook_collections', 'cookbooks', 'collections', 'categories',
                'simulation_runs', 'rate_events', 'users'];
     if ($driver === 'mysql') {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
@@ -816,13 +1096,22 @@ echo "Schema ready ({$driver}).\n";
 migrate_schema($pdo, $driver);
 
 verify_seed_files();
-/** @var array{cookbooks: list<array<string, mixed>>} $content */
+/** @var array{cookbooks: list<array<string, mixed>>, categories: list<array<string, mixed>>, collections: list<array<string, mixed>>} $content */
 $content = require __DIR__ . '/../database/seeds/content.php';
 
 $contractIssues = output_contract_issues($content);
 if ($contractIssues !== []) {
     fwrite(STDERR, "Invalid output contracts in seed content; nothing was synced:\n");
     foreach ($contractIssues as $issue) {
+        fwrite(STDERR, "  - {$issue}\n");
+    }
+    exit(1);
+}
+
+$taxonomyIssues = taxonomy_issues($content);
+if ($taxonomyIssues !== []) {
+    fwrite(STDERR, "Invalid discovery taxonomy in seed content; nothing was synced:\n");
+    foreach ($taxonomyIssues as $issue) {
         fwrite(STDERR, "  - {$issue}\n");
     }
     exit(1);
@@ -842,8 +1131,16 @@ if ($options['status']) {
     exit(0);
 }
 
-// 2. Content sync (upsert; safe to re-run).
-$stats = sync_content($content);
+// 2. Taxonomy sync (categories, then collections), then content sync.
+// Both upsert by slug and are safe to re-run.
+$taxonomy = sync_taxonomy($content);
+echo sprintf(
+    "Taxonomy synced: %d categories, %d collections.\n",
+    count($taxonomy['categories']),
+    count($taxonomy['collections'])
+);
+
+$stats = sync_content($content, $taxonomy['categories'], $taxonomy['collections']);
 echo sprintf(
     "Content synced: %d inserted, %d updated, %d orphan cookbooks removed (%d executable, %d preview in seed).\n",
     $stats['inserted'],

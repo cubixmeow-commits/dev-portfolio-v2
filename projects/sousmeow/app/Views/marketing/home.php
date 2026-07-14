@@ -27,7 +27,7 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
     'plan-youtube-video'           => 'Recently updated',
     'build-professional-portfolio' => 'New on the shelf',
     'plan-a-novel'                 => 'Preview',
-    default                        => (string) ($c['category'] ?? 'Cookbook'),
+    default                        => (string) ($c['category_name'] ?? 'Cookbook'),
 };
 ?>
 <div class="tw" id="top">
@@ -166,7 +166,7 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
 
       <article class="cb-artifact" data-reveal aria-label="The <?= e($featured['title']) ?> Cookbook">
         <div class="cb-cover">
-          <p class="cb-cat mono"><?= e($featured['category']) ?> · <?= e($featured['difficulty'] ?? 'Intermediate') ?></p>
+          <p class="cb-cat mono"><?= e($featured['category_name'] ?? '') ?> · <?= e($featured['difficulty'] ?? 'Intermediate') ?></p>
           <h3 class="cb-title"><?= e($featured['title']) ?></h3>
           <p class="cb-tagline"><?= e($featured['tagline']) ?></p>
 

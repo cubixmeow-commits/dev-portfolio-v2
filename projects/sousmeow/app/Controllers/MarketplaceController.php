@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SousMeow\Controllers;
 
 use SousMeow\Core\View;
+use SousMeow\Models\Category;
 use SousMeow\Models\Cookbook;
 use SousMeow\Models\CookbookStage;
 use SousMeow\Models\PantryField;
@@ -45,6 +46,7 @@ final class MarketplaceController
             'title'        => (string) $cookbook['title'],
             'pageCss'      => 'marketplace',
             'cookbook'     => $cookbook,
+            'category'     => Category::forCookbook((int) $cookbook['id']),
             'stages'       => CookbookStage::forCookbook((int) $cookbook['id']),
             'recipes'      => $recipes,
             'recipeChecks' => $recipeChecks,

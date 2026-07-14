@@ -574,7 +574,7 @@ final class HomepageActivityPresenter
     private static function achievementMultiCategory(int $limit): array
     {
         $rows = Database::fetchAll(
-            "SELECT u.name, MAX(p.completed_at) AS at, COUNT(DISTINCT c.category) AS category_count
+            "SELECT u.name, MAX(p.completed_at) AS at, COUNT(DISTINCT c.primary_category_id) AS category_count
              FROM projects p
              JOIN users u ON u.id = p.user_id
              JOIN cookbooks c ON c.id = p.cookbook_id

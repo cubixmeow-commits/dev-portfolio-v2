@@ -46,13 +46,49 @@ CREATE TABLE IF NOT EXISTS rate_events (
 );
 CREATE INDEX IF NOT EXISTS idx_rate_events_key ON rate_events (event_key, created_at);
 
+-- Discovery taxonomy. Categories are the stable primary spine (one per
+-- publicly visible Cookbook); Collections are flexible discovery views.
+-- Declared before cookbooks so the primary_category_id foreign key
+-- resolves on a fresh install.
+CREATE TABLE IF NOT EXISTS categories (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug          TEXT NOT NULL UNIQUE,
+    name          TEXT NOT NULL,
+    short_name    TEXT NULL,
+    tagline       TEXT NOT NULL,
+    description   TEXT NOT NULL,
+    outcomes_json TEXT NOT NULL,                    -- JSON array of exactly three outcomes
+    accent        TEXT NOT NULL DEFAULT 'terracotta', -- allowlisted key, never a hex
+    icon_key      TEXT NULL,
+    sort_order    INTEGER NOT NULL DEFAULT 0,
+    is_visible    INTEGER NOT NULL DEFAULT 1,
+    created_at    TEXT NOT NULL,
+    updated_at    TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS collections (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug              TEXT NOT NULL UNIQUE,
+    name              TEXT NOT NULL,
+    tagline           TEXT NOT NULL,
+    description       TEXT NOT NULL,
+    accent            TEXT NOT NULL DEFAULT 'sage',
+    collection_type   TEXT NOT NULL DEFAULT 'editorial', -- editorial | dynamic | attribute
+    min_display_count INTEGER NOT NULL DEFAULT 1,
+    sort_order        INTEGER NOT NULL DEFAULT 0,
+    is_visible        INTEGER NOT NULL DEFAULT 1,
+    created_at        TEXT NOT NULL,
+    updated_at        TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS cookbooks (
     id                   INTEGER PRIMARY KEY AUTOINCREMENT,
     slug                 TEXT NOT NULL UNIQUE,
     title                TEXT NOT NULL,
     tagline              TEXT NOT NULL,
     description          TEXT NOT NULL,
-    category             TEXT NOT NULL,
+    category             TEXT NOT NULL,        -- legacy display string, rollback only (not read after migration)
+    primary_category_id  INTEGER NULL REFERENCES categories(id) ON DELETE SET NULL,
     audience             TEXT NOT NULL,
     outcome              TEXT NOT NULL,
     price_cents          INTEGER,              -- NULL means free
@@ -66,6 +102,17 @@ CREATE TABLE IF NOT EXISTS cookbooks (
     sort_order           INTEGER NOT NULL DEFAULT 100,
     created_at           TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS idx_cookbooks_primary_category ON cookbooks (primary_category_id);
+
+CREATE TABLE IF NOT EXISTS cookbook_collections (
+    cookbook_id   INTEGER NOT NULL REFERENCES cookbooks(id)   ON DELETE CASCADE,
+    collection_id INTEGER NOT NULL REFERENCES collections(id) ON DELETE CASCADE,
+    position      INTEGER NOT NULL DEFAULT 0,
+    is_featured   INTEGER NOT NULL DEFAULT 0,
+    created_at    TEXT NOT NULL,
+    PRIMARY KEY (cookbook_id, collection_id)
+);
+CREATE INDEX IF NOT EXISTS idx_cookbook_collections_collection ON cookbook_collections (collection_id, position);
 
 CREATE TABLE IF NOT EXISTS cookbook_stages (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

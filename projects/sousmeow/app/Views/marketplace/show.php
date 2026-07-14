@@ -3,6 +3,7 @@ use SousMeow\Core\Csrf;
 
 /**
  * @var array<string, mixed>       $cookbook
+ * @var array<string, mixed>|null  $category
  * @var list<array<string, mixed>> $stages
  * @var list<array<string, mixed>> $recipes
  * @var array<int, list<array<string, mixed>>> $recipeChecks
@@ -35,7 +36,9 @@ foreach ($stages as $stage) {
     <div class="cookbook-band detail-band" aria-hidden="true"></div>
     <div class="detail-header-body">
       <div class="cookbook-top">
-        <span class="badge badge-outline"><?= e($cookbook['category']) ?></span>
+        <?php if ($category !== null): ?>
+          <span class="badge badge-outline"><?= e($category['name']) ?></span>
+        <?php endif; ?>
         <span class="badge badge-neutral"><?= e($cookbook['difficulty'] ?? 'Intermediate') ?></span>
         <?php if ($executable): ?>
           <span class="badge badge-sage badge-dot">Available now</span>
