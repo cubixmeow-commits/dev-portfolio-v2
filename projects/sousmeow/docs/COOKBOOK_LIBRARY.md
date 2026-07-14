@@ -2,6 +2,12 @@
 
 Curated library of five first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
 
+## Mandatory authoring rule
+
+**Every Cookbook proposal MUST pass [Product Law 002 — Remove Cognitive Load](PRODUCT_LAW_002_REMOVE_COGNITIVE_LOAD.md) before authoring.**
+
+That document is the authoritative source for the Complexity Scorecard and Complexity Gate. Do not duplicate it here. Proposals that fail two or more scorecard checks must be simplified or rejected.
+
 ## STRUCTURAL SIGNATURES
 
 | Cookbook | Availability | Stage count | Recipe count | Pantry field count | Difficulty | Duration | Dominant Recipe types | Review pattern | Structural distinction | Project Kit |

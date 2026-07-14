@@ -14,6 +14,7 @@
  */
 
 $marketplaceUrl = url('/marketplace');
+$productLawUrl = url('/docs/product-law-002');
 
 $recipesByStage = [];
 foreach ($featuredRecipes as $recipe) {
@@ -29,11 +30,20 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
     'plan-a-novel'                 => 'Preview',
     default                        => (string) ($c['category_name'] ?? 'Cookbook'),
 };
+
+// Examples of assistants people already use — not partners or integrations.
+$supportedAi = [
+    'ChatGPT', 'Claude', 'Gemini', 'Cursor', 'Claude Code', 'Codex',
+    'GitHub Copilot', 'Grok', 'Perplexity', 'Microsoft Copilot', 'DeepSeek',
+    'Qwen', 'Kimi', 'Mistral', 'Le Chat', 'Amazon Q', 'Windsurf', 'Cline',
+    'Continue.dev', 'Roo Code', 'OpenHands', 'Bolt.new', 'Lovable',
+    'Firebase Studio', 'Replit AI', 'Zed AI', 'Phind',
+];
 ?>
 <div class="tw" id="top">
 
   <!-- ============================================================
-       HERO — one idea, stated plainly, then shown
+       HERO — who this is for, stated before product vocabulary
        ============================================================ -->
   <section class="tw-hero" aria-labelledby="hero-h">
     <div class="tw-wrap">
@@ -42,16 +52,24 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
           <div class="hero-mascot" aria-hidden="true">
             <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'plain']); ?>
           </div>
-          <p class="tw-kicker mono">sousmeow · structured AI workflows</p>
-          <h1 id="hero-h">AI&nbsp;workflows,<br>not AI&nbsp;prompts.</h1>
-          <p class="hero-lede">A prompt gets you a paragraph. A Cookbook walks you through
-            every step of a real project — in the AI you already use — and ends with
-            finished work in your hands.</p>
+          <p class="tw-kicker mono">sousmeow · for people who struggle with AI</p>
+          <h1 id="hero-h">AI should adapt to&nbsp;you.<br>Not the other way&nbsp;around.</h1>
+          <p class="hero-lede">Most AI tools expect you to learn prompting, prompt engineering,
+            complex workflows, and expert techniques. SousMeow takes the opposite approach.
+            Every Cookbook hides the complicated parts. You bring the goal. The Cookbook
+            brings the expertise.</p>
+          <p class="hero-audience">SousMeow is built for people who struggle to get reliable
+            results from ChatGPT, Claude, Gemini and other AI assistants. You should not need
+            to learn prompt engineering, AI workflows, or implementation details — the Cookbooks
+            contain the expertise.</p>
           <div class="hero-actions">
             <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Browse the Cookbooks</a>
-            <a class="button button-ghost button-large" href="#why-prompts">Walk through it</a>
+            <a class="button button-ghost button-large" href="#supported-ai">See how it works with your AI</a>
           </div>
-          <p class="hero-foot mono">works with ChatGPT · Claude · Gemini — no API keys, nothing to install</p>
+          <p class="hero-law">
+            <a href="<?= e($productLawUrl) ?>">Built on Product Law 002 — Remove Cognitive Load</a>
+          </p>
+          <p class="hero-foot mono">If using a Cookbook ever feels like learning a new profession, we've failed.</p>
         </div>
 
         <figure class="hero-visual" data-hero>
@@ -80,9 +98,32 @@ $shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
 
             <div class="hv-zip mono" style="--i:4"><span class="hv-zip-mark"></span>launch-day-kit.zip · 4 files + manifest</div>
           </div>
-          <p class="hero-annot mono" aria-hidden="true">every Recipe leaves <br>something finished behind</p>
+          <p class="hero-annot mono" aria-hidden="true">you bring the goal · <br>the Cookbook brings the expertise</p>
         </figure>
       </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SUPPORTED AI — bring the assistant you already pay for
+       ============================================================ -->
+  <section class="tw-sec sec-ai" id="supported-ai" aria-labelledby="ai-h">
+    <div class="tw-wrap">
+      <header class="sec-head ai-head" data-reveal>
+        <p class="tw-kicker mono">bring your favorite AI</p>
+        <h2 id="ai-h">Works with the AI you already use.</h2>
+        <p class="sec-sub-tw">SousMeow guides the process. Your AI does the work.
+          No API keys. No vendor lock-in. No expensive automation platform.
+          Use the AI subscriptions you already pay for.</p>
+      </header>
+
+      <ul class="ai-wall" data-reveal aria-label="Examples of AI tools you can use with SousMeow">
+        <?php foreach ($supportedAi as $i => $name): ?>
+          <li class="ai-chip mono" style="--i:<?= (int) $i ?>"><?= e($name) ?></li>
+        <?php endforeach; ?>
+      </ul>
+      <p class="ai-disclaimer mono" data-reveal>Examples only — not partnerships or integrations.
+        Paste prompts into whichever assistant you already use.</p>
     </div>
   </section>
 
@@ -467,7 +508,7 @@ Voice: <span class="pv" data-token="tone"><span class="pv-key">{{tone}}</span><s
   <section class="tw-sec sec-cta" aria-labelledby="cta-h">
     <div class="tw-wrap">
       <div class="cta-inner" data-reveal>
-        <h2 id="cta-h">Stop prompting. Start finishing.</h2>
+        <h2 id="cta-h">You don't have to become an AI expert.</h2>
         <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Start your first Cookbook</a>
         <p class="cta-foot mono">free to try · bring the AI you already have · leave with files</p>
       </div>
