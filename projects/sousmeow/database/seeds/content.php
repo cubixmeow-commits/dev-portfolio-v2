@@ -32,4 +32,13 @@ foreach ($cookbookFiles as $file) {
     $cookbooks[] = $book;
 }
 
-return ['cookbooks' => $cookbooks];
+/** @var list<array<string, mixed>> $categories */
+$categories = require __DIR__ . '/categories.php';
+/** @var list<array<string, mixed>> $collections */
+$collections = require __DIR__ . '/collections.php';
+
+return [
+    'categories'  => $categories,
+    'collections' => $collections,
+    'cookbooks'   => $cookbooks,
+];

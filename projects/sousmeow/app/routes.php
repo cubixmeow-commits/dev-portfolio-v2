@@ -5,6 +5,8 @@ declare(strict_types=1);
 use SousMeow\Controllers\AccountController;
 use SousMeow\Controllers\AdminController;
 use SousMeow\Controllers\AuthController;
+use SousMeow\Controllers\CategoryController;
+use SousMeow\Controllers\CollectionController;
 use SousMeow\Controllers\ExportController;
 use SousMeow\Controllers\KitchenController;
 use SousMeow\Controllers\LegalController;
@@ -19,6 +21,12 @@ return static function (Router $router): void {
     $router->get('/', [MarketingController::class, 'home']);
     $router->get('/marketplace', [MarketplaceController::class, 'index']);
     $router->get('/cookbooks/{slug}', [MarketplaceController::class, 'show']);
+
+    // Discovery taxonomy: one shared index and one shared category route
+    // serve all categories (no per-category controllers or templates).
+    $router->get('/categories', [CategoryController::class, 'index']);
+    $router->get('/categories/{slug}', [CategoryController::class, 'show']);
+    $router->get('/collections/{slug}', [CollectionController::class, 'show']);
 
     // Legal pages.
     $router->get('/terms', [LegalController::class, 'terms']);

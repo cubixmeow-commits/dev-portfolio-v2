@@ -31,6 +31,28 @@
   --clay: #B3402F;           /* errors */
   --clay-wash: #F9E5DF;
 
+  /* Category accents. Muted, parchment-compatible hues so the twelve
+     categories each read as distinct without leaving the palette.
+     Referenced only through the accent allowlist (Services\Accent). */
+  --indigo: #4E5C8C;
+  --indigo-deep: #3C4870;
+  --indigo-wash: #E6E8F3;
+  --slate: #5B6673;
+  --slate-deep: #454E59;
+  --slate-wash: #E8EAEE;
+  --pine: #2F6B50;
+  --pine-deep: #234F3B;
+  --pine-wash: #DFEBE3;
+  --ochre: #A9791F;
+  --ochre-deep: #855F16;
+  --ochre-wash: #F1E7CC;
+  --plum: #7C4A6B;
+  --plum-deep: #613A54;
+  --plum-wash: #EEE1EA;
+  --moss: #6C7A3C;
+  --moss-deep: #55602F;
+  --moss-wash: #E9EDD9;
+
   /* Lines and shadows */
   --line: #E9DBC5;
   --line-strong: #D9C7A9;

@@ -46,7 +46,7 @@ $formatRuns = static function (int $n): string {
           <div class="cookbook-band" aria-hidden="true"></div>
           <div class="cookbook-body">
             <div class="cookbook-top">
-              <span class="badge badge-outline"><?= e($cookbook['category']) ?></span>
+              <span class="badge badge-outline"><?= e($cookbook['category_name'] ?? '') ?></span>
               <span class="badge badge-neutral cookbook-difficulty"><?= e($cookbook['difficulty'] ?? 'Intermediate') ?></span>
               <?php if ($executable): ?>
                 <span class="badge badge-sage badge-dot">Available now</span>

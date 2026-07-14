@@ -3,6 +3,8 @@ use SousMeow\Core\Csrf;
 
 /**
  * @var array<string, mixed>       $cookbook
+ * @var array<string, mixed>|null  $category
+ * @var list<array<string, mixed>> $collections
  * @var list<array<string, mixed>> $stages
  * @var list<array<string, mixed>> $recipes
  * @var array<int, list<array<string, mixed>>> $recipeChecks
@@ -35,7 +37,9 @@ foreach ($stages as $stage) {
     <div class="cookbook-band detail-band" aria-hidden="true"></div>
     <div class="detail-header-body">
       <div class="cookbook-top">
-        <span class="badge badge-outline"><?= e($cookbook['category']) ?></span>
+        <?php if ($category !== null): ?>
+          <a class="badge badge-outline" href="<?= e(url('/categories/' . $category['slug'])) ?>"><?= e($category['name']) ?></a>
+        <?php endif; ?>
         <span class="badge badge-neutral"><?= e($cookbook['difficulty'] ?? 'Intermediate') ?></span>
         <?php if ($executable): ?>
           <span class="badge badge-sage badge-dot">Available now</span>
@@ -59,6 +63,15 @@ foreach ($stages as $stage) {
           <div><dt>Average rating</dt><dd><?= e(number_format((float) $rating, 1)) ?> / 5 (demo metric)</dd></div>
         <?php endif; ?>
       </dl>
+
+      <?php if ($collections !== []): ?>
+        <p class="detail-collections">
+          <span class="detail-collections-label mono">Appears in</span>
+          <?php foreach ($collections as $col): ?>
+            <a class="badge badge-neutral" href="<?= e(url('/collections/' . $col['slug'])) ?>"><?= e($col['name']) ?></a>
+          <?php endforeach; ?>
+        </p>
+      <?php endif; ?>
 
       <div class="detail-cta">
         <?php if ($executable): ?>

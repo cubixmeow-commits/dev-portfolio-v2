@@ -47,13 +47,49 @@ CREATE TABLE IF NOT EXISTS rate_events (
     KEY idx_rate_events_key (event_key, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Discovery taxonomy. Categories are the stable primary spine (one per
+-- publicly visible Cookbook); Collections are flexible discovery views.
+-- Declared before cookbooks so the primary_category_id foreign key
+-- resolves on a fresh install.
+CREATE TABLE IF NOT EXISTS categories (
+    id            INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug          VARCHAR(100) NOT NULL UNIQUE,
+    name          VARCHAR(150) NOT NULL,
+    short_name    VARCHAR(80) NULL,
+    tagline       VARCHAR(255) NOT NULL,
+    description   TEXT NOT NULL,
+    outcomes_json TEXT NOT NULL,                              -- JSON array of exactly three outcomes
+    accent        VARCHAR(30) NOT NULL DEFAULT 'terracotta', -- allowlisted key, never a hex
+    icon_key      VARCHAR(50) NULL,
+    sort_order    INT UNSIGNED NOT NULL DEFAULT 0,
+    is_visible    TINYINT(1) NOT NULL DEFAULT 1,
+    created_at    DATETIME NOT NULL,
+    updated_at    DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS collections (
+    id                INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug              VARCHAR(100) NOT NULL UNIQUE,
+    name              VARCHAR(150) NOT NULL,
+    tagline           VARCHAR(255) NOT NULL,
+    description       TEXT NOT NULL,
+    accent            VARCHAR(30) NOT NULL DEFAULT 'sage',
+    collection_type   VARCHAR(30) NOT NULL DEFAULT 'editorial', -- editorial | dynamic | attribute
+    min_display_count INT UNSIGNED NOT NULL DEFAULT 1,
+    sort_order        INT UNSIGNED NOT NULL DEFAULT 0,
+    is_visible        TINYINT(1) NOT NULL DEFAULT 1,
+    created_at        DATETIME NOT NULL,
+    updated_at        DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS cookbooks (
     id                   INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     slug                 VARCHAR(120) NOT NULL UNIQUE,
     title                VARCHAR(190) NOT NULL,
     tagline              VARCHAR(255) NOT NULL,
     description          TEXT NOT NULL,
-    category             VARCHAR(60) NOT NULL,
+    category             VARCHAR(60) NOT NULL,       -- legacy display string, rollback only (not read after migration)
+    primary_category_id  INT UNSIGNED NULL,
     audience             VARCHAR(255) NOT NULL,
     outcome              VARCHAR(255) NOT NULL,
     price_cents          INT UNSIGNED NULL,
@@ -65,7 +101,21 @@ CREATE TABLE IF NOT EXISTS cookbooks (
     demo_completed_runs  INT UNSIGNED NOT NULL DEFAULT 0,
     demo_avg_rating      DECIMAL(2,1) NULL,
     sort_order           INT UNSIGNED NOT NULL DEFAULT 100,
-    created_at           DATETIME NOT NULL
+    created_at           DATETIME NOT NULL,
+    KEY idx_cookbooks_primary_category (primary_category_id),
+    CONSTRAINT fk_cookbooks_category FOREIGN KEY (primary_category_id) REFERENCES categories(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS cookbook_collections (
+    cookbook_id   INT UNSIGNED NOT NULL,
+    collection_id INT UNSIGNED NOT NULL,
+    position      INT UNSIGNED NOT NULL DEFAULT 0,
+    is_featured   TINYINT(1) NOT NULL DEFAULT 0,
+    created_at    DATETIME NOT NULL,
+    PRIMARY KEY (cookbook_id, collection_id),
+    KEY idx_cookbook_collections_collection (collection_id, position),
+    CONSTRAINT fk_cc_cookbook   FOREIGN KEY (cookbook_id)   REFERENCES cookbooks(id)   ON DELETE CASCADE,
+    CONSTRAINT fk_cc_collection FOREIGN KEY (collection_id) REFERENCES collections(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS cookbook_stages (
