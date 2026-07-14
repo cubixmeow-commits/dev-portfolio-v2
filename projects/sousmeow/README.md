@@ -78,7 +78,9 @@ Password resets are an admin CLI action
 
 ## Documentation
 
+- `docs/PRODUCT_LAW_002_REMOVE_COGNITIVE_LOAD.md`: core product law — Remove Cognitive Load (mandatory Complexity Gate for every Cookbook).
 - `docs/SPEC_LOCKED.md`: the scope-locked specification.
 - `docs/REFINEMENT_NOTE.md`: assumptions and contradictions resolved.
 - `docs/TESTING.md`: the documented test flow (manual and scripted).
 - `docs/DEPLOYMENT.md`: Hostinger deployment steps.
+- `docs/COOKBOOK_LIBRARY.md`: first-party Cookbook library (authoring must pass Product Law 002 first).

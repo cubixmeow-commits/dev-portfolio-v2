@@ -22,7 +22,7 @@ $needsVerification = $auth && !Auth::isVerified();
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="Finish projects with AI, one step at a time. SousMeow guides you through complete workflows using ChatGPT, Claude, Gemini, or another assistant you already have.">
+<meta name="description" content="SousMeow helps people who struggle to get reliable results from AI. Every Cookbook hides the complicated parts so you don't have to become a prompt engineer — bring the AI you already use.">
 <link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">

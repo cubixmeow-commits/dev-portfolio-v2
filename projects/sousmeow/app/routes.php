@@ -12,6 +12,7 @@ use SousMeow\Controllers\KitchenController;
 use SousMeow\Controllers\LegalController;
 use SousMeow\Controllers\MarketingController;
 use SousMeow\Controllers\MarketplaceController;
+use SousMeow\Controllers\PhilosophyController;
 use SousMeow\Controllers\ProjectController;
 use SousMeow\Controllers\RunnerController;
 use SousMeow\Core\Router;
@@ -21,6 +22,9 @@ return static function (Router $router): void {
     $router->get('/', [MarketingController::class, 'home']);
     $router->get('/marketplace', [MarketplaceController::class, 'index']);
     $router->get('/cookbooks/{slug}', [MarketplaceController::class, 'show']);
+
+    // Product philosophy (docs mirrored for in-app linking).
+    $router->get('/docs/product-law-002', [PhilosophyController::class, 'productLaw002']);
 
     // Discovery taxonomy: one shared index and one shared category route
     // serve all categories (no per-category controllers or templates).

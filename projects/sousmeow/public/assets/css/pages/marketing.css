@@ -156,16 +156,86 @@
   line-height: 1.6;
   color: var(--tw-ink-soft);
   max-width: 34rem;
-  margin: 0 0 2rem;
+  margin: 0 0 1rem;
 }
 
-.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
+.hero-audience {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--tw-ink-soft);
+  max-width: 34rem;
+  margin: 0 0 1.75rem;
+}
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.15rem; }
+
+.hero-law {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.hero-law a {
+  color: var(--tw-ink-faint);
+  text-decoration: underline;
+  text-decoration-color: var(--tw-line-strong);
+  text-underline-offset: 0.18em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.hero-law a:hover { color: var(--tw-blue); text-decoration-color: var(--tw-blue); }
 
 .hero-foot {
   font-size: 0.75rem;
   color: var(--tw-ink-faint);
   letter-spacing: 0.03em;
   margin: 0;
+  max-width: 28rem;
+}
+
+/* ------------------------------------------------------------------
+   SUPPORTED AI — branded text labels, not logos or partners
+   ------------------------------------------------------------------ */
+
+.sec-ai {
+  padding-block: clamp(2.75rem, 6vw, 4.5rem);
+  background:
+    radial-gradient(36rem 20rem at 10% 0%, rgba(47, 125, 114, 0.07), transparent 65%),
+    var(--tw-bg0);
+}
+.sec-ai .sec-head { margin-bottom: clamp(1.5rem, 3vw, 2.25rem); }
+.ai-head h2 { max-width: 18ch; }
+
+.ai-wall {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.65rem;
+}
+
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--tw-line);
+  border-radius: var(--radius-m);
+  background: var(--tw-bg1);
+  color: var(--tw-ink);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: var(--shadow-soft);
+}
+
+.ai-disclaimer {
+  margin: 1.25rem 0 0;
+  font-size: 0.72rem;
+  color: var(--tw-ink-faint);
+  letter-spacing: 0.02em;
+  max-width: 42rem;
+  line-height: 1.45;
 }
 
 /* Cookbook → kit miniature: three aligned columns, row by row. */
@@ -975,6 +1045,9 @@ html:not(.tw-anim) .run-caption[data-caption="6"] { display: block; }
 
 @media (max-width: 720px) {
   .tw .hero-copy h1 { font-size: clamp(2.3rem, 11vw, 3rem); }
+
+  .ai-wall { gap: 0.45rem 0.5rem; }
+  .ai-chip { padding: 0.4rem 0.65rem; font-size: 0.72rem; }
 
   .run-rail {
     grid-template-columns: repeat(3, minmax(0, 1fr));
