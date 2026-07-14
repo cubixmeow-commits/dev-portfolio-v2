@@ -25,7 +25,7 @@ final class Cookbook
         'SELECT c.*, cat.name AS category_name, cat.slug AS category_slug, cat.accent AS category_accent,
                 (SELECT COUNT(*) FROM recipes r WHERE r.cookbook_id = c.id) AS recipe_count
          FROM cookbooks c
-         LEFT JOIN categories cat ON cat.id = c.primary_category_id';
+         LEFT JOIN sousmeow_categories cat ON cat.id = c.primary_category_id';
 
     /**
      * Marketplace listing with recipe counts, optionally filtered by a
@@ -47,10 +47,10 @@ final class Cookbook
                 WHERE (
                     c.title LIKE ?
                     OR c.tagline LIKE ?
-                    OR EXISTS (SELECT 1 FROM categories cx
+                    OR EXISTS (SELECT 1 FROM sousmeow_categories cx
                                WHERE cx.id = c.primary_category_id AND cx.name LIKE ?)
-                    OR EXISTS (SELECT 1 FROM cookbook_collections ccx
-                               JOIN collections colx ON colx.id = ccx.collection_id
+                    OR EXISTS (SELECT 1 FROM sousmeow_cookbook_collections ccx
+                               JOIN sousmeow_collections colx ON colx.id = ccx.collection_id
                                WHERE ccx.cookbook_id = c.id
                                  AND colx.collection_type = ?
                                  AND colx.name LIKE ?)

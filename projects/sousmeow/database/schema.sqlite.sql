@@ -49,8 +49,13 @@ CREATE INDEX IF NOT EXISTS idx_rate_events_key ON rate_events (event_key, create
 -- Discovery taxonomy. Categories are the stable primary spine (one per
 -- publicly visible Cookbook); Collections are flexible discovery views.
 -- Declared before cookbooks so the primary_category_id foreign key
--- resolves on a fresh install.
-CREATE TABLE IF NOT EXISTS categories (
+-- resolves on a fresh install. Table names carry a sousmeow_ prefix: the
+-- production database is shared with other apps on the same hosting
+-- account, and generic names like "categories" collide with tables those
+-- apps already own. Every other SousMeow table predates this and has
+-- never collided, so only these three are prefixed. Kept in lockstep here
+-- even though local SQLite dev has no such collision, for consistency.
+CREATE TABLE IF NOT EXISTS sousmeow_categories (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     slug          TEXT NOT NULL UNIQUE,
     name          TEXT NOT NULL,
@@ -66,7 +71,7 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at    TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS collections (
+CREATE TABLE IF NOT EXISTS sousmeow_collections (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     slug              TEXT NOT NULL UNIQUE,
     name              TEXT NOT NULL,
@@ -88,7 +93,7 @@ CREATE TABLE IF NOT EXISTS cookbooks (
     tagline              TEXT NOT NULL,
     description          TEXT NOT NULL,
     category             TEXT NOT NULL,        -- legacy display string, rollback only (not read after migration)
-    primary_category_id  INTEGER NULL REFERENCES categories(id) ON DELETE SET NULL,
+    primary_category_id  INTEGER NULL REFERENCES sousmeow_categories(id) ON DELETE SET NULL,
     audience             TEXT NOT NULL,
     outcome              TEXT NOT NULL,
     price_cents          INTEGER,              -- NULL means free
@@ -104,15 +109,15 @@ CREATE TABLE IF NOT EXISTS cookbooks (
 );
 CREATE INDEX IF NOT EXISTS idx_cookbooks_primary_category ON cookbooks (primary_category_id);
 
-CREATE TABLE IF NOT EXISTS cookbook_collections (
-    cookbook_id   INTEGER NOT NULL REFERENCES cookbooks(id)   ON DELETE CASCADE,
-    collection_id INTEGER NOT NULL REFERENCES collections(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS sousmeow_cookbook_collections (
+    cookbook_id   INTEGER NOT NULL REFERENCES cookbooks(id)             ON DELETE CASCADE,
+    collection_id INTEGER NOT NULL REFERENCES sousmeow_collections(id)  ON DELETE CASCADE,
     position      INTEGER NOT NULL DEFAULT 0,
     is_featured   INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT NOT NULL,
     PRIMARY KEY (cookbook_id, collection_id)
 );
-CREATE INDEX IF NOT EXISTS idx_cookbook_collections_collection ON cookbook_collections (collection_id, position);
+CREATE INDEX IF NOT EXISTS idx_cookbook_collections_collection ON sousmeow_cookbook_collections (collection_id, position);
 
 CREATE TABLE IF NOT EXISTS cookbook_stages (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,

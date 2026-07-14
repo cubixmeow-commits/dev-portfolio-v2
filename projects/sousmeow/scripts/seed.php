@@ -196,26 +196,38 @@ function ensure_index(PDO $pdo, string $driver, string $index, string $table, st
 /** Apply additive schema changes on existing databases. */
 function migrate_schema(PDO $pdo, string $driver): void
 {
-    // Discovery taxonomy: the categories/collections/cookbook_collections
-    // tables are created by the schema file's CREATE TABLE IF NOT EXISTS on
-    // every run, so they already exist by the time we get here. What the
-    // schema file cannot retrofit onto an existing cookbooks table is the
-    // primary_category_id column, its index, and (MySQL) its foreign key.
+    // Discovery taxonomy: the sousmeow_categories/sousmeow_collections/
+    // sousmeow_cookbook_collections tables are created by the schema
+    // file's CREATE TABLE IF NOT EXISTS on every run, so they already
+    // exist by the time we get here. What the schema file cannot retrofit
+    // onto an existing cookbooks table is the primary_category_id column,
+    // its index, and (MySQL) its foreign key.
     ensure_column($pdo, $driver, 'cookbooks', 'primary_category_id', column_definition($driver, 'primary_category_id'));
     ensure_index($pdo, $driver, 'idx_cookbooks_primary_category', 'cookbooks', '(primary_category_id)');
     // SQLite cannot ALTER-add a foreign key, so an upgraded SQLite dev DB
     // gets the column + index only; fresh installs get the full FK. On
     // MySQL (the production target) we add the FK to existing tables too.
     if ($driver === 'mysql') {
-        $hasFk = (int) Database::fetchValue(
-            "SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+        // A database shared with other apps can already have a table
+        // literally named "categories" that predates this feature and
+        // belongs to something else entirely. If fk_cookbooks_category
+        // was ever added pointing at that table (same constraint name,
+        // wrong referenced table), repoint it at sousmeow_categories
+        // rather than leaving it silently wrong.
+        $refTable = Database::fetchValue(
+            "SELECT REFERENCED_TABLE_NAME FROM information_schema.KEY_COLUMN_USAGE
              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cookbooks'
                AND CONSTRAINT_NAME = 'fk_cookbooks_category'"
-        ) > 0;
-        if (!$hasFk) {
+        );
+        if ($refTable !== null && $refTable !== 'sousmeow_categories') {
+            $pdo->exec('ALTER TABLE cookbooks DROP FOREIGN KEY fk_cookbooks_category');
+            echo "Repointed cookbooks.primary_category_id foreign key (was referencing {$refTable})\n";
+            $refTable = null;
+        }
+        if ($refTable === null) {
             $pdo->exec(
                 "ALTER TABLE cookbooks ADD CONSTRAINT fk_cookbooks_category
-                 FOREIGN KEY (primary_category_id) REFERENCES categories(id) ON DELETE SET NULL"
+                 FOREIGN KEY (primary_category_id) REFERENCES sousmeow_categories(id) ON DELETE SET NULL"
             );
             echo "Migrated cookbooks.primary_category_id foreign key\n";
         }
@@ -373,10 +385,10 @@ function sync_taxonomy(array $content): array
             $catSlugs[] = $slug;
             $outcomes = json_encode(array_values($cat['outcomes']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             $sortOrder = (int) ($cat['sort_order'] ?? ($sortIndex + 1));
-            $existing = Database::fetch('SELECT id FROM categories WHERE slug = ?', [$slug]);
+            $existing = Database::fetch('SELECT id FROM sousmeow_categories WHERE slug = ?', [$slug]);
             if ($existing !== null) {
                 Database::run(
-                    'UPDATE categories SET name = ?, short_name = ?, tagline = ?, description = ?, outcomes_json = ?,
+                    'UPDATE sousmeow_categories SET name = ?, short_name = ?, tagline = ?, description = ?, outcomes_json = ?,
                                            accent = ?, icon_key = ?, sort_order = ?, is_visible = ?, updated_at = ?
                      WHERE id = ?',
                     [$cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
@@ -385,7 +397,7 @@ function sync_taxonomy(array $content): array
                 $id = (int) $existing['id'];
             } else {
                 Database::run(
-                    'INSERT INTO categories (slug, name, short_name, tagline, description, outcomes_json, accent,
+                    'INSERT INTO sousmeow_categories (slug, name, short_name, tagline, description, outcomes_json, accent,
                                              icon_key, sort_order, is_visible, created_at, updated_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [$slug, $cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
@@ -402,10 +414,10 @@ function sync_taxonomy(array $content): array
             $slug = (string) $col['slug'];
             $colSlugs[] = $slug;
             $sortOrder = (int) ($col['sort_order'] ?? ($sortIndex + 1));
-            $existing = Database::fetch('SELECT id FROM collections WHERE slug = ?', [$slug]);
+            $existing = Database::fetch('SELECT id FROM sousmeow_collections WHERE slug = ?', [$slug]);
             if ($existing !== null) {
                 Database::run(
-                    'UPDATE collections SET name = ?, tagline = ?, description = ?, accent = ?, collection_type = ?,
+                    'UPDATE sousmeow_collections SET name = ?, tagline = ?, description = ?, accent = ?, collection_type = ?,
                                             min_display_count = ?, sort_order = ?, is_visible = ?, updated_at = ?
                      WHERE id = ?',
                     [$col['name'], $col['tagline'], $col['description'], $col['accent'], $col['collection_type'],
@@ -414,7 +426,7 @@ function sync_taxonomy(array $content): array
                 $id = (int) $existing['id'];
             } else {
                 Database::run(
-                    'INSERT INTO collections (slug, name, tagline, description, accent, collection_type,
+                    'INSERT INTO sousmeow_collections (slug, name, tagline, description, accent, collection_type,
                                               min_display_count, sort_order, is_visible, created_at, updated_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [$slug, $col['name'], $col['tagline'], $col['description'], $col['accent'], $col['collection_type'],
@@ -442,11 +454,11 @@ function sync_taxonomy(array $content): array
  */
 function sync_cookbook_memberships(int $cookbookId, array $collectionSlugs, int $position, array $colBySlug): void
 {
-    Database::run('DELETE FROM cookbook_collections WHERE cookbook_id = ?', [$cookbookId]);
+    Database::run('DELETE FROM sousmeow_cookbook_collections WHERE cookbook_id = ?', [$cookbookId]);
     foreach ($collectionSlugs as $slug) {
         $collection = $colBySlug[(string) $slug];   // pre-validated as an editorial slug
         Database::run(
-            'INSERT INTO cookbook_collections (cookbook_id, collection_id, position, is_featured, created_at)
+            'INSERT INTO sousmeow_cookbook_collections (cookbook_id, collection_id, position, is_featured, created_at)
              VALUES (?, ?, ?, ?, ?)',
             [$cookbookId, $collection['id'], $position, 0, now_utc()]
         );
@@ -786,13 +798,13 @@ function prune_orphan_categories(array $seedSlugs): void
     }
     $placeholders = implode(',', array_fill(0, count($seedSlugs), '?'));
     $orphans = Database::fetchAll(
-        "SELECT c.id, c.slug FROM categories c
+        "SELECT c.id, c.slug FROM sousmeow_categories c
          WHERE c.slug NOT IN ({$placeholders})
            AND NOT EXISTS (SELECT 1 FROM cookbooks b WHERE b.primary_category_id = c.id)",
         $seedSlugs
     );
     foreach ($orphans as $row) {
-        Database::run('DELETE FROM categories WHERE id = ?', [$row['id']]);
+        Database::run('DELETE FROM sousmeow_categories WHERE id = ?', [$row['id']]);
         echo "Removed orphan category: {$row['slug']}\n";
     }
 }
@@ -810,11 +822,11 @@ function prune_orphan_collections(array $seedSlugs): void
     }
     $placeholders = implode(',', array_fill(0, count($seedSlugs), '?'));
     $orphans = Database::fetchAll(
-        "SELECT id, slug FROM collections WHERE slug NOT IN ({$placeholders})",
+        "SELECT id, slug FROM sousmeow_collections WHERE slug NOT IN ({$placeholders})",
         $seedSlugs
     );
     foreach ($orphans as $row) {
-        Database::run('DELETE FROM collections WHERE id = ?', [$row['id']]);
+        Database::run('DELETE FROM sousmeow_collections WHERE id = ?', [$row['id']]);
         echo "Removed orphan collection: {$row['slug']}\n";
     }
 }
@@ -1067,7 +1079,7 @@ if ($options['fresh']) {
     }
     $tables = ['artifact_checks', 'artifact_versions', 'artifacts', 'exports', 'pantry_values',
                'projects', 'pantry_fields', 'recipe_checks', 'recipes', 'cookbook_stages',
-               'cookbook_collections', 'cookbooks', 'collections', 'categories',
+               'sousmeow_cookbook_collections', 'cookbooks', 'sousmeow_collections', 'sousmeow_categories',
                'simulation_runs', 'rate_events', 'users'];
     if ($driver === 'mysql') {
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');

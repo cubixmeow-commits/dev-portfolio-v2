@@ -29,7 +29,7 @@ final class CollectionResolver
         'SELECT c.*, cat.name AS category_name, cat.slug AS category_slug, cat.accent AS category_accent,
                 (SELECT COUNT(*) FROM recipes r WHERE r.cookbook_id = c.id) AS recipe_count
          FROM cookbooks c
-         LEFT JOIN categories cat ON cat.id = c.primary_category_id';
+         LEFT JOIN sousmeow_categories cat ON cat.id = c.primary_category_id';
 
     /** Attribute thresholds, named so the rule reads at the call site. */
     private const DEEP_WORKFLOW_RECIPES = 6;
@@ -95,7 +95,7 @@ final class CollectionResolver
         $executableOnly = $slug === 'start-here' ? ' AND c.is_executable = 1' : '';
         return Database::fetchAll(
             self::SELECT . '
-             JOIN cookbook_collections cc ON cc.cookbook_id = c.id
+             JOIN sousmeow_cookbook_collections cc ON cc.cookbook_id = c.id
              WHERE cc.collection_id = ?' . $executableOnly . '
              ORDER BY cc.position, c.title',
             [$collectionId]
