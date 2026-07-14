@@ -429,7 +429,7 @@ return [
     'slug'                => 'validate-saas-idea',
     'title'               => 'Validate a SaaS Idea',
     'tagline'             => 'Turn a fuzzy B2B hunch into evidence, experiments, and a go/revise/stop call.',
-    'description'         => "Most SaaS ideas fail quietly because founders build before they test. This Cookbook runs a structured validation sprint: sharpen the problem, map the buyer, stress the market, rank your riskiest assumptions, and design experiments that produce real evidence. Stock the Pantry once with what you actually know today. Every Recipe prompt is told not to invent facts, market sizes, or interview quotes. What you approve chains forward until the final memo forces an honest go, revise, or stop decision before you write production code.",
+    'description'         => "Most SaaS ideas fail quietly because founders build before they test. This Cookbook runs a structured validation sprint: sharpen the problem, map the buyer, stress the market, rank your riskiest assumptions, and design experiments that produce real evidence. Enter what you actually know today once. Every step is told not to invent facts, market sizes, or interview quotes. What you approve carries forward until a final memo forces an honest go, revise, or stop decision — before you write production code.",
     'primary_category'    => 'start-grow-business',
     'collections'         => ['start-here', 'selected-by-sousmeow'],
     'audience'            => 'Founders and small teams validating a B2B SaaS idea before building',

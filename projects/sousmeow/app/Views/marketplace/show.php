@@ -28,7 +28,7 @@ foreach ($stages as $stage) {
 ?>
 <div class="page marketplace-page cookbook-detail accent-<?= e(preg_replace('/[^a-z]/', '', (string) $cookbook['accent'])) ?>">
   <nav class="crumbs" aria-label="Breadcrumb">
-    <a href="<?= e(url('/marketplace')) ?>">Marketplace</a>
+    <a href="<?= e(url('/marketplace')) ?>">Find something</a>
     <span aria-hidden="true">/</span>
     <span><?= e($cookbook['title']) ?></span>
   </nav>
@@ -44,7 +44,7 @@ foreach ($stages as $stage) {
         <?php if ($executable): ?>
           <span class="badge badge-sage badge-dot">Available now</span>
         <?php else: ?>
-          <span class="badge badge-neutral">Workflow preview</span>
+          <span class="badge badge-neutral">Preview</span>
         <?php endif; ?>
         <span class="badge <?= $isPaid ? 'badge-amber' : 'badge-terracotta' ?>"><?= e($price) ?></span>
       </div>
@@ -54,10 +54,10 @@ foreach ($stages as $stage) {
       <dl class="detail-facts">
         <div><dt>Made for</dt><dd><?= e($cookbook['audience']) ?></dd></div>
         <div><dt>You leave with</dt><dd><?= e($cookbook['outcome']) ?></dd></div>
-        <div><dt>Time</dt><dd>about <?= (int) $cookbook['est_minutes'] ?> minutes of your attention</dd></div>
-        <div><dt>Requires</dt><dd>any AI you already use; sample responses included where available</dd></div>
+        <div><dt>Time</dt><dd>about <?= (int) $cookbook['est_minutes'] ?> minutes</dd></div>
+        <div><dt>Requires</dt><dd>any AI you already use; sample answers included where available</dd></div>
         <?php if ($runs > 0): ?>
-          <div><dt>Completed runs</dt><dd><?= e(number_format($runs)) ?> kitchen projects (demo metric)</dd></div>
+          <div><dt>Completed runs</dt><dd><?= e(number_format($runs)) ?> (demo metric)</dd></div>
         <?php endif; ?>
         <?php if ($rating !== null): ?>
           <div><dt>Average rating</dt><dd><?= e(number_format((float) $rating, 1)) ?> / 5 (demo metric)</dd></div>
@@ -66,7 +66,7 @@ foreach ($stages as $stage) {
 
       <?php if ($collections !== []): ?>
         <p class="detail-collections">
-          <span class="detail-collections-label mono">Appears in</span>
+          <span class="detail-collections-label mono">Also in</span>
           <?php foreach ($collections as $col): ?>
             <a class="badge badge-neutral" href="<?= e(url('/collections/' . $col['slug'])) ?>"><?= e($col['name']) ?></a>
           <?php endforeach; ?>
@@ -79,25 +79,25 @@ foreach ($stages as $stage) {
             <form method="post" action="<?= e(url('/projects')) ?>" data-loading>
               <?= Csrf::field() ?>
               <input type="hidden" name="cookbook" value="<?= e($cookbook['slug']) ?>">
-              <button type="submit" class="button button-primary button-large">Start this workflow</button>
+              <button type="submit" class="button button-primary button-large">Start this Cookbook</button>
             </form>
           <?php else: ?>
-            <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Create a free account to start</a>
-            <p class="detail-cta-note">Have an account? <a href="<?= e(url('/login')) ?>">Sign in</a> and start from your Kitchen.</p>
+            <a class="button button-primary button-large" href="<?= e(url('/register')) ?>">Start free to begin</a>
+            <p class="detail-cta-note">Have an account? <a href="<?= e(url('/login')) ?>">Sign in</a>.</p>
           <?php endif; ?>
         <?php elseif ($isPaid): ?>
           <div class="well detail-honest">
             <p><strong>Purchases are not open yet.</strong> This Cookbook will sell for <?= e($price) ?> when it ships.
-               SousMeow is a portfolio demonstration and deliberately has no checkout, so nothing here pretends to charge you.
-               The full workflow below is the real design, shown as a preview.</p>
+               SousMeow is a portfolio demonstration with no checkout.
+               The steps below are the real design, shown as a preview.</p>
           </div>
         <?php else: ?>
           <div class="well detail-honest">
-            <p><strong>Runner coming soon.</strong> This Cookbook is fully designed but not yet cookable in this build.
-               Every Stage, Recipe, Pantry field, and Quality Check below is the real plan. In the meantime,
+            <p><strong>Coming soon.</strong> This Cookbook is fully designed but not runnable in this build yet.
+               Every stage, step, and check below is the real plan. Meanwhile,
                <a href="<?= e(url('/cookbooks/launch-day-kit')) ?>">Launch Day Kit</a>,
                <a href="<?= e(url('/cookbooks/validate-saas-idea')) ?>">Validate a SaaS Idea</a>, and
-               <a href="<?= e(url('/cookbooks/plan-youtube-video')) ?>">Plan a YouTube Video</a> are open for cooking.</p>
+               <a href="<?= e(url('/cookbooks/plan-youtube-video')) ?>">Plan a YouTube Video</a> are ready to start.</p>
           </div>
         <?php endif; ?>
       </div>
@@ -123,7 +123,7 @@ foreach ($stages as $stage) {
                   <p><?= e($stage['summary']) ?></p>
                 <?php endif; ?>
               </div>
-              <span class="badge badge-outline detail-stage-count"><?= e(plural(count($stageRecipes), 'Recipe')) ?></span>
+              <span class="badge badge-outline detail-stage-count"><?= e(plural(count($stageRecipes), 'step')) ?></span>
             </div>
           </li>
         <?php endforeach; ?>
@@ -202,8 +202,8 @@ foreach ($stages as $stage) {
   <?php if ($fields !== []): ?>
     <section class="detail-pantry">
       <div class="section-heading">
-        <h2>Project details required</h2>
-        <span class="section-sub"><?= e(plural(count($fields), 'ingredient')) ?>, filled once<?= $executable ? '' : ' (preview)' ?></span>
+        <h2>Your information</h2>
+        <span class="section-sub"><?= e(plural(count($fields), 'detail')) ?>, answered once<?= $executable ? '' : ' (preview)' ?></span>
       </div>
       <ul class="detail-pantry-grid">
         <?php foreach ($fields as $field): ?>
@@ -218,22 +218,24 @@ foreach ($stages as $stage) {
 
   <section class="detail-kit">
     <div class="section-heading">
-      <h2>Project Kit</h2>
-      <span class="section-sub">What you export when every Recipe is approved</span>
+      <h2>Finished files</h2>
+      <span class="section-sub">What you export when every step is approved</span>
     </div>
     <p class="detail-kit-copy">
       <?php if ($executable): ?>
-        One Markdown file per approved Recipe, numbered in cook order, plus <code>kit.html</code> (open in any browser, works offline) and a README manifest with your full Pantry snapshot and version provenance.
+        One Markdown file per approved step, plus <code>kit.html</code> (opens in any browser, offline)
+        and a README of what you approved.
       <?php else: ?>
-        When this Cookbook ships, your Project Kit will bundle every approved Recipe as a numbered Markdown file plus a README with your Pantry snapshot. The Recipe list above is the export manifest.
+        When this Cookbook ships, you export every approved step as numbered Markdown files plus a README.
+        The step list above is that export list.
       <?php endif; ?>
     </p>
     <ul class="detail-kit-list">
-      <li><code>kit.html</code> Offline HTML reader for every approved Recipe</li>
+      <li><code>kit.html</code> Offline HTML reader for every approved step</li>
       <?php foreach ($recipes as $recipe): ?>
         <li><code><?= sprintf('%02d', (int) $recipe['position']) ?>-<?= e($recipe['slug']) ?>.md</code> <?= e($recipe['title']) ?></li>
       <?php endforeach; ?>
-      <li><code>README.md</code> Kit manifest and Pantry snapshot</li>
+      <li><code>README.md</code> Manifest of what you approved</li>
     </ul>
   </section>
 </div>

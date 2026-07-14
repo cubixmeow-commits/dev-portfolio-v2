@@ -25,6 +25,6 @@ $exec = (int) ($c['is_executable'] ?? 0) === 1;
     </span>
     <span class="disc-title"><?= e($c['title']) ?></span>
     <span class="disc-tagline"><?= e($c['tagline']) ?></span>
-    <span class="disc-meta mono"><?= e(plural((int) ($c['recipe_count'] ?? 0), 'Recipe')) ?> &middot; ~<?= (int) ($c['est_minutes'] ?? 0) ?> min &middot; <?= e($c['difficulty'] ?? 'Intermediate') ?></span>
+    <span class="disc-meta mono"><?= (int) ($c['recipe_count'] ?? 0) ?> steps &middot; ~<?= (int) ($c['est_minutes'] ?? 0) ?> min &middot; <?= e($c['difficulty'] ?? 'Intermediate') ?></span>
   </span>
 </a>

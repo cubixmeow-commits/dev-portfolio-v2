@@ -19,7 +19,7 @@ final class MarketplaceController
     {
         $query = trim((string) ($_GET['q'] ?? ''));
         View::render('marketplace/index', [
-            'title'     => 'Marketplace',
+            'title'     => 'Find something',
             'pageCss'   => 'marketplace',
             'query'     => $query,
             'cookbooks' => Cookbook::marketplace($query),

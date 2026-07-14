@@ -1,5 +1,7 @@
 <?php
 /**
+ * Marketplace — first place Cookbook / Recipe language is earned.
+ *
  * @var string                      $query
  * @var list<array<string, mixed>>  $cookbooks
  */
@@ -14,14 +16,16 @@ $formatRuns = static function (int $n): string {
 <div class="page marketplace-page">
   <header class="marketplace-header">
     <div>
-      <h1>Explore workflows</h1>
-      <p class="section-sub">Guided Cookbooks for launch campaigns, SaaS validation, portfolio building, YouTube planning, and novel development. Add your project details once; each step builds on the last; you stay in control of every review.</p>
+      <h1>Find something to finish</h1>
+      <p class="section-sub">We call these guided step-by-step projects <strong>Cookbooks</strong>.
+        Pick one, answer a few facts about your project, follow the steps in the AI you already use,
+        and leave with finished files.</p>
     </div>
   </header>
 
   <form class="marketplace-search" method="get" action="<?= e(url('/marketplace')) ?>" role="search">
     <input class="input" type="search" name="q" value="<?= e($query) ?>"
-           placeholder="Search workflows by name, topic, or category" aria-label="Search workflows">
+           placeholder="Search by name, topic, or category" aria-label="Search Cookbooks">
     <button type="submit" class="button button-quiet">Search</button>
     <?php if ($query !== ''): ?><a class="button button-ghost" href="<?= e(url('/marketplace')) ?>">Clear</a><?php endif; ?>
   </form>
@@ -29,10 +33,10 @@ $formatRuns = static function (int $n): string {
   <?php if ($cookbooks === []): ?>
     <div class="empty-state">
       <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'searching']); ?>
-      <h2>No workflows match "<?= e($query) ?>"</h2>
-      <p>Try a broader word, like "launch" or "portfolio", or browse all available Cookbooks.</p>
+      <h2>Nothing matches "<?= e($query) ?>"</h2>
+      <p>Try a broader word, like "launch" or "portfolio", or browse all Cookbooks.</p>
       <div class="empty-actions">
-        <a class="button button-primary" href="<?= e(url('/marketplace')) ?>">Show all workflows</a>
+        <a class="button button-primary" href="<?= e(url('/marketplace')) ?>">Show all Cookbooks</a>
       </div>
     </div>
   <?php else: ?>
@@ -51,14 +55,14 @@ $formatRuns = static function (int $n): string {
               <?php if ($executable): ?>
                 <span class="badge badge-sage badge-dot">Available now</span>
               <?php else: ?>
-                <span class="badge badge-neutral">Workflow preview</span>
+                <span class="badge badge-neutral">Preview</span>
               <?php endif; ?>
             </div>
             <h2 class="cookbook-title"><?= e($cookbook['title']) ?></h2>
             <p class="cookbook-tagline"><?= e($cookbook['tagline']) ?></p>
             <p class="cookbook-outcome"><?= e($cookbook['outcome']) ?></p>
             <div class="cookbook-meta">
-              <span><?= e(plural((int) $cookbook['recipe_count'], 'Recipe')) ?></span>
+              <span><?= (int) $cookbook['recipe_count'] ?> steps</span>
               <span>&middot;</span>
               <span>about <?= (int) $cookbook['est_minutes'] ?> min</span>
               <?php if ($runs > 0): ?>
@@ -79,8 +83,8 @@ $formatRuns = static function (int $n): string {
       <?php endforeach; ?>
     </div>
     <p class="marketplace-honesty">
-      SousMeow is a portfolio demonstration: three Cookbooks are fully cookable today; two show complete workflow
-      previews with honest "Runner coming soon" labels. No checkout exists, deliberately.
+      Portfolio demonstration: three Cookbooks are ready to run today; two are full previews
+      labeled clearly. There is no checkout. You bring your own AI assistant.
     </p>
   <?php endif; ?>
 </div>

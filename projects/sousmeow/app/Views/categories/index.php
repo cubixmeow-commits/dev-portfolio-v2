@@ -17,11 +17,11 @@ $mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="
 <div class="page categories-index">
 
   <header class="cat-hero">
-    <p class="cat-kicker mono">Browse by category</p>
+    <p class="cat-kicker mono">Browse by topic</p>
     <h1>Choose what you're making.</h1>
-    <p class="cat-hero-lede">Every category is a shelf of guided Cookbooks that carry you from rough ingredients to a finished Project Kit, one step at a time.</p>
+    <p class="cat-hero-lede">Each topic groups guided Cookbooks that take you from a rough goal to finished files, one step at a time.</p>
     <form class="cat-search" method="get" action="<?= e(url('/marketplace')) ?>" role="search">
-      <input class="input" type="search" name="q" placeholder="Search all workflows by name, topic, or category" aria-label="Search workflows">
+      <input class="input" type="search" name="q" placeholder="Search Cookbooks by name, topic, or category" aria-label="Search Cookbooks">
       <button type="submit" class="button button-primary">Search</button>
     </form>
   </header>
@@ -41,7 +41,7 @@ $mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="
           </ul>
           <p class="category-foot">
             <span class="category-count"><?= $count > 0 ? e(plural($count, 'Cookbook')) : 'No Cookbooks yet' ?></span>
-            <a class="category-explore" href="<?= e(url('/categories/' . $cat['slug'])) ?>">Explore category <span aria-hidden="true">&rarr;</span></a>
+            <a class="category-explore" href="<?= e(url('/categories/' . $cat['slug'])) ?>">See Cookbooks <span aria-hidden="true">&rarr;</span></a>
           </p>
         </li>
       <?php endforeach; ?>

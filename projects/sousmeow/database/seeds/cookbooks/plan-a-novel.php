@@ -34,7 +34,7 @@ return [
     'slug'                => 'plan-a-novel',
     'title'               => 'Plan a Novel',
     'tagline'             => 'From a spark of an idea to a chapter roadmap you can actually write from.',
-    'description'         => "Most novels stall long before the blank page because the writer is holding premise, people, world, and structure in their head at once. This Cookbook separates those jobs into eighteen Recipes across seven stages. Stock a deep Pantry once with the decisions you already know: genre, theme, protagonist, rules of the world, and what you refuse to compromise. Each Recipe asks you to approve one layer before the next one cooks, so you can explore creative branches without losing the thread. Quality Checks at every step are decision-heavy: you are not grading prose, you are confirming the plan still matches the book you meant to write.",
+    'description'         => "Most novels stall long before the blank page because the writer is holding premise, people, world, and structure in their head at once. This Cookbook separates those jobs into eighteen steps across seven stages. Enter the decisions you already know once: genre, theme, protagonist, rules of the world, and what you refuse to compromise. Each step asks you to approve one layer before the next, so you can explore without losing the thread. Checks along the way are decision-heavy: you are confirming the plan still matches the book you meant to write.",
     'primary_category'    => 'creative-worlds',
     'collections'         => [],
     'audience'            => 'Fiction writers planning a novel or novella before drafting',
