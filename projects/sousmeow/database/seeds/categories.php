@@ -70,9 +70,9 @@ return [
         'slug'        => 'career-freelance',
         'name'        => 'Career & Freelance',
         'short_name'  => 'Career',
-        'tagline'     => 'Resumes, interviews, and client work.',
-        'description' => 'Get ready for the thing that comes next, whether that is a role or a client. Assemble the materials, rehearse the conversation, and make the case for your work.',
-        'outcomes'    => ['Build a resume', 'Prepare for an interview', 'Win a client'],
+        'tagline'     => 'Resumes, interviews, LinkedIn, and negotiations.',
+        'description' => 'Get ready for the next role with honest application materials and practice. Tailor a resume, prepare for interviews, strengthen LinkedIn, plan a career change, and prepare a negotiation from real evidence.',
+        'outcomes'    => ['Tailor application materials', 'Prepare for interviews', 'Plan the next move'],
         'accent'      => 'indigo',
     ],
     [

@@ -39,7 +39,7 @@
       <?php endforeach; ?>
     </div>
     <p class="marketplace-honesty">
-      Portfolio demonstration: twenty-two Cookbooks are ready to run today; two are full previews
+      Portfolio demonstration: twenty-seven Cookbooks are ready to run today; two are full previews
       labeled clearly. There is no checkout. You bring your own AI assistant.
     </p>
   <?php endif; ?>

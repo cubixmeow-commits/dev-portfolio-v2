@@ -138,6 +138,9 @@ CREATE TABLE IF NOT EXISTS recipes (
     summary         TEXT NOT NULL,
     why_it_matters  TEXT NOT NULL DEFAULT '',
     unlocks_text    TEXT NOT NULL DEFAULT '',
+    before_you_begin TEXT NOT NULL DEFAULT '',
+    common_problems TEXT NOT NULL DEFAULT '',
+    recovery_guidance TEXT NOT NULL DEFAULT '',
     prompt_template TEXT,                -- NULL for preview-only recipes
     example_response TEXT,               -- one realistic sample per runnable recipe
     output_contract TEXT,                -- JSON section list the prompt requests (NULL = no contract)

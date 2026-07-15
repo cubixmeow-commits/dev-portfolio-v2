@@ -126,6 +126,9 @@ function column_definition(string $driver, string $column): string
             'simulation'               => 'TINYINT(1) NOT NULL DEFAULT 0',
             'output_contract'          => 'MEDIUMTEXT NULL',
             'evidence_keys'            => 'TEXT NULL',
+            'before_you_begin'         => 'TEXT NULL',
+            'common_problems'          => 'TEXT NULL',
+            'recovery_guidance'        => 'TEXT NULL',
             'email_verified_at'        => 'DATETIME NULL',
             'verification_token_hash'  => 'VARCHAR(64) NULL',
             'verification_expires_at'  => 'DATETIME NULL',
@@ -153,9 +156,12 @@ function column_definition(string $driver, string $column): string
         'demo_avg_rating'          => 'REAL',
         'stage_position'           => 'INTEGER',
         'simulation'               => 'INTEGER NOT NULL DEFAULT 0',
-        'output_contract'          => 'TEXT',
-        'evidence_keys'            => 'TEXT',
-        'email_verified_at'        => 'TEXT NULL',
+            'output_contract'          => 'TEXT',
+            'evidence_keys'            => 'TEXT',
+            'before_you_begin'         => "TEXT NOT NULL DEFAULT ''",
+            'common_problems'          => "TEXT NOT NULL DEFAULT ''",
+            'recovery_guidance'        => "TEXT NOT NULL DEFAULT ''",
+            'email_verified_at'        => 'TEXT NULL',
         'verification_token_hash'  => 'TEXT NULL',
         'verification_expires_at'  => 'TEXT NULL',
         'verification_sent_at'     => 'TEXT NULL',
@@ -240,6 +246,9 @@ function migrate_schema(PDO $pdo, string $driver): void
     ensure_column($pdo, $driver, 'users', 'simulation', column_definition($driver, 'simulation'));
     ensure_column($pdo, $driver, 'recipes', 'output_contract', column_definition($driver, 'output_contract'));
     ensure_column($pdo, $driver, 'recipe_checks', 'evidence_keys', column_definition($driver, 'evidence_keys'));
+    ensure_column($pdo, $driver, 'recipes', 'before_you_begin', column_definition($driver, 'before_you_begin'));
+    ensure_column($pdo, $driver, 'recipes', 'common_problems', column_definition($driver, 'common_problems'));
+    ensure_column($pdo, $driver, 'recipes', 'recovery_guidance', column_definition($driver, 'recovery_guidance'));
 
     $userAccountColumns = [
         'email_verified_at', 'verification_token_hash', 'verification_expires_at', 'verification_sent_at',
@@ -598,6 +607,14 @@ function sync_stages(int $cookbookId, array $stages): void
 /** @param list<array<string, mixed>> $fields */
 function sync_pantry_fields(int $cookbookId, array $fields): void
 {
+    // Clear the unique (cookbook_id, position) collision window before
+    // upserting. Cookbook revisions may rename Pantry fields while reusing
+    // the same positions, just as recipe revisions do below.
+    Database::run(
+        'UPDATE pantry_fields SET position = position + 1000 WHERE cookbook_id = ?',
+        [$cookbookId]
+    );
+
     $keepKeys = [];
     foreach ($fields as $position => $field) {
         $key = (string) $field['field_key'];
@@ -675,39 +692,46 @@ function sync_recipes(int $cookbookId, array $recipes, bool $executable): void
             [$cookbookId, $slug]
         );
         $row = [
-            'stage_position'   => $recipe['stage_position'] ?? null,
-            'position'         => $position + 1,
-            'title'            => $recipe['title'],
-            'summary'          => $recipe['summary'],
-            'why_it_matters'   => $recipe['why_it_matters'] ?? '',
-            'unlocks_text'     => $recipe['unlocks_text'] ?? '',
-            'prompt_template'  => $prompt,
-            'example_response' => $example,
-            'output_contract'  => \SousMeow\Services\OutputContract::encode($recipe['output_sections'] ?? null),
-            'est_minutes'      => (int) ($recipe['est_minutes'] ?? 5),
+            'stage_position'      => $recipe['stage_position'] ?? null,
+            'position'            => $position + 1,
+            'title'               => $recipe['title'],
+            'summary'             => $recipe['summary'],
+            'why_it_matters'      => $recipe['why_it_matters'] ?? '',
+            'unlocks_text'        => $recipe['unlocks_text'] ?? '',
+            'before_you_begin'    => $recipe['before_you_begin'] ?? '',
+            'common_problems'     => $recipe['common_problems'] ?? '',
+            'recovery_guidance'   => $recipe['recovery_guidance'] ?? '',
+            'prompt_template'     => $prompt,
+            'example_response'    => $example,
+            'output_contract'     => \SousMeow\Services\OutputContract::encode($recipe['output_sections'] ?? null),
+            'est_minutes'         => (int) ($recipe['est_minutes'] ?? 5),
         ];
         if ($existing !== null) {
             $recipeId = (int) $existing['id'];
             Database::run(
                 'UPDATE recipes SET stage_position = ?, position = ?, title = ?, summary = ?,
-                                    why_it_matters = ?, unlocks_text = ?, prompt_template = ?,
+                                    why_it_matters = ?, unlocks_text = ?, before_you_begin = ?,
+                                    common_problems = ?, recovery_guidance = ?, prompt_template = ?,
                                     example_response = ?, output_contract = ?, est_minutes = ?
                  WHERE id = ?',
                 [
                     $row['stage_position'], $row['position'], $row['title'], $row['summary'],
-                    $row['why_it_matters'], $row['unlocks_text'], $row['prompt_template'],
+                    $row['why_it_matters'], $row['unlocks_text'], $row['before_you_begin'],
+                    $row['common_problems'], $row['recovery_guidance'], $row['prompt_template'],
                     $row['example_response'], $row['output_contract'], $row['est_minutes'], $recipeId,
                 ]
             );
         } else {
             Database::run(
                 'INSERT INTO recipes (cookbook_id, stage_position, position, slug, title, summary,
-                                      why_it_matters, unlocks_text, prompt_template, example_response,
+                                      why_it_matters, unlocks_text, before_you_begin, common_problems,
+                                      recovery_guidance, prompt_template, example_response,
                                       output_contract, est_minutes)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $cookbookId, $row['stage_position'], $row['position'], $slug,
                     $row['title'], $row['summary'], $row['why_it_matters'], $row['unlocks_text'],
+                    $row['before_you_begin'], $row['common_problems'], $row['recovery_guidance'],
                     $row['prompt_template'], $row['example_response'], $row['output_contract'],
                     $row['est_minutes'],
                 ]
@@ -861,7 +885,12 @@ function expected_seed_files(): array
         'plan-a-newsletter-issue.php',
         'outline-an-article.php',
         'critique-a-screen.php',
+        'tailor-resume-to-a-job.php',
         'prep-for-an-interview.php',
+        'write-a-strong-cover-letter.php',
+        'improve-your-linkedin-profile.php',
+        'plan-a-career-change.php',
+        'prepare-for-salary-negotiation.php',
         'synthesize-interview-notes.php',
         'plan-a-lesson.php',
         'document-a-simple-process.php',

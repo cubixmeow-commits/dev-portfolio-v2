@@ -151,9 +151,18 @@ if ($parsed !== null) {
     <section class="card card-pad wizard-card rise-in">
       <p class="recipe-eyebrow">Recipe <?= $position ?> of <?= $total ?> · about <?= (int) $recipe['est_minutes'] ?> min</p>
       <h1><?= e($recipe['title']) ?></h1>
-      <p class="recipe-summary"><strong>What this step produces:</strong> <?= e($recipe['summary']) ?></p>
+      <p class="recipe-summary"><strong>What you are doing:</strong> <?= e($recipe['summary']) ?></p>
       <div class="recipe-why well">
         <p><strong>Why it matters:</strong> <?= e($recipe['why_it_matters']) ?></p>
+        <?php if (trim((string) ($recipe['before_you_begin'] ?? '')) !== ''): ?>
+          <p><strong>Before you begin:</strong> <?= e((string) $recipe['before_you_begin']) ?></p>
+        <?php endif; ?>
+        <?php if (trim((string) ($recipe['common_problems'] ?? '')) !== ''): ?>
+          <p><strong>Common problems:</strong> <?= e((string) $recipe['common_problems']) ?></p>
+        <?php endif; ?>
+        <?php if (trim((string) ($recipe['recovery_guidance'] ?? '')) !== ''): ?>
+          <p><strong>If the response is weak:</strong> <?= e((string) $recipe['recovery_guidance']) ?></p>
+        <?php endif; ?>
         <?php if ($recipe['unlocks_text'] !== ''): ?><p class="recipe-unlocks"><?= e($recipe['unlocks_text']) ?></p><?php endif; ?>
       </div>
       <div class="wizard-actions">

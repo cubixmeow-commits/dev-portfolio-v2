@@ -20,6 +20,12 @@ final class Cookbook
         return Database::fetch('SELECT * FROM cookbooks WHERE slug = ?', [$slug]);
     }
 
+    /** Marketplace-shaped row for one Cookbook (includes category + recipe_count). */
+    public static function listingBySlug(string $slug): ?array
+    {
+        return Database::fetch(self::LISTING_SELECT . ' WHERE c.slug = ?', [$slug]);
+    }
+
     /** Shared projection: Cookbook plus recipe_count and category display fields. */
     private const LISTING_SELECT =
         'SELECT c.*, cat.name AS category_name, cat.slug AS category_slug, cat.accent AS category_accent,

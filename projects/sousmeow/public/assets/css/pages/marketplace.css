@@ -95,6 +95,9 @@
   background: var(--card-sunken); padding: 0.1em 0.35em; border-radius: 4px;
 }
 
+.detail-related { margin-top: var(--space-8); margin-bottom: var(--space-6); }
+.detail-related-grid { margin-top: var(--space-4); }
+
 @media (max-width: 480px) {
   .cookbook-grid { grid-template-columns: 1fr; }
   .detail-header-body { padding: var(--space-4); }
