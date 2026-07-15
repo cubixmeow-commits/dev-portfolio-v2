@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of six first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
+Curated library of seven first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
 
 ## Mandatory authoring rule
 
@@ -18,6 +18,7 @@ That document is the authoritative source for the Complexity Scorecard and Compl
 | Plan a YouTube Video | Executable | 3 | 10 | 6 | Beginner | 45 min | Rapid creative micro-deliverables | 3 checks per Recipe, immediate progress feel | Fast sequence of small visible outputs | Research brief, hooks, outline, titles, thumbnails, publishing checklist |
 | Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | Exploratory decisions + continuity planning | 3 checks per Recipe, decision-heavy branching | Deep Pantry with world rules and continuity control | Premise, cast, world rules, conflict engine, act outline, chapter roadmap, continuity guide |
 | Build a Study Plan | Executable | 4 | 5 | 7 | Beginner | 40 min | Success criteria + schedule + retrieval kit | 3 checks per Recipe, beginner coaching in why_it_matters | Public learning-strategy concepts turned into SousMeow steps; invent-nothing schedule honesty | Success criteria, topic map, weekly rhythm, retrieval kit, final-week plan |
+| Write an Email That Gets Answered | Executable | 3 | 3 | 7 | Beginner | 28 min | Reader brief → full draft → revise | 3 checks per Recipe, plain-language coaching | Federal plain-language ideas adapted to one-ask emails | Reader brief, subject + short email, revised email + checklist |
 
 No two Cookbooks share the same stage shape, recipe count, or review rhythm.
 
@@ -291,6 +292,43 @@ Five numbered Markdown files plus README.
 
 ---
 
+## 7. Write an Email That Gets Answered
+
+**Slug:** `write-email-that-gets-answered`  
+**Availability:** Executable (Available now)  
+**Category:** Writing & Publishing | **Accent:** Clay | **Price:** Free  
+**Demo metrics:** 389 completed runs, 4.8 average rating
+
+### Metadata
+
+- **Subtitle:** Turn a muddy draft into one clear ask a busy reader can act on.
+- **Intended user:** Anyone who needs a clear reply from a busy person
+- **Expected outcome:** Reader brief, subject + short email draft, revised send-ready email, pre-send checklist
+- **Prerequisites:** A real recipient, one primary ask, and the facts they need to act
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+Digital.gov / Federal Plain Language principles and public guidance on clear email (audience first, important information first, active voice, short sentences). All SousMeow copy is original. See `docs/COOKBOOK_SOURCE_TRANSFORM_CLEAR_EMAIL.md`.
+
+### Pantry (7 ingredients)
+
+who_receives, your_relationship, the_ask, why_now, facts_they_need, tone, your_signoff
+
+### Stages and Recipes (3)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Aim | Name the reader and the one ask |
+| 2. Draft | Write subject and short email |
+| 3. Send-ready | Revise for clarity and pack a checklist |
+
+### Project Kit
+
+Three numbered Markdown files plus README.
+
+---
+
 ## Seed source of truth
 
 Full prompts, checks, and sample outputs live in:
@@ -301,5 +339,6 @@ Full prompts, checks, and sample outputs live in:
 - `database/seeds/cookbooks/plan-youtube-video.php`
 - `database/seeds/cookbooks/plan-a-novel.php`
 - `database/seeds/cookbooks/build-a-study-plan.php`
+- `database/seeds/cookbooks/write-email-that-gets-answered.php`
 
 Loaded by `database/seeds/content.php` and inserted via `scripts/seed.php`.
