@@ -1,11 +1,10 @@
 <?php
 
 use SousMeow\Core\View;
-use SousMeow\Models\Category;
 use SousMeow\Services\Accent;
 
 /**
- * Shared category index: the twelve categories as scannable cards, then a
+ * Shared category index: compact directory cards for fast scanning, then a
  * Start Here section and a small number of surfaced Collection strips.
  *
  * @var list<array<string, mixed>> $categories  Visible categories with counts.
@@ -29,20 +28,24 @@ $mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="
   <section class="cat-grid-section" aria-labelledby="cat-grid-h">
     <h2 id="cat-grid-h" class="visually-hidden">All categories</h2>
     <ul class="category-grid">
-      <?php foreach ($categories as $cat): $count = (int) $cat['cookbook_count']; ?>
-        <li class="category-card <?= e(Accent::cssClass((string) $cat['accent'])) ?>">
-          <span class="category-mark" aria-hidden="true"><?= $mark ?></span>
-          <h3 class="category-name"><a href="<?= e(url('/categories/' . $cat['slug'])) ?>"><?= e($cat['name']) ?></a></h3>
-          <p class="category-tagline"><?= e($cat['tagline']) ?></p>
-          <ul class="category-outcomes mono">
-            <?php foreach (Category::outcomes($cat) as $outcome): ?>
-              <li><?= e($outcome) ?></li>
-            <?php endforeach; ?>
-          </ul>
-          <p class="category-foot">
-            <span class="category-count"><?= $count > 0 ? e(plural($count, 'Cookbook')) : 'No Cookbooks yet' ?></span>
-            <a class="category-explore" href="<?= e(url('/categories/' . $cat['slug'])) ?>">See Cookbooks <span aria-hidden="true">&rarr;</span></a>
-          </p>
+      <?php foreach ($categories as $cat):
+          $count = (int) $cat['cookbook_count'];
+          $countLabel = $count > 0 ? plural($count, 'Cookbook') : 'No Cookbooks yet';
+          $href = url('/categories/' . $cat['slug']);
+          $label = (string) $cat['name'] . ' — ' . $countLabel;
+          ?>
+        <li>
+          <a class="category-card category-card-dir <?= e(Accent::cssClass((string) $cat['accent'])) ?>"
+             href="<?= e($href) ?>"
+             aria-label="<?= e($label) ?>">
+            <span class="category-mark" aria-hidden="true"><?= $mark ?></span>
+            <span class="category-card-body">
+              <span class="category-name"><?= e($cat['name']) ?></span>
+              <span class="category-tagline"><?= e($cat['tagline']) ?></span>
+              <span class="category-count"><?= e($countLabel) ?></span>
+            </span>
+            <span class="category-arrow" aria-hidden="true">&rarr;</span>
+          </a>
         </li>
       <?php endforeach; ?>
     </ul>
