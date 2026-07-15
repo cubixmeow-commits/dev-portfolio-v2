@@ -35,7 +35,7 @@ Open http://localhost:8091 and sign in:
 | Elena | `elena@rally.demo` | `rally-demo-2026` |
 | Marcus | `marcus@rally.demo` | `rally-demo-2026` |
 
-Seed installs a simulated application clock at **2026-07-21 noon PDT** so the Iain vs Mike showcase is mid-series (steps 5–3, Game 9 live), with additional active/completed series for every enabled metric.
+Seed installs a simulated application clock at **2026-07-21 noon PDT** so the Iain vs Mike steps showcase is mid-series (5–3, Game 9 live). The seed also creates **every unique player pairing × all five metrics** (15 pairs × 5 = 75 matches), plus one pending invitation.
 
 ## Playable beta scope
 
