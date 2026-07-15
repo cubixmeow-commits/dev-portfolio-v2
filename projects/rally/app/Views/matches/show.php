@@ -15,8 +15,13 @@ $matchId = (int) $m['id'];
 $status = (string) $m['status'];
 $provisional = !empty($s['is_provisional']);
 $isAvg = MetricCompetitionService::isSeriesAverage($m);
+$isBaseline = MetricCompetitionService::isBaseline($m);
 $metric = MetricCompetitionService::metricPayload($m);
 $railCopy = MetricCompetitionService::railLegendCopy($m);
+$baselines = $s['baseline'] ?? ['player_a' => ['available' => false], 'player_b' => ['available' => false]];
+$surfaceLabel = (string) ($s['surface_label'] ?? MetricCompetitionService::formatSurfaceLabel($m));
+$ctypeLabel = MetricCompetitionService::competitionTypeLabel(MetricCompetitionService::competitionType($m));
+$higherWins = (int) ($m['higher_wins'] ?? 1) === 1;
 
 $tz = new DateTimeZone((string) $m['timezone']);
 $startDate = new DateTimeImmutable((string) $m['start_date']);
@@ -89,16 +94,26 @@ $tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
   <div class="board-meta">
     <span class="t-label"><?= e($m['metric_name']) ?></span>
     <span class="t-label" aria-hidden="true">·</span>
-    <span class="t-label"><?= $isAvg ? ((int) $m['length_days'] . '-day average series') : ((int) $m['length_days'] . '-game series') ?></span>
+    <span class="t-label"><?= e($ctypeLabel) ?></span>
+    <span class="t-label" aria-hidden="true">·</span>
+    <span class="t-label"><?= e($surfaceLabel) ?></span>
+    <span class="t-label" aria-hidden="true">·</span>
+    <span class="t-label"><?= $isAvg ? ((int) $m['length_days'] . '-day comparison') : ((int) $m['length_days'] . '-game series') ?></span>
     <span class="t-label" aria-hidden="true">·</span>
     <span class="t-label t-num"><?= e($dateRange) ?></span>
     <?php if ($currentDayNum !== null && $status !== 'completed'): ?>
       <span class="t-label" aria-hidden="true">·</span>
-      <span class="t-label">Game <?= $currentDayNum ?> of <?= (int) $m['length_days'] ?></span>
+      <span class="t-label"><?= $isAvg ? 'Day' : 'Game' ?> <?= $currentDayNum ?> of <?= (int) $m['length_days'] ?></span>
     <?php endif; ?>
     <span class="board-meta-spacer"></span>
     <span class="status-pill status-<?= e($matchChip[0]) ?>"><?= e($matchChip[1]) ?></span>
   </div>
+
+  <?php if ($isAvg): ?>
+    <p class="hint" role="note">Daily markers show recorded comparisons. The final official average determines the series result.</p>
+  <?php elseif ($isBaseline): ?>
+    <p class="hint" role="note">Baseline match — percentage change from the frozen baseline decides each daily game. Series score is daily wins.</p>
+  <?php endif; ?>
 
   <div class="board<?= $isAvg ? ' board--average' : '' ?>" aria-live="polite">
     <div class="board-side board-side--a">
@@ -172,7 +187,7 @@ $tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
       ?>
       <section class="live-panel<?= $isLive ? '' : ' live-panel--pending' ?>" aria-labelledby="today-heading">
         <div class="live-panel-head">
-          <h2 class="live-panel-title" id="today-heading">Game <?= (int) $day['day_number'] ?><?= $isLive ? ' · Today' : '' ?></h2>
+          <h2 class="live-panel-title" id="today-heading"><?= $isAvg ? 'Day' : 'Game' ?> <?= (int) $day['day_number'] ?><?= $isLive ? ' · Today' : '' ?><?= $isBaseline ? ' · Baseline' : '' ?></h2>
           <span>
             <span class="status-pill status-<?= e((string) $day['status']) ?>"><?= $isLive ? 'Live' : 'Pending' ?></span>
             <span class="live-panel-date t-num"><?= e($dayDate->format('D M j')) ?></span>
@@ -182,26 +197,48 @@ $tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
         <div class="live-values">
           <div class="live-side live-side--a">
             <p class="live-side-name"><?= e($m['player_a_name']) ?></p>
-            <p class="live-side-value t-num<?= $outcome['value_a'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'a' ? ' is-leading' : '' ?>">
-              <?= $outcome['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_a'], $metric)) : 'Awaiting sync' ?>
-            </p>
+            <?php if ($isBaseline && ($outcome['percentage_a'] ?? null) !== null): ?>
+              <p class="live-side-value t-num<?= $dayLeader === 'a' ? ' is-leading' : '' ?>"><?= e(\Rally\Services\BaselineCompetitionService::formatPercentage((float) $outcome['percentage_a'])) ?></p>
+              <p class="hint"><?= e(MetricFormatter::format((int) $outcome['value_a'], $metric)) ?> · Baseline <?= e(MetricFormatter::formatCompact((int) round((float) ($outcome['baseline_a'] ?? $baselines['player_a']['mean'] ?? 0)), $metric)) ?></p>
+            <?php else: ?>
+              <p class="live-side-value t-num<?= $outcome['value_a'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'a' ? ' is-leading' : '' ?>">
+                <?= $outcome['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_a'], $metric)) : 'Awaiting sync' ?>
+              </p>
+              <?php if (!$isBaseline && !$isAvg && $outcome['value_a'] !== null && !empty($baselines['player_a']['available'])):
+                $deltaA = \Rally\Services\BaselineCompetitionService::deltaPresentation((int) $outcome['value_a'], (float) $baselines['player_a']['mean'], $higherWins, $metric);
+              ?>
+                <p class="hint">Against normal · <?= e($deltaA['label']) ?></p>
+              <?php endif; ?>
+            <?php endif; ?>
           </div>
           <div class="live-mid" aria-hidden="true">
             <span class="t-label">vs</span>
           </div>
           <div class="live-side live-side--b">
             <p class="live-side-name"><?= e($m['player_b_name']) ?></p>
-            <p class="live-side-value t-num<?= $outcome['value_b'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'b' ? ' is-leading' : '' ?>">
-              <?= $outcome['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_b'], $metric)) : 'Awaiting sync' ?>
-            </p>
+            <?php if ($isBaseline && ($outcome['percentage_b'] ?? null) !== null): ?>
+              <p class="live-side-value t-num<?= $dayLeader === 'b' ? ' is-leading' : '' ?>"><?= e(\Rally\Services\BaselineCompetitionService::formatPercentage((float) $outcome['percentage_b'])) ?></p>
+              <p class="hint"><?= e(MetricFormatter::format((int) $outcome['value_b'], $metric)) ?> · Baseline <?= e(MetricFormatter::formatCompact((int) round((float) ($outcome['baseline_b'] ?? $baselines['player_b']['mean'] ?? 0)), $metric)) ?></p>
+            <?php else: ?>
+              <p class="live-side-value t-num<?= $outcome['value_b'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'b' ? ' is-leading' : '' ?>">
+                <?= $outcome['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_b'], $metric)) : 'Awaiting sync' ?>
+              </p>
+              <?php if (!$isBaseline && !$isAvg && $outcome['value_b'] !== null && !empty($baselines['player_b']['available'])):
+                $deltaB = \Rally\Services\BaselineCompetitionService::deltaPresentation((int) $outcome['value_b'], (float) $baselines['player_b']['mean'], $higherWins, $metric);
+              ?>
+                <p class="hint">Against normal · <?= e($deltaB['label']) ?></p>
+              <?php endif; ?>
+            <?php endif; ?>
           </div>
         </div>
 
         <div class="live-margin">
-          <?php if ($dayLeader !== null): ?>
-            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> leads by <span class="t-num"><?= e(MetricFormatter::formatCompact((int) $margin, $metric)) ?></span></span>
+          <?php if ($isBaseline && $dayLeader !== null): ?>
+            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> leads by <span class="t-num"><?= e(number_format((float) $margin, 1)) ?> pp</span> · Result basis: percentage change</span>
+          <?php elseif ($dayLeader !== null): ?>
+            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> <?= $isAvg ? 'holds the daily comparison by' : 'leads by' ?> <span class="t-num"><?= e(MetricFormatter::formatCompact((int) $margin, $metric)) ?></span></span>
           <?php elseif ($withinTie): ?>
-            <span class="live-margin-lead">Level — within tie threshold (<span class="t-num"><?= (int) $m['tie_threshold'] ?></span>)</span>
+            <span class="live-margin-lead">Level — within <?= $isBaseline ? 'percentage' : 'tie' ?> threshold</span>
           <?php else: ?>
             <span class="live-margin-lead hint">Waiting for both competitors to sync</span>
           <?php endif; ?>
@@ -307,10 +344,19 @@ $tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
         <h2 id="stats-heading">Series notes</h2>
       </div>
       <dl class="note-list" aria-labelledby="stats-heading">
+        <div><dt>Competition</dt><dd><?= e($ctypeLabel) ?></dd></div>
+        <div><dt>Surface</dt><dd><?= e($surfaceLabel) ?></dd></div>
+        <div><dt>Result basis</dt><dd><?= e((string) ($s['result_basis'] ?? MetricCompetitionService::resultBasisLabel($m))) ?></dd></div>
         <div><dt>Scoring</dt><dd><?= e(MetricFormatter::strategyLabel((string) ($m['scoring_strategy'] ?? 'daily_wins'))) ?></dd></div>
         <div><dt>Classification</dt><dd><?= e(MetricFormatter::classificationLabel((string) ($m['classification'] ?? 'performance'))) ?></dd></div>
+        <?php if (!empty($baselines['player_a']['available'])): ?>
+          <div><dt><?= e($m['player_a_name']) ?> frozen baseline</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) round((float) $baselines['player_a']['mean']), $metric)) ?> · <?= (int) $baselines['player_a']['sample_count'] ?> days</dd></div>
+        <?php endif; ?>
+        <?php if (!empty($baselines['player_b']['available'])): ?>
+          <div><dt><?= e($m['player_b_name']) ?> frozen baseline</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) round((float) $baselines['player_b']['mean']), $metric)) ?> · <?= (int) $baselines['player_b']['sample_count'] ?> days</dd></div>
+        <?php endif; ?>
         <?php if (!$isAvg && ($s['largest_margin'] ?? null) !== null): ?>
-          <div><dt>Largest official margin</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['largest_margin'], $metric)) ?></dd></div>
+          <div><dt>Largest official margin</dt><dd class="t-num"><?= $isBaseline ? e(number_format((float) $s['largest_margin'], 1) . ' pp') : e(MetricFormatter::formatCompact((int) $s['largest_margin'], $metric)) ?></dd></div>
         <?php endif; ?>
         <?php if ($isAvg && ($s['highest_value'] ?? null) !== null): ?>
           <div><dt>Highest official value</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['highest_value'], $metric)) ?></dd></div>
@@ -324,7 +370,10 @@ $tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
         <?php if (!$isAvg && ($s['average_b'] ?? null) !== null): ?>
           <div><dt><?= e($m['player_b_name']) ?> official average</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['average_b'], $metric)) ?></dd></div>
         <?php endif; ?>
-        <div><dt>Tie threshold</dt><dd class="t-num"><?= (int) $m['tie_threshold'] ?> <?= e($m['metric_unit']) ?></dd></div>
+        <div><dt><?= $isBaseline ? 'Classic unit threshold' : 'Tie threshold' ?></dt><dd class="t-num"><?= (int) $m['tie_threshold'] ?> <?= e($m['metric_unit']) ?></dd></div>
+        <?php if ($isBaseline): ?>
+          <div><dt>Baseline % threshold</dt><dd class="t-num"><?= e(number_format((float) ($m['baseline_tie_threshold'] ?? 1), 2)) ?> pp</dd></div>
+        <?php endif; ?>
         <div><dt>Match timezone</dt><dd><?= e($m['timezone']) ?></dd></div>
       </dl>
       <?php if (!empty($m['context_note'])): ?>

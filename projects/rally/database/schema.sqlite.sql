@@ -51,22 +51,24 @@ CREATE TABLE IF NOT EXISTS rly_data_sources (
 );
 
 CREATE TABLE IF NOT EXISTS rly_matches (
-    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-    metric_type_id      INTEGER NOT NULL,
-    player_a_user_id    INTEGER NOT NULL,
-    player_b_user_id    INTEGER NOT NULL,
-    player_a_source_id  INTEGER NOT NULL,
-    player_b_source_id  INTEGER NULL,
-    created_by_user_id  INTEGER NOT NULL,
-    start_date          TEXT NOT NULL,
-    length_days         INTEGER NOT NULL DEFAULT 14,
-    timezone            TEXT NOT NULL,
-    tie_threshold       INTEGER NOT NULL DEFAULT 100,
-    status              TEXT NOT NULL DEFAULT 'invited',
-    invitation_status   TEXT NOT NULL DEFAULT 'pending',
-    created_at          TEXT NOT NULL,
-    updated_at          TEXT NOT NULL,
-    completed_at        TEXT NULL,
+    id                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    metric_type_id          INTEGER NOT NULL,
+    player_a_user_id        INTEGER NOT NULL,
+    player_b_user_id        INTEGER NOT NULL,
+    player_a_source_id      INTEGER NOT NULL,
+    player_b_source_id      INTEGER NULL,
+    created_by_user_id      INTEGER NOT NULL,
+    start_date              TEXT NOT NULL,
+    length_days             INTEGER NOT NULL DEFAULT 14,
+    timezone                TEXT NOT NULL,
+    tie_threshold           INTEGER NOT NULL DEFAULT 100,
+    competition_type        TEXT NOT NULL DEFAULT 'classic',
+    baseline_tie_threshold  REAL NULL,
+    status                  TEXT NOT NULL DEFAULT 'invited',
+    invitation_status       TEXT NOT NULL DEFAULT 'pending',
+    created_at              TEXT NOT NULL,
+    updated_at              TEXT NOT NULL,
+    completed_at            TEXT NULL,
     FOREIGN KEY (metric_type_id) REFERENCES rly_metric_types(id),
     FOREIGN KEY (player_a_user_id) REFERENCES rly_users(id),
     FOREIGN KEY (player_b_user_id) REFERENCES rly_users(id),
@@ -111,3 +113,48 @@ CREATE TABLE IF NOT EXISTS rly_match_day_results (
     FOREIGN KEY (data_source_id) REFERENCES rly_data_sources(id)
 );
 CREATE INDEX IF NOT EXISTS idx_rly_results_source_key ON rly_match_day_results (source_record_key);
+
+CREATE TABLE IF NOT EXISTS rly_user_metric_days (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id           INTEGER NOT NULL,
+    metric_type_id    INTEGER NOT NULL,
+    data_source_id    INTEGER NOT NULL,
+    observation_date  TEXT NOT NULL,
+    metric_value      INTEGER NOT NULL,
+    is_manual         INTEGER NOT NULL DEFAULT 0,
+    source_record_key TEXT NULL,
+    source_timezone   TEXT NULL,
+    observed_at       TEXT NULL,
+    ingested_at       TEXT NOT NULL,
+    created_at        TEXT NOT NULL,
+    updated_at        TEXT NOT NULL,
+    UNIQUE (user_id, metric_type_id, data_source_id, observation_date),
+    FOREIGN KEY (user_id) REFERENCES rly_users(id),
+    FOREIGN KEY (metric_type_id) REFERENCES rly_metric_types(id),
+    FOREIGN KEY (data_source_id) REFERENCES rly_data_sources(id)
+);
+CREATE INDEX IF NOT EXISTS idx_rly_umd_user_metric_date
+    ON rly_user_metric_days (user_id, metric_type_id, observation_date);
+CREATE INDEX IF NOT EXISTS idx_rly_umd_source_key
+    ON rly_user_metric_days (source_record_key);
+
+CREATE TABLE IF NOT EXISTS rly_match_baselines (
+    id                           INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id                     INTEGER NOT NULL,
+    user_id                      INTEGER NOT NULL,
+    metric_type_id               INTEGER NOT NULL,
+    baseline_mean                REAL NOT NULL,
+    baseline_median              REAL NOT NULL,
+    baseline_standard_deviation  REAL NOT NULL,
+    baseline_minimum             INTEGER NOT NULL,
+    baseline_maximum             INTEGER NOT NULL,
+    sample_count                 INTEGER NOT NULL,
+    window_start_date            TEXT NOT NULL,
+    window_end_date              TEXT NOT NULL,
+    calculated_at                TEXT NOT NULL,
+    created_at                   TEXT NOT NULL,
+    UNIQUE (match_id, user_id),
+    FOREIGN KEY (match_id) REFERENCES rly_matches(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES rly_users(id),
+    FOREIGN KEY (metric_type_id) REFERENCES rly_metric_types(id)
+);

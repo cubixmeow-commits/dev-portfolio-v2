@@ -7,14 +7,11 @@ namespace Rally\Services;
 use Rally\Core\Database;
 
 /**
- * Development simulation controls. Advances the application clock, mutates
- * provisional results through ResultIngestionService, and settles days.
+ * Development simulation controls. Primary path edits canonical observations
+ * via UserMetricDayService; a legacy match-day editor remains for debugging.
  */
 final class SimulationService
 {
-    /**
-     * Advance (or set) the simulated clock, then refresh open matches.
-     */
     public static function advanceTo(\DateTimeImmutable $instant): void
     {
         Clock::setOverride($instant->setTimezone(new \DateTimeZone('UTC')));
@@ -36,8 +33,54 @@ final class SimulationService
     }
 
     /**
-     * Set or update both players' values for a match day via ingestion,
-     * optionally settling immediately.
+     * Canonical observation update — preferred simulation path.
+     *
+     * @param array{
+     *   user_id: int,
+     *   metric_type: string|int,
+     *   data_source: string|int,
+     *   observation_date: string,
+     *   value: int,
+     *   project?: bool
+     * } $input
+     * @return array{observation: array<string, mixed>, projections: list<array<string, mixed>>, preview: list<array<string, mixed>>}
+     */
+    public static function ingestCanonical(array $input): array
+    {
+        $result = UserMetricDayService::ingest([
+            'user_id' => (int) $input['user_id'],
+            'metric_type' => $input['metric_type'],
+            'data_source' => $input['data_source'],
+            'observation_date' => (string) $input['observation_date'],
+            'value' => (int) $input['value'],
+            'source_record_key' => 'sim-canonical-' . (int) $input['user_id'] . '-' . $input['metric_type'] . '-' . $input['observation_date'],
+            'is_manual' => true,
+            'project' => array_key_exists('project', $input) ? (bool) $input['project'] : true,
+        ], true);
+
+        $metric = is_numeric($input['metric_type'])
+            ? Database::fetch('SELECT id FROM rly_metric_types WHERE id = ?', [(int) $input['metric_type']])
+            : Database::fetch('SELECT id FROM rly_metric_types WHERE slug = ?', [(string) $input['metric_type']]);
+        $sourceId = is_numeric($input['data_source'])
+            ? (int) $input['data_source']
+            : (int) (Database::fetchValue('SELECT id FROM rly_data_sources WHERE slug = ?', [(string) $input['data_source']]) ?? 0);
+
+        $preview = MatchObservationProjectionService::previewAffectedMatches(
+            (int) $input['user_id'],
+            (int) ($metric['id'] ?? 0),
+            $sourceId,
+            (string) $input['observation_date']
+        );
+
+        return [
+            'observation' => $result['observation'],
+            'projections' => $result['projections'],
+            'preview' => $preview,
+        ];
+    }
+
+    /**
+     * Legacy match-day editor — labeled for debugging only.
      *
      * @param array{
      *   match_day_id: int,
@@ -54,9 +97,10 @@ final class SimulationService
         $matchDayId = (int) $input['match_day_id'];
         $day = Database::fetch(
             'SELECT d.*, m.player_a_user_id, m.player_b_user_id, m.player_a_source_id, m.player_b_source_id,
-                    m.id AS match_id
+                    m.id AS match_id, mt.slug AS metric_slug
              FROM rly_match_days d
              JOIN rly_matches m ON m.id = d.match_id
+             JOIN rly_metric_types mt ON mt.id = m.metric_type_id
              WHERE d.id = ?',
             [$matchDayId]
         );
@@ -68,9 +112,10 @@ final class SimulationService
         $sourceB = $input['source_b'] ?? (int) ($day['player_b_source_id'] ?? $day['player_a_source_id']);
 
         if (array_key_exists('value_a', $input) && $input['value_a'] !== null && $input['value_a'] !== '') {
-            ResultIngestionService::ingest([
+            UserMetricDayService::ingest([
                 'user_id' => (int) $day['player_a_user_id'],
-                'match_day_id' => $matchDayId,
+                'metric_type' => (string) $day['metric_slug'],
+                'observation_date' => (string) $day['competition_date'],
                 'value' => (int) $input['value_a'],
                 'data_source' => $sourceA,
                 'source_record_key' => 'sim-a-' . $matchDayId,
@@ -79,9 +124,10 @@ final class SimulationService
         }
 
         if (array_key_exists('value_b', $input) && $input['value_b'] !== null && $input['value_b'] !== '') {
-            ResultIngestionService::ingest([
+            UserMetricDayService::ingest([
                 'user_id' => (int) $day['player_b_user_id'],
-                'match_day_id' => $matchDayId,
+                'metric_type' => (string) $day['metric_slug'],
+                'observation_date' => (string) $day['competition_date'],
                 'value' => (int) $input['value_b'],
                 'data_source' => $sourceB,
                 'source_record_key' => 'sim-b-' . $matchDayId,
@@ -121,5 +167,17 @@ final class SimulationService
              JOIN rly_metric_types mt ON mt.id = m.metric_type_id
              ORDER BY m.id ASC'
         );
+    }
+
+    /** @return list<array<string, mixed>> */
+    public static function listUsers(): array
+    {
+        return Database::fetchAll('SELECT id, name, username FROM rly_users WHERE status = \'active\' ORDER BY name');
+    }
+
+    /** @return list<array<string, mixed>> */
+    public static function listMetrics(): array
+    {
+        return Database::fetchAll('SELECT * FROM rly_metric_types WHERE is_active = 1 ORDER BY name');
     }
 }

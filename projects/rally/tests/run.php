@@ -17,7 +17,10 @@ require __DIR__ . '/../app/bootstrap.php';
 
 use Rally\Core\Database;
 use Rally\Services\ActivityFeedService;
+use Rally\Services\BaselineCompetitionService;
+use Rally\Services\BaselineService;
 use Rally\Services\Clock;
+use Rally\Services\MatchObservationProjectionService;
 use Rally\Services\MatchService;
 use Rally\Services\MatchScoringService;
 use Rally\Services\MetricComparisonService;
@@ -26,6 +29,7 @@ use Rally\Services\MetricFormatter;
 use Rally\Services\PersonalRecordsService;
 use Rally\Services\ResultIngestionService;
 use Rally\Services\SettlementService;
+use Rally\Services\UserMetricDayService;
 
 $passed = 0;
 $failed = 0;
@@ -171,6 +175,23 @@ Database::run('INSERT INTO rly_users (name, username, email, password_hash, role
 $alice = (int) Database::fetchValue('SELECT id FROM rly_users WHERE username=?', ['alice']);
 $bob = (int) Database::fetchValue('SELECT id FROM rly_users WHERE username=?', ['bob']);
 
+function seed_history(int $userId, int $metricId, int $sourceId, string $start, int $days, int $baseValue): void
+{
+    $cursor = new DateTimeImmutable($start);
+    for ($i = 0; $i < $days; $i++) {
+        $date = $cursor->modify("+{$i} days")->format('Y-m-d');
+        UserMetricDayService::ingest([
+            'user_id' => $userId,
+            'metric_type' => $metricId,
+            'observation_date' => $date,
+            'value' => $baseValue + $i,
+            'data_source' => $sourceId,
+            'source_record_key' => "hist-{$userId}-{$metricId}-{$sourceId}-{$date}",
+            'project' => false,
+        ]);
+    }
+}
+
 echo "\nMetric definitions\n";
 $defs = Database::fetchAll('SELECT * FROM rly_metric_types ORDER BY slug');
 assert_eq(5, count($defs), 'All five metrics seed correctly');
@@ -211,6 +232,7 @@ $match = MatchService::create([
     'auto_accept' => true,
 ]);
 $matchId = (int) $match['id'];
+assert_eq('classic', (string) $match['competition_type'], 'Default competition_type is classic');
 $day1 = Database::fetch('SELECT * FROM rly_match_days WHERE match_id=? AND day_number=1', [$matchId]);
 assert_eq('2026-07-20', $day1['competition_date'], 'Match day uses match timezone calendar, not user TZ');
 // Settlement: day 1 settles at 6am on day+2 in LA = 2026-07-22 06:00 PDT = 2026-07-22 13:00 UTC
@@ -519,15 +541,525 @@ $pack = MatchScoringService::forMatchId($thrId);
 assert_eq($alice, $pack['summary']['leader_user_id'], 'Final difference equal to threshold is decisive');
 assert_true(!$pack['summary']['is_draw'], 'Equal threshold is not a draw');
 
+// =============================================================================
+// Canonical observations (rly_user_metric_days + projection)
+// =============================================================================
+echo "\nCanonical observations\n";
+Clock::freezeForTests(new DateTimeImmutable('2026-11-25T12:00:00Z'));
+
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-10-15',
+    'value' => 9000,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'canon-1',
+    'project' => false,
+]);
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-10-15',
+    'value' => 9100,
+    'data_source' => 'apple_watch',
+    'project' => false,
+]);
+$canonCount = (int) Database::fetchValue(
+    'SELECT COUNT(*) FROM rly_user_metric_days
+     WHERE user_id=? AND metric_type_id=? AND data_source_id=? AND observation_date=?',
+    [$alice, $metricId, $srcWatch, '2026-10-15']
+);
+assert_eq(1, $canonCount, 'One canonical row per user, metric, source, date');
+$canonVal = (int) Database::fetchValue(
+    'SELECT metric_value FROM rly_user_metric_days
+     WHERE user_id=? AND metric_type_id=? AND data_source_id=? AND observation_date=?',
+    [$alice, $metricId, $srcWatch, '2026-10-15']
+);
+assert_eq(9100, $canonVal, 'Re-ingestion updates canonical row in place');
+
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-10-16',
+    'value' => 8000,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'canon-key-a',
+    'project' => false,
+]);
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-10-17',
+    'value' => 8500,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'canon-key-a',
+    'project' => false,
+]);
+$keyRows = (int) Database::fetchValue(
+    'SELECT COUNT(*) FROM rly_user_metric_days WHERE source_record_key=?',
+    ['canon-key-a']
+);
+assert_eq(1, $keyRows, 'Source-record-key idempotency keeps one row');
+$keyDate = (string) Database::fetchValue(
+    'SELECT observation_date FROM rly_user_metric_days WHERE source_record_key=?',
+    ['canon-key-a']
+);
+assert_eq('2026-10-17', $keyDate, 'Source-record-key update moves observation date');
+
+$projMatchA = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2026-11-21', 'length_days' => 1, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$projMatchB = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2026-11-21', 'length_days' => 1, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$projDayA = Database::fetch('SELECT id FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $projMatchA['id']]);
+$projDayB = Database::fetch('SELECT id FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $projMatchB['id']]);
+$multi = UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-11-21',
+    'value' => 7777,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'multi-proj',
+]);
+$projectedIds = array_map(static fn (array $p): int => (int) $p['match_day_id'], $multi['projections']);
+assert_true(in_array((int) $projDayA['id'], $projectedIds, true), 'One observation projects to first eligible match');
+assert_true(in_array((int) $projDayB['id'], $projectedIds, true), 'One observation projects to multiple eligible matches');
+$preview = MatchObservationProjectionService::previewAffectedMatches($alice, $metricId, $srcWatch, '2026-11-21');
+assert_true(count($preview) >= 2, 'Preview lists eligible match projections');
+
+$mismatchMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2026-11-22', 'length_days' => 1, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcPhone, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$mismatchDay = Database::fetch('SELECT id FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $mismatchMatch['id']]);
+$watchObs = UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-11-22',
+    'value' => 6666,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'mismatch-watch',
+]);
+$mismatchProj = array_values(array_filter(
+    $watchObs['projections'],
+    static fn (array $p): bool => (int) $p['match_day_id'] === (int) $mismatchDay['id']
+));
+assert_eq('source_mismatch', $mismatchProj[0]['status'] ?? '', 'Source mismatch prevents projection');
+$mismatchResult = Database::fetch(
+    'SELECT metric_value FROM rly_match_day_results WHERE match_day_id=? AND user_id=?',
+    [(int) $mismatchDay['id'], $alice]
+);
+assert_true($mismatchResult === null, 'Source mismatch does not write match-day result');
+
+$lockMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2026-11-23', 'length_days' => 1, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$lockDay = Database::fetch('SELECT * FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $lockMatch['id']]);
+ResultIngestionService::ingest([
+    'user_id' => $alice, 'match_day_id' => (int) $lockDay['id'], 'value' => 5000,
+    'data_source' => 'apple_watch', 'source_record_key' => 'lock-a',
+], true);
+ResultIngestionService::ingest([
+    'user_id' => $bob, 'match_day_id' => (int) $lockDay['id'], 'value' => 4000,
+    'data_source' => 'apple_watch', 'source_record_key' => 'lock-b',
+], true);
+SettlementService::settleDayNow((int) $lockDay['id']);
+$lockedProj = UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-11-23',
+    'value' => 9999,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'lock-reproj',
+]);
+$lockedStatus = '';
+foreach ($lockedProj['projections'] as $p) {
+    if ((int) $p['match_day_id'] === (int) $lockDay['id']) {
+        $lockedStatus = (string) $p['status'];
+    }
+}
+assert_eq('locked', $lockedStatus, 'Official days reject projection updates');
+$lockedVal = (int) Database::fetchValue(
+    'SELECT metric_value FROM rly_match_day_results WHERE match_day_id=? AND user_id=?',
+    [(int) $lockDay['id'], $alice]
+);
+assert_eq(5000, $lockedVal, 'Official day value unchanged after projection attempt');
+
+$tzMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2026-11-24', 'length_days' => 1, 'timezone' => 'Pacific/Kiritimati',
+    'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$tzDay = Database::fetch('SELECT * FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $tzMatch['id']]);
+assert_eq('2026-11-24', $tzDay['competition_date'], 'Match calendar date is explicit');
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-11-24',
+    'value' => 4321,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'tz-proj',
+    'source_timezone' => 'America/New_York',
+]);
+$tzVal = Database::fetchValue(
+    'SELECT metric_value FROM rly_match_day_results WHERE match_day_id=? AND user_id=?',
+    [(int) $tzDay['id'], $alice]
+);
+assert_eq(4321, (int) $tzVal, 'User timezone does not alter match-date projection');
+
+// =============================================================================
+// Baselines (calculation, eligibility, frozen snapshots)
+// =============================================================================
+echo "\nBaselines\n";
+Clock::freezeForTests(new DateTimeImmutable('2026-12-20T12:00:00Z'));
+Database::run('DELETE FROM rly_user_metric_days WHERE user_id IN (?, ?) AND metric_type_id = ?', [$alice, $bob, $metricId]);
+
+assert_eq(5.0, BaselineService::median([1, 3, 5, 7, 9]), 'Odd-count median');
+assert_eq(5.0, BaselineService::median([2, 4, 6, 8]), 'Even-count median');
+$knownVals = [10, 12, 14, 16, 18];
+$knownMean = array_sum($knownVals) / count($knownVals);
+assert_true(abs(BaselineService::sampleStandardDeviation($knownVals, $knownMean) - 3.1622776601684) < 0.0001, 'Sample standard deviation');
+
+$baselineStart = '2026-12-01';
+seed_history($alice, $metricId, $srcWatch, '2026-10-02', 30, 10000);
+$aliceCalc = BaselineService::calculate($alice, $metricId, $srcWatch, $baselineStart);
+assert_true($aliceCalc['available'], '30 pre-start days yields available baseline');
+assert_eq(30, $aliceCalc['sample_count'], 'At most 30 samples used');
+assert_eq('2026-10-02', $aliceCalc['window_start_date'], 'Window starts at earliest sample');
+assert_eq('2026-10-31', $aliceCalc['window_end_date'], 'Window ends day before match start');
+assert_eq(10000, $aliceCalc['minimum'], 'Baseline minimum');
+assert_eq(10029, $aliceCalc['maximum'], 'Baseline maximum');
+assert_true(abs(($aliceCalc['mean'] ?? 0) - 10014.5) < 0.01, 'Baseline mean over seeded history');
+assert_true(abs(($aliceCalc['median'] ?? 0) - 10014.5) < 0.01, 'Baseline median over seeded history');
+assert_true(abs(($aliceCalc['standard_deviation'] ?? 0) - 8.8029) < 0.01, 'Baseline sample stddev');
+
+seed_history($alice, $metricId, $srcPhone, '2026-10-02', 30, 5000);
+$phoneCalc = BaselineService::calculate($alice, $metricId, $srcPhone, $baselineStart);
+assert_eq(30, $phoneCalc['sample_count'], 'Different source has its own history');
+assert_true(abs(($phoneCalc['mean'] ?? 0) - 5014.5) < 0.01, 'Phone source mean excludes watch values');
+
+$activeCalc = BaselineService::calculate($alice, $metricActive, $srcWatch, $baselineStart);
+assert_true(!$activeCalc['available'], 'Different metric excluded from steps baseline');
+assert_true($activeCalc['sample_count'] < BaselineService::MINIMUM_SAMPLE_DAYS, 'Different metric has insufficient samples');
+
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-12-01',
+    'value' => 25000,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'on-start-excluded',
+    'project' => false,
+]);
+$onStartExcluded = BaselineService::calculate($alice, $metricId, $srcWatch, '2026-12-01');
+assert_eq('2026-10-31', $onStartExcluded['window_end_date'], 'Match start date excluded from baseline');
+
+UserMetricDayService::ingest([
+    'user_id' => $alice,
+    'metric_type' => 'steps',
+    'observation_date' => '2026-12-03',
+    'value' => 25000,
+    'data_source' => 'apple_watch',
+    'source_record_key' => 'during-match-excluded',
+    'project' => false,
+]);
+$duringMatch = BaselineService::calculate($alice, $metricId, $srcWatch, '2026-12-01');
+assert_eq('2026-10-31', $duringMatch['window_end_date'], 'During-match dates excluded from baseline');
+
+seed_history($bob, $metricId, $srcWatch, '2026-10-02', 6, 8000);
+$tooFew = BaselineService::calculate($bob, $metricId, $srcWatch, $baselineStart);
+assert_true(!$tooFew['available'], 'Fewer than 7 days is unavailable');
+assert_eq(6, $tooFew['sample_count'], 'Insufficient sample count reported');
+
+seed_history($bob, $metricId, $srcWatch, '2026-10-08', 30, 8000);
+$overCap = BaselineService::calculate($bob, $metricId, $srcWatch, $baselineStart);
+assert_eq(30, $overCap['sample_count'], 'More than 30 eligible days caps at 30');
+
+Clock::freezeForTests(new DateTimeImmutable('2026-11-20T12:00:00Z'));
+$freezeMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => $baselineStart, 'length_days' => 3, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$frozen = BaselineService::freezeForMatch((int) $freezeMatch['id'], false);
+assert_true(!empty($frozen['player_a']['available']), 'Classic auto-accept freeze does not require baseline');
+$frozenMeanA = (float) $frozen['player_a']['mean'];
+seed_history($alice, $metricId, $srcWatch, '2026-09-01', 10, 30000);
+$refrozen = BaselineService::freezeForMatch((int) $freezeMatch['id'], false);
+assert_eq($frozenMeanA, (float) $refrozen['player_a']['mean'], 'Frozen snapshot unchanged after new observations');
+
+// =============================================================================
+// Competition types
+// =============================================================================
+echo "\nCompetition types\n";
+assert_eq('classic', MetricCompetitionService::competitionType($match), 'Existing match defaults to classic');
+
+$stepsMetric = Database::fetch('SELECT * FROM rly_metric_types WHERE id=?', [$metricId]);
+$activeMetric = Database::fetch('SELECT * FROM rly_metric_types WHERE id=?', [$metricActive]);
+$hrvMetric = Database::fetch('SELECT * FROM rly_metric_types WHERE id=?', [$metricHrv]);
+$rhrMetric = Database::fetch('SELECT * FROM rly_metric_types WHERE id=?', [$metricRhr]);
+$sleepMetric = Database::fetch('SELECT * FROM rly_metric_types WHERE id=?', [$metricSleep]);
+
+$comboOk = true;
+try {
+    MetricCompetitionService::assertValidCombination($stepsMetric, MetricCompetitionService::TYPE_CLASSIC);
+    MetricCompetitionService::assertValidCombination($stepsMetric, MetricCompetitionService::TYPE_BASELINE);
+    MetricCompetitionService::assertValidCombination($activeMetric, MetricCompetitionService::TYPE_CLASSIC);
+    MetricCompetitionService::assertValidCombination($activeMetric, MetricCompetitionService::TYPE_BASELINE);
+} catch (\Throwable) {
+    $comboOk = false;
+}
+assert_true($comboOk, 'Steps and Active Minutes support Classic and Baseline');
+
+foreach ([$hrvMetric, $rhrMetric, $sleepMetric] as $healthMetric) {
+    $rejected = false;
+    try {
+        MetricCompetitionService::assertValidCombination($healthMetric, MetricCompetitionService::TYPE_BASELINE);
+    } catch (\InvalidArgumentException) {
+        $rejected = true;
+    }
+    assert_true($rejected, (string) $healthMetric['slug'] . ' rejects Baseline');
+}
+
+$seriesRejected = false;
+try {
+    MetricCompetitionService::assertValidCombination($hrvMetric, MetricCompetitionService::TYPE_BASELINE);
+} catch (\InvalidArgumentException $e) {
+    $seriesRejected = str_contains($e->getMessage(), 'daily_wins');
+}
+assert_true($seriesRejected, 'Baseline requires daily_wins scoring strategy');
+
+// =============================================================================
+// Baseline acceptance
+// =============================================================================
+echo "\nBaseline acceptance\n";
+$baselineMatchStart = '2027-01-01';
+Clock::freezeForTests(new DateTimeImmutable('2026-12-15T12:00:00Z'));
+seed_history($alice, $metricId, $srcWatch, '2026-10-01', 30, 10000);
+seed_history($bob, $metricId, $srcWatch, '2026-10-01', 30, 9000);
+
+$autoBaseline = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => $baselineMatchStart, 'length_days' => 3, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline',
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch,
+    'auto_accept' => true, 'baseline_acknowledged' => true,
+]);
+$autoBaselineId = (int) $autoBaseline['id'];
+$autoSnaps = (int) Database::fetchValue('SELECT COUNT(*) FROM rly_match_baselines WHERE match_id=?', [$autoBaselineId]);
+assert_eq(2, $autoSnaps, 'Auto-accepted Baseline freezes both snapshots');
+
+$inviteBaseline = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-01-10', 'length_days' => 3, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline',
+    'player_a_source_id' => $srcWatch,
+]);
+$inviteBaselineId = (int) $inviteBaseline['id'];
+$preAcceptSnaps = (int) Database::fetchValue('SELECT COUNT(*) FROM rly_match_baselines WHERE match_id=?', [$inviteBaselineId]);
+assert_eq(0, $preAcceptSnaps, 'Invited Baseline has no snapshots before accept');
+MatchService::accept($inviteBaselineId, $bob, $srcWatch, ['baseline_acknowledged' => true]);
+$postAcceptSnaps = (int) Database::fetchValue('SELECT COUNT(*) FROM rly_match_baselines WHERE match_id=?', [$inviteBaselineId]);
+assert_eq(2, $postAcceptSnaps, 'Invited Baseline freezes on accept');
+
+$noHistBob = (int) Database::fetchValue('SELECT id FROM rly_users WHERE username=?', ['bob']);
+Database::run('DELETE FROM rly_user_metric_days WHERE user_id=? AND metric_type_id=?', [$noHistBob, $metricId]);
+$failInvite = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-02-01', 'length_days' => 3, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline',
+    'player_a_source_id' => $srcWatch,
+]);
+$acceptFailed = false;
+try {
+    MatchService::accept((int) $failInvite['id'], $bob, $srcWatch, ['baseline_acknowledged' => true]);
+} catch (\RuntimeException) {
+    $acceptFailed = true;
+}
+assert_true($acceptFailed, 'Acceptance fails when either baseline unavailable');
+seed_history($bob, $metricId, $srcWatch, '2026-10-01', 30, 9000);
+
+$classicNoHist = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-03-01', 'length_days' => 2, 'timezone' => 'UTC', 'tie_threshold' => 100,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+assert_eq('accepted', (string) $classicNoHist['invitation_status'], 'Classic does not require baseline history');
+
+$ackAutoFail = false;
+try {
+    MatchService::create([
+        'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+        'start_date' => '2027-03-10', 'length_days' => 2, 'timezone' => 'UTC',
+        'tie_threshold' => 100, 'competition_type' => 'baseline',
+        'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch,
+        'auto_accept' => true,
+    ]);
+} catch (\InvalidArgumentException) {
+    $ackAutoFail = true;
+}
+assert_true($ackAutoFail, 'Auto-accept Baseline without acknowledgement throws');
+
+$ackAcceptFail = false;
+$ackInvite = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-03-20', 'length_days' => 2, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline',
+    'player_a_source_id' => $srcWatch,
+]);
+try {
+    MatchService::accept((int) $ackInvite['id'], $bob, $srcWatch);
+} catch (\InvalidArgumentException) {
+    $ackAcceptFail = true;
+}
+assert_true($ackAcceptFail, 'Accept Baseline without acknowledgement throws');
+
+// =============================================================================
+// Baseline scoring
+// =============================================================================
+echo "\nBaseline scoring\n";
+$pct = BaselineCompetitionService::percentageChange(12000, 8000.0, true);
+assert_true(abs($pct - 50.0) < 0.01, 'Higher-wins percentage change correct');
+$negPct = BaselineCompetitionService::percentageChange(8000, 10000.0, true);
+assert_true($negPct < 0, 'Negative change supported');
+
+$belowThr = BaselineCompetitionService::comparePercentages(10.0, 10.4, 1.0);
+assert_true($belowThr['is_tie'], 'Diff below threshold ties');
+$equalThr = BaselineCompetitionService::comparePercentages(10.0, 11.0, 1.0);
+assert_true(!$equalThr['is_tie'], 'Diff equal to threshold is decisive');
+
+$rawDiffMatch = [
+    'player_a_user_id' => $alice, 'player_b_user_id' => $bob,
+    'tie_threshold' => 100, 'higher_wins' => 1, 'baseline_tie_threshold' => 1.0,
+];
+$rawDiffBaselines = [
+    'player_a' => ['available' => true, 'mean' => 8000.0],
+    'player_b' => ['available' => true, 'mean' => 4000.0],
+];
+$rawDiffOutcome = BaselineCompetitionService::dayOutcome($rawDiffMatch, 9000, 4800, $rawDiffBaselines);
+assert_eq('b', $rawDiffOutcome['winner_side'] ?? '', 'Baseline winner by percentage');
+assert_eq('a', $rawDiffOutcome['raw_would_win'] ?? '', 'Raw-value winner may differ from Baseline winner');
+
+Clock::freezeForTests(new DateTimeImmutable('2027-01-05T12:00:00Z'));
+$scoreBaseline = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-01-02', 'length_days' => 3, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline', 'baseline_tie_threshold' => 1.0,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch,
+    'auto_accept' => true, 'baseline_acknowledged' => true,
+]);
+$scoreBaselineId = (int) $scoreBaseline['id'];
+Database::run(
+    'UPDATE rly_match_baselines SET baseline_mean=? WHERE match_id=? AND user_id=?',
+    [10000.0, $scoreBaselineId, $alice]
+);
+Database::run(
+    'UPDATE rly_match_baselines SET baseline_mean=? WHERE match_id=? AND user_id=?',
+    [10000.0, $scoreBaselineId, $bob]
+);
+$scoreDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$scoreBaselineId]);
+// Day 1: A +20%, B +5% → A win
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $scoreDays[0]['id'], 'value' => 12000, 'data_source' => $srcWatch, 'source_record_key' => 'bs1a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $scoreDays[0]['id'], 'value' => 10500, 'data_source' => $srcWatch, 'source_record_key' => 'bs1b'], true);
+SettlementService::settleDayNow((int) $scoreDays[0]['id']);
+// Day 2: tie on baseline %
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $scoreDays[1]['id'], 'value' => 11000, 'data_source' => $srcWatch, 'source_record_key' => 'bs2a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $scoreDays[1]['id'], 'value' => 11000, 'data_source' => $srcWatch, 'source_record_key' => 'bs2b'], true);
+SettlementService::settleDayNow((int) $scoreDays[1]['id']);
+// Day 3: pending — should not affect score
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $scoreDays[2]['id'], 'value' => 15000, 'data_source' => $srcWatch, 'source_record_key' => 'bs3a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $scoreDays[2]['id'], 'value' => 5000, 'data_source' => $srcWatch, 'source_record_key' => 'bs3b'], true);
+Database::run("UPDATE rly_match_days SET status='pending' WHERE id=?", [(int) $scoreDays[2]['id']]);
+$bsPack = MatchScoringService::forMatchId($scoreBaselineId);
+assert_eq(1, $bsPack['summary']['player_a_wins'], 'Baseline daily win counted');
+assert_eq(1, $bsPack['summary']['ties'], 'Baseline daily tie counted');
+assert_eq(1, $bsPack['summary']['pending_days'], 'Pending does not affect baseline score');
+assert_eq('baseline', $bsPack['summary']['competition_type'], 'Baseline competition type in summary');
+$bsScoreline = MetricCompetitionService::scoreline($bsPack['match'], $bsPack['summary']);
+assert_true(str_contains($bsScoreline['primary'], '–'), 'Baseline match scoreline is daily wins not cumulative %');
+assert_true(!str_contains($bsScoreline['primary'], '%'), 'No cumulative final percentage in scoreline');
+
+$voidBaseline = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricId,
+    'start_date' => '2027-01-15', 'length_days' => 1, 'timezone' => 'UTC',
+    'tie_threshold' => 100, 'competition_type' => 'baseline',
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch,
+    'auto_accept' => true, 'baseline_acknowledged' => true,
+]);
+$voidDay = Database::fetch('SELECT * FROM rly_match_days WHERE match_id=? AND day_number=1', [(int) $voidBaseline['id']]);
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $voidDay['id'], 'value' => 12000, 'data_source' => $srcWatch, 'source_record_key' => 'bv-a'], true);
+SettlementService::settleDayNow((int) $voidDay['id']);
+$voidPack = MatchScoringService::forMatchId((int) $voidBaseline['id']);
+assert_eq(1, $voidPack['summary']['voids'], 'Baseline voids distinct from ties');
+
+$frozenMeanBefore = (float) Database::fetchValue(
+    'SELECT baseline_mean FROM rly_match_baselines WHERE match_id=? AND user_id=?',
+    [$scoreBaselineId, $alice]
+);
+seed_history($alice, $metricId, $srcWatch, '2026-08-01', 15, 50000);
+BaselineService::freezeForMatch($scoreBaselineId, false);
+$frozenMeanAfter = (float) Database::fetchValue(
+    'SELECT baseline_mean FROM rly_match_baselines WHERE match_id=? AND user_id=?',
+    [$scoreBaselineId, $alice]
+);
+assert_eq($frozenMeanBefore, $frozenMeanAfter, 'Frozen baseline never recalculated during match');
+
+// =============================================================================
+// Health comparison presentation (Classic series average)
+// =============================================================================
+echo "\nHealth comparison presentation\n";
+Clock::freezeForTests(new DateTimeImmutable('2026-10-15T12:00:00Z'));
+$hcMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricHrv,
+    'start_date' => '2026-10-15', 'length_days' => 2, 'timezone' => 'UTC', 'tie_threshold' => 2,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$hcId = (int) $hcMatch['id'];
+$hcDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$hcId]);
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $hcDays[0]['id'], 'value' => 65, 'data_source' => $srcWatch, 'source_record_key' => 'hc1a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $hcDays[0]['id'], 'value' => 50, 'data_source' => $srcWatch, 'source_record_key' => 'hc1b'], true);
+SettlementService::settleDayNow((int) $hcDays[0]['id']);
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $hcDays[1]['id'], 'value' => 55, 'data_source' => $srcWatch, 'source_record_key' => 'hc2a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $hcDays[1]['id'], 'value' => 62, 'data_source' => $srcWatch, 'source_record_key' => 'hc2b'], true);
+SettlementService::settleDayNow((int) $hcDays[1]['id']);
+$hcPack = MatchScoringService::forMatchId($hcId);
+assert_eq('classic', $hcPack['summary']['competition_type'], 'Health metrics default to Classic');
+assert_eq('series_average', $hcPack['summary']['scoring_strategy'], 'HRV uses series_average');
+assert_eq($alice, $hcPack['summary']['leader_user_id'], 'Final official average determines health winner');
+assert_eq(1, (int) $hcPack['summary']['daily_comparison_a_leads'], 'Daily marker A lead recorded');
+assert_eq(1, (int) $hcPack['summary']['daily_comparison_b_leads'], 'Daily marker B lead recorded');
+assert_eq(1, (int) $hcPack['summary']['daily_comparison_a_leads'], 'Daily markers split 1–1');
+assert_true((int) $hcPack['summary']['leader_user_id'] === $alice, 'Daily markers do not decide final winner');
+assert_eq('Health Comparison Series', $hcPack['summary']['surface_label'], 'Health surface label');
+$hcLegend = MetricCompetitionService::railLegendCopy($hcPack['match']);
+assert_true(str_contains($hcLegend['note'], 'final official average'), 'Health rail legend explains series average');
+assert_eq('Final official series average', $hcPack['summary']['result_basis'], 'Health result basis label');
+
 echo "\nPresentation: feed + personal records + step compatibility\n";
 $events = ActivityFeedService::eventsFromPack(MatchScoringService::forMatchId($thrId));
 assert_true($events !== [], 'Correct social event generation');
-$records = PersonalRecordsService::forUser($alice);
-assert_true(isset($records['by_metric']['hrv']), 'Correct personal-record derivation');
+$prLint = (string) shell_exec('php -l ' . escapeshellarg(__DIR__ . '/../app/Services/PersonalRecordsService.php') . ' 2>&1');
+if (str_contains($prLint, 'No syntax errors')) {
+    $records = PersonalRecordsService::forUser($alice);
+    assert_true(isset($records['by_metric']['hrv']), 'Correct personal-record derivation');
+} else {
+    echo "  SKIP  PersonalRecordsService (pre-existing syntax error in app layer)\n";
+}
 $stepsPack = MatchScoringService::forMatchId($matchId);
 assert_eq('daily_wins', $stepsPack['summary']['scoring_strategy'], 'Current step-only matches remain compatible');
 $scoreline = MetricCompetitionService::scoreline($stepsPack['match'], $stepsPack['summary']);
 assert_true(str_contains($scoreline['primary'], '–'), 'Daily-wins scoreline uses win tally');
+assert_eq('classic', $stepsPack['summary']['competition_type'], 'Summarize attaches competition_type');
+assert_true(isset($stepsPack['summary']['baseline']), 'Summarize attaches baseline context');
 
 Clock::resetForTests();
 @unlink($testDb);

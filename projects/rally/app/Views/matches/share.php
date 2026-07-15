@@ -1,5 +1,6 @@
 <?php
 
+use Rally\Services\BaselineCompetitionService;
 use Rally\Services\MetricCompetitionService;
 use Rally\Services\MetricFormatter;
 
@@ -10,6 +11,8 @@ use Rally\Services\MetricFormatter;
 $m = $pack['match'];
 $metric = MetricCompetitionService::metricPayload($m);
 $isAvg = MetricCompetitionService::isSeriesAverage($m);
+$isBaseline = MetricCompetitionService::isBaseline($m);
+$ctype = MetricCompetitionService::competitionType($m);
 $dayNum = (int) $day['day_number'];
 $isTie = $outcome['kind'] === 'tie';
 $winnerSide = $outcome['winner_side'] ?? null;
@@ -17,18 +20,13 @@ $winner = $winnerSide === 'a' ? $m['player_a_name'] : ($winnerSide === 'b' ? $m[
 $loser = $winnerSide === 'a' ? $m['player_b_name'] : ($winnerSide === 'b' ? $m['player_a_name'] : null);
 $dateLabel = (new DateTimeImmutable((string) $day['competition_date']))->format('F j, Y');
 $shareUrl = full_url('/matches/' . (int) $m['id'] . '/day/' . $dayNum . '/share');
-$valA = MetricFormatter::format((int) $outcome['value_a'], $metric);
-$valB = MetricFormatter::format((int) $outcome['value_b'], $metric);
-$marginFmt = MetricFormatter::formatCompact((int) $outcome['margin'], $metric);
+$valA = MetricFormatter::format((int) ($outcome['value_a'] ?? 0), $metric);
+$valB = MetricFormatter::format((int) ($outcome['value_b'] ?? 0), $metric);
 $dayWord = $isAvg ? 'Day' : 'Game';
-$shareText = $isTie
-    ? "Rally {$dayWord} {$dayNum}: Within threshold — {$valA} vs {$valB}"
-    : "Rally {$dayWord} {$dayNum}: {$winner} " . ($isAvg ? 'leads' : 'defeats') . " {$loser} · {$valA} vs {$valB}";
+$ctypeLabel = MetricCompetitionService::competitionTypeLabel($ctype);
 
 $score = MetricCompetitionService::scoreline($m, $seriesAsOf);
 if ($isAvg) {
-    $avgA = $seriesAsOf['player_a_average'] ?? null;
-    $avgB = $seriesAsOf['player_b_average'] ?? null;
     $leader = MetricCompetitionService::leaderSide($m, $seriesAsOf);
     if (!empty($seriesAsOf['is_draw']) || $leader === null) {
         $seriesLine = 'Series averages level · ' . $score['primary'];
@@ -37,6 +35,20 @@ if ($isAvg) {
     } else {
         $seriesLine = $m['player_b_name'] . ' leads series average · ' . $score['primary'];
     }
+    $shareText = $isTie
+        ? "Rally {$dayWord} {$dayNum}: Within threshold — {$valA} vs {$valB}"
+        : "Rally {$dayWord} {$dayNum}: {$winner} leads daily comparison · {$valA} vs {$valB}";
+} elseif ($isBaseline) {
+    $aWins = (int) $seriesAsOf['player_a_wins'];
+    $bWins = (int) $seriesAsOf['player_b_wins'];
+    $pctA = BaselineCompetitionService::formatPercentage(isset($outcome['percentage_a']) ? (float) $outcome['percentage_a'] : null);
+    $pctB = BaselineCompetitionService::formatPercentage(isset($outcome['percentage_b']) ? (float) $outcome['percentage_b'] : null);
+    $seriesLine = ($aWins === $bWins)
+        ? ('Series level ' . $aWins . '–' . $bWins)
+        : (($aWins > $bWins ? $m['player_a_name'] : $m['player_b_name']) . ' leads ' . max($aWins, $bWins) . '–' . min($aWins, $bWins));
+    $shareText = $isTie
+        ? "Rally BASELINE Game {$dayNum}: Tie · {$pctA} vs {$pctB}"
+        : "Rally BASELINE Game {$dayNum}: {$winner} {$pctA} · {$loser} {$pctB}";
 } else {
     $aWins = (int) $seriesAsOf['player_a_wins'];
     $bWins = (int) $seriesAsOf['player_b_wins'];
@@ -47,14 +59,9 @@ if ($isAvg) {
     } else {
         $seriesLine = $m['player_b_name'] . ' leads ' . $bWins . '–' . $aWins;
     }
-}
-
-$rows = [
-    ['name' => $m['player_a_name'], 'value' => MetricFormatter::formatCompact((int) $outcome['value_a'], $metric), 'winner' => $winnerSide === 'a'],
-    ['name' => $m['player_b_name'], 'value' => MetricFormatter::formatCompact((int) $outcome['value_b'], $metric), 'winner' => $winnerSide === 'b'],
-];
-if ($winnerSide === 'b') {
-    $rows = array_reverse($rows);
+    $shareText = $isTie
+        ? "Rally CLASSIC Game {$dayNum}: Tie — {$valA} vs {$valB}"
+        : "Rally CLASSIC Game {$dayNum}: {$winner} defeats {$loser} · {$valA} vs {$valB}";
 }
 ?>
 <section class="share-page">
@@ -67,29 +74,61 @@ if ($winnerSide === 'b') {
     <article class="share-card" id="share-card" data-variant="tall">
       <header class="share-head">
         <span class="share-brand"><span class="brand-mark" aria-hidden="true"></span>Rally</span>
-        <span class="share-kicker t-num"><?= e($dayWord) ?> <?= $dayNum ?> · <?= $isAvg ? 'Comparison' : 'Final' ?></span>
+        <span class="share-kicker t-num">
+          <?= $isAvg ? 'SERIES FINAL · ' . strtoupper((string) $m['metric_name']) . ' COMPARISON' : (e(strtoupper($dayWord)) . ' ' . $dayNum . ' FINAL · ' . e(strtoupper($ctypeLabel))) ?>
+        </span>
       </header>
 
       <div class="share-result">
-        <?php foreach ($rows as $row): ?>
-          <div class="share-row<?= $row['winner'] ? ' is-winner' : '' ?>">
-            <span class="share-row-name"><?= e($row['name']) ?></span>
-            <span class="share-row-value t-num"><?= e($row['value']) ?></span>
+        <?php if ($isBaseline): ?>
+          <div class="share-row<?= $winnerSide === 'a' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_a_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(BaselineCompetitionService::formatPercentage(isset($outcome['percentage_a']) ? (float) $outcome['percentage_a'] : null)) ?></span>
           </div>
-        <?php endforeach; ?>
+          <p class="share-meta"><?= e($valA) ?> · Baseline <?= isset($outcome['baseline_a']) ? e(number_format((int) round((float) $outcome['baseline_a']))) : '—' ?></p>
+          <div class="share-row<?= $winnerSide === 'b' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_b_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(BaselineCompetitionService::formatPercentage(isset($outcome['percentage_b']) ? (float) $outcome['percentage_b'] : null)) ?></span>
+          </div>
+          <p class="share-meta"><?= e($valB) ?> · Baseline <?= isset($outcome['baseline_b']) ? e(number_format((int) round((float) $outcome['baseline_b']))) : '—' ?></p>
+        <?php elseif ($isAvg): ?>
+          <div class="share-row<?= $winnerSide === 'a' || MetricCompetitionService::leaderSide($m, $seriesAsOf) === 'a' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_a_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(MetricFormatter::formatCompact($seriesAsOf['player_a_average'] ?? $outcome['value_a'], $metric)) ?></span>
+          </div>
+          <p class="share-meta">average</p>
+          <div class="share-row<?= $winnerSide === 'b' || MetricCompetitionService::leaderSide($m, $seriesAsOf) === 'b' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_b_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(MetricFormatter::formatCompact($seriesAsOf['player_b_average'] ?? $outcome['value_b'], $metric)) ?></span>
+          </div>
+          <p class="share-meta">average</p>
+        <?php else: ?>
+          <div class="share-row<?= $winnerSide === 'a' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_a_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(MetricFormatter::formatCompact((int) $outcome['value_a'], $metric)) ?></span>
+          </div>
+          <div class="share-row<?= $winnerSide === 'b' ? ' is-winner' : '' ?>">
+            <span class="share-row-name"><?= e($m['player_b_name']) ?></span>
+            <span class="share-row-value t-num"><?= e(MetricFormatter::formatCompact((int) $outcome['value_b'], $metric)) ?></span>
+          </div>
+        <?php endif; ?>
       </div>
 
       <p class="share-headline">
         <?php if ($isTie): ?>
-          <?= $isAvg ? 'Within threshold' : 'Tie' ?> — difference <span class="t-num"><?= e($marginFmt) ?></span>
+          <?= $isAvg ? 'Within threshold' : 'Tie' ?>
+        <?php elseif ($isBaseline): ?>
+          <?= e((string) $winner) ?> wins
+        <?php elseif ($isAvg): ?>
+          <?= e((string) $winner) ?> recorded the leading value
         <?php else: ?>
-          <?= e($winner) ?> <?= $isAvg ? 'recorded the leading value' : 'wins' ?> by <span class="t-num"><?= e($marginFmt) ?></span>
+          <?= e((string) $winner) ?> defeats <?= e((string) $loser) ?>
         <?php endif; ?>
       </p>
 
       <footer class="share-foot">
         <p class="share-series t-num"><?= e($seriesLine) ?></p>
-        <p class="share-meta"><?= e($m['metric_name']) ?> · <span class="t-num"><?= e($dateLabel) ?></span> · Official</p>
+        <p class="share-meta"><?= e($m['metric_name']) ?> · <?= e($ctypeLabel) ?> · <span class="t-num"><?= e($dateLabel) ?></span> · Official</p>
         <?php if ($isAvg): ?>
           <p class="share-meta hint">Daily comparison only. Series winner uses the final average.</p>
         <?php endif; ?>

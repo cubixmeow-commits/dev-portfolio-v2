@@ -21,14 +21,14 @@ use Rally\Services\MetricFormatter;
   <div class="section-head"><h2>Competition record</h2></div>
   <dl class="record-grid">
     <div class="record-cell">
-      <dt>Series</dt>
-      <dd class="t-num"><?= (int) $stats['match_wins'] ?>–<?= (int) $stats['match_losses'] ?><?= (int) $stats['match_draws'] > 0 ? '–' . (int) $stats['match_draws'] : '' ?></dd>
-      <span class="record-note">W–L<?= (int) $stats['match_draws'] > 0 ? '–D' : '' ?></span>
+      <dt>Classic</dt>
+      <dd class="t-num"><?= (int) ($stats['classic_record']['wins'] ?? 0) ?>–<?= (int) ($stats['classic_record']['losses'] ?? 0) ?><?= (int) ($stats['classic_record']['draws'] ?? 0) > 0 ? '–' . (int) $stats['classic_record']['draws'] : '' ?></dd>
+      <span class="record-note">Five supported metrics</span>
     </div>
     <div class="record-cell">
-      <dt>Daily comparisons</dt>
-      <dd class="t-num"><?= (int) $stats['daily_wins'] ?>–<?= (int) $stats['daily_losses'] ?></dd>
-      <span class="record-note">W–L across settled days</span>
+      <dt>Baseline</dt>
+      <dd class="t-num"><?= (int) ($stats['baseline_record']['wins'] ?? 0) ?>–<?= (int) ($stats['baseline_record']['losses'] ?? 0) ?><?= (int) ($stats['baseline_record']['draws'] ?? 0) > 0 ? '–' . (int) $stats['baseline_record']['draws'] : '' ?></dd>
+      <span class="record-note">Steps and Active Minutes</span>
     </div>
     <div class="record-cell">
       <dt>Active</dt>
@@ -36,6 +36,7 @@ use Rally\Services\MetricFormatter;
       <span class="record-note">open series</span>
     </div>
   </dl>
+  <p class="hint">Classic and Baseline are different competition types with different eligible metric pools. Do not combine them into one total.</p>
 
   <section aria-labelledby="metric-rec-h">
     <div class="section-head"><h2 id="metric-rec-h">Metric records</h2></div>
@@ -46,19 +47,50 @@ use Rally\Services\MetricFormatter;
           <span class="metric-records-value t-num"><?= e((string) $rec['formatted']) ?></span>
         </li>
       <?php endforeach; ?>
-      <li>
-        <span class="metric-records-label">Largest decisive match-day margin</span>
-        <span class="metric-records-value t-num"><?= $records['largest_decisive_margin'] !== null ? e(number_format((int) $records['largest_decisive_margin'])) : '—' ?></span>
-      </li>
-      <li>
-        <span class="metric-records-label">Closest decisive daily win</span>
-        <span class="metric-records-value t-num"><?= $records['closest_decisive_win'] !== null ? e(number_format((int) $records['closest_decisive_win'])) : '—' ?></span>
-      </li>
-      <li>
-        <span class="metric-records-label">Longest daily-game winning streak</span>
-        <span class="metric-records-value t-num"><?= (int) $records['longest_daily_win_streak'] > 0 ? (int) $records['longest_daily_win_streak'] : '—' ?></span>
-      </li>
+      <?php if (!empty($records['competition_records']['classic']['by_metric'])): ?>
+        <?php foreach ($records['competition_records']['classic']['by_metric'] as $mr): ?>
+          <li>
+            <span class="metric-records-label">Classic <?= e((string) $mr['name']) ?></span>
+            <span class="metric-records-value t-num"><?= (int) $mr['wins'] ?>–<?= (int) $mr['losses'] ?><?= (int) $mr['draws'] > 0 ? '–' . (int) $mr['draws'] : '' ?></span>
+          </li>
+        <?php endforeach; ?>
+      <?php endif; ?>
+      <?php if (!empty($records['competition_records']['baseline']['by_metric'])): ?>
+        <?php foreach ($records['competition_records']['baseline']['by_metric'] as $mr): ?>
+          <li>
+            <span class="metric-records-label">Baseline <?= e((string) $mr['name']) ?></span>
+            <span class="metric-records-value t-num"><?= (int) $mr['wins'] ?>–<?= (int) $mr['losses'] ?><?= (int) $mr['draws'] > 0 ? '–' . (int) $mr['draws'] : '' ?></span>
+          </li>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </ul>
+  </section>
+
+  <section aria-labelledby="baseline-h">
+    <div class="section-head"><h2 id="baseline-h">Your recent baselines</h2></div>
+    <?php if (empty($records['recent_baselines'])): ?>
+      <p class="hint">No canonical history yet.</p>
+    <?php else: ?>
+      <ul class="metric-records">
+        <?php foreach ($records['recent_baselines'] as $bl): ?>
+          <li>
+            <span class="metric-records-label"><?= e((string) $bl['metric_name']) ?> · <?= e((string) $bl['source_name']) ?></span>
+            <span class="metric-records-value t-num">
+              <?= e((string) $bl['formatted_mean']) ?>
+              <?php if (!empty($bl['available'])): ?>
+                · <?= (int) $bl['sample_count'] ?> days
+                <?php if (!empty($bl['typical_range']['label'])): ?>
+                  · Typical range <?= e((string) $bl['typical_range']['label']) ?>
+                <?php endif; ?>
+              <?php else: ?>
+                · unavailable
+              <?php endif; ?>
+            </span>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+      <p class="hint">Your recent baseline and typical range are personal history, not a healthy range or age norm.</p>
+    <?php endif; ?>
   </section>
 
   <section aria-labelledby="active-h">
