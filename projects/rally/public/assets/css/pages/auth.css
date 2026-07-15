@@ -1,1 +1,7 @@
-.auth-panel h1 { margin-bottom: 0.25rem; }
+.auth-panel {
+  width: min(100% - (var(--gutter) * 2), 24rem);
+  margin: var(--s-5) auto 0;
+}
+.auth-panel .t-label { display: block; margin-bottom: var(--s-2); }
+.auth-panel h1 { text-transform: uppercase; }
+.auth-alt { margin-top: var(--s-4); }

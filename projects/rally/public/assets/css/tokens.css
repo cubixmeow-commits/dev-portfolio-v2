@@ -1,25 +1,88 @@
+/* ==========================================================================
+   Rally design tokens — broadcast scoreboard on a neutral graphite canvas.
+   One signal color (acid lime) reserved for live state, the current game,
+   the active side and primary actions. Everything else is grayscale plus
+   the settlement palette (amber pending, mint official, gray void).
+   ========================================================================== */
+
 :root {
-  --bg: #071410;
-  --bg-elevated: #0d1f18;
-  --bg-panel: #12261e;
-  --ink: #e8f0ea;
-  --ink-muted: #9bb3a4;
-  --line: #243f34;
-  --accent: #c4f042;
-  --accent-ink: #0b1f17;
-  --warn: #f0b429;
-  --danger: #ff6b4a;
-  --live: #c4f042;
-  --pending: #f0b429;
-  --official: #8fd3b0;
-  --void: #7a8f84;
-  --font-display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
-  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
-  --radius: 4px;
-  --space: 1rem;
-  --max: 42rem;
-  --header-h: 3.5rem;
-  --focus: 0 0 0 3px rgba(196, 240, 66, 0.45);
+  /* Canvas & surfaces */
+  --canvas: #0b0c0e;
+  --surface-1: #131518;
+  --surface-2: #1a1d21;
+  --surface-3: #22262b;
+  --line: #262b31;
+  --line-strong: #3a4149;
+
+  /* Ink */
+  --ink: #f1f3f5;
+  --ink-2: #a5adb8;
+  --ink-3: #6c7480;
+
+  /* Rally signal — use sparingly */
+  --signal: #c8f542;
+  --signal-ink: #131608;
+  --signal-dim: rgba(200, 245, 66, 0.13);
+  --signal-line: rgba(200, 245, 66, 0.45);
+
+  /* Settlement states */
+  --pending: #e2b04e;
+  --pending-dim: rgba(226, 176, 78, 0.12);
+  --official: #85d3aa;
+  --official-dim: rgba(133, 211, 170, 0.11);
+  --void: #79828d;
+  --void-dim: rgba(121, 130, 141, 0.12);
+  --danger: #e96a5c;
+  --danger-dim: rgba(233, 106, 92, 0.12);
+
+  /* Type — Archivo variable (width axis) for display + condensed labels,
+     Inter for interface text and tabular data. */
+  --font-display: "Archivo", "Arial Narrow", Arial, sans-serif;
+  --font-ui: "Inter", "Segoe UI", system-ui, sans-serif;
+  --stretch-wide: 118%;
+  --stretch-cond: 76%;
+
+  /* Type scale (mobile-first; key sizes only) */
+  --text-xs: 0.72rem;
+  --text-s: 0.85rem;
+  --text-m: 1rem;
+  --text-l: 1.2rem;
+  --display-s: clamp(1.35rem, 4vw, 1.75rem);
+  --display-m: clamp(1.75rem, 6vw, 2.6rem);
+  --display-l: clamp(2.6rem, 9vw, 4rem);
+  --score-xl: clamp(4.25rem, 20vw, 7.5rem);
+
+  /* Spacing scale — 4px base */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+
+  /* Layout */
+  --gutter: 1rem;
+  --max-page: 71rem;   /* full desktop compositions */
+  --max-narrow: 42rem; /* forms & reading pages */
+  --header-h: 3.25rem;
+  --bottomnav-h: 3.6rem;
+
+  /* Shape — restrained; surfaces and rules before rounded cards */
+  --r-s: 3px;
+  --r-m: 6px;
+
+  --focus: 0 0 0 2px var(--canvas), 0 0 0 4px var(--signal);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --dur-fast: 140ms;
+  --dur-med: 320ms;
+}
+
+@media (min-width: 640px) {
+  :root { --gutter: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -27,5 +90,6 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

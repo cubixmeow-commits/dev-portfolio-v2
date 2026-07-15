@@ -1,11 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.querySelector('.nav-toggle');
-  const links = document.getElementById('nav-links');
-  if (toggle && links) {
+  const panel = document.getElementById('nav-menu-panel');
+  if (toggle && panel) {
     toggle.addEventListener('click', () => {
       const open = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
-      links.classList.toggle('is-open', !open);
+      panel.classList.toggle('is-open', !open);
+    });
+    document.addEventListener('click', (event) => {
+      if (!panel.classList.contains('is-open')) return;
+      if (event.target instanceof Node && !toggle.contains(event.target) && !panel.contains(event.target)) {
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('is-open');
+      }
     });
   }
 

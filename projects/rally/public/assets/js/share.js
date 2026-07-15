@@ -35,4 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
       setFeedback(url);
     }
   });
+
+  // Card format switcher: tall (social) / square / compact (link preview)
+  const card = document.getElementById('share-card');
+  const variantBtns = document.querySelectorAll('[data-variant-btn]');
+  variantBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!card) return;
+      card.dataset.variant = btn.dataset.variantBtn;
+      variantBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+    });
+  });
 });

@@ -3,8 +3,8 @@
 /** @var string $email */
 ?>
 <section class="auth-panel">
-  <h1>Sign in</h1>
-  <p class="auth-lede">Jump back into your active series.</p>
+  <p class="t-label">Sign in</p>
+  <h1>Back to the series</h1>
   <?php if (!empty($errors['form'])): ?>
     <p class="form-error" role="alert"><?= e($errors['form']) ?></p>
   <?php endif; ?>

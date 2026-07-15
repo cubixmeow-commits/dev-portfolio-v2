@@ -3,8 +3,9 @@
 /** @var array<string,string> $old */
 ?>
 <section class="auth-panel">
+  <p class="t-label">Join Rally</p>
   <h1>Create account</h1>
-  <p class="auth-lede">Set a display name and join the competition.</p>
+  <p class="lede">Pick a name for the scoreboard and join the competition.</p>
   <form method="post" action="<?= e(url('/register')) ?>" class="stack-form" novalidate>
     <?= \Rally\Core\Csrf::field() ?>
     <label>
@@ -33,6 +34,7 @@
         <option value="Europe/London">
         <option value="UTC">
       </datalist>
+      <span class="hint">Presentational only — each match keeps its own authoritative scoring timezone.</span>
       <?php if (!empty($errors['timezone'])): ?><span class="field-error"><?= e($errors['timezone']) ?></span><?php endif; ?>
     </label>
     <label>
