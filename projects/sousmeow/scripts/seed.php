@@ -855,6 +855,18 @@ function expected_seed_files(): array
         'compare-three-competitors.php',
         'make-a-criteria-decision.php',
         'finish-a-personal-project.php',
+        'price-your-offer.php',
+        'write-a-campaign-brief.php',
+        'pack-a-release-checklist.php',
+        'plan-a-newsletter-issue.php',
+        'outline-an-article.php',
+        'critique-a-screen.php',
+        'prep-for-an-interview.php',
+        'synthesize-interview-notes.php',
+        'plan-a-lesson.php',
+        'document-a-simple-process.php',
+        'design-a-game-loop.php',
+        'set-a-thirty-day-goal.php',
     ];
 }
 
