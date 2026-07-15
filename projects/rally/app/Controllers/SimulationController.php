@@ -9,6 +9,7 @@ use Rally\Core\Flash;
 use Rally\Core\View;
 use Rally\Models\DataSource;
 use Rally\Services\ActivityFeedService;
+use Rally\Services\BaselineService;
 use Rally\Services\Clock;
 use Rally\Services\MatchScoringService;
 use Rally\Services\SettlementService;
@@ -39,6 +40,8 @@ final class SimulationController
             'pack' => $pack,
             'selectedId' => $selectedId,
             'sources' => DataSource::active(),
+            'users' => SimulationService::listUsers(),
+            'metrics' => SimulationService::listMetrics(),
             'clock' => Clock::now(),
             'hasOverride' => Clock::hasOverride(),
             'previewEvents' => $pack !== null ? ActivityFeedService::eventsFromPack($pack) : [],
@@ -70,6 +73,37 @@ final class SimulationController
                     Flash::set('notice', 'Clock override cleared. Using real time.');
                     break;
 
+                case 'ingest_canonical':
+                    $result = SimulationService::ingestCanonical([
+                        'user_id' => (int) ($_POST['user_id'] ?? 0),
+                        'metric_type' => (int) ($_POST['metric_type_id'] ?? 0),
+                        'data_source' => (int) ($_POST['data_source_id'] ?? 0),
+                        'observation_date' => trim((string) ($_POST['observation_date'] ?? '')),
+                        'value' => (int) ($_POST['value'] ?? 0),
+                        'project' => true,
+                    ]);
+                    $projected = count(array_filter(
+                        $result['projections'],
+                        static fn(array $p): bool => ($p['status'] ?? '') === 'projected'
+                    ));
+                    Flash::set('success', "Canonical observation saved. Projected into {$projected} eligible match day(s).");
+                    break;
+
+                case 'estimate_baseline':
+                    $est = BaselineService::estimate(
+                        (int) ($_POST['user_id'] ?? 0),
+                        (int) ($_POST['metric_type_id'] ?? 0),
+                        (int) ($_POST['data_source_id'] ?? 0),
+                        trim((string) ($_POST['start_date'] ?? ''))
+                    );
+                    Flash::set(
+                        'notice',
+                        $est['available']
+                            ? ('Estimated baseline mean ' . round((float) $est['mean'], 2) . ' from ' . (int) $est['sample_count'] . ' days (' . $est['window_start_date'] . '–' . $est['window_end_date'] . ').')
+                            : ('Baseline unavailable: ' . (string) ($est['reason'] ?? 'insufficient history'))
+                    );
+                    break;
+
                 case 'update_day':
                     SimulationService::updateDay([
                         'match_day_id' => (int) ($_POST['match_day_id'] ?? 0),
@@ -80,7 +114,7 @@ final class SimulationController
                         'day_status' => trim((string) ($_POST['day_status'] ?? '')) ?: null,
                         'settle' => isset($_POST['settle']),
                     ]);
-                    Flash::set('success', 'Match day updated through the ingestion pathway.');
+                    Flash::set('success', 'Legacy match-day editor updated via canonical ingestion pathway.');
                     break;
 
                 case 'settle_day':

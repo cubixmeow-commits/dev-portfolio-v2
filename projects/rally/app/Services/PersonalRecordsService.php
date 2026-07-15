@@ -7,8 +7,8 @@ namespace Rally\Services;
 use Rally\Core\Database;
 
 /**
- * Derived personal records across official match-day results.
- * Neutral labels — no medical superiority claims.
+ * Derived personal records across official match-day results and canonical history.
+ * Separates Classic and Baseline records. Neutral labels — no medical claims.
  */
 final class PersonalRecordsService
 {
@@ -20,6 +20,7 @@ final class PersonalRecordsService
         $rows = Database::fetchAll(
             'SELECT r.metric_value, r.user_id, d.status AS day_status, d.day_number,
                     m.id AS match_id, m.player_a_user_id, m.player_b_user_id, m.tie_threshold,
+                    m.competition_type,
                     mt.slug, mt.name, mt.unit, mt.display_unit, mt.higher_wins, mt.scoring_strategy
              FROM rly_match_day_results r
              JOIN rly_match_days d ON d.id = r.match_day_id
@@ -78,7 +79,9 @@ final class PersonalRecordsService
             ];
         }
 
-        // Largest / closest decisive margins (daily comparisons where user won)
+        $competitionRecords = self::competitionRecords($userId);
+        $baselines = self::recentBaselines($userId);
+
         $margins = [];
         $allMatches = Database::fetchAll(
             'SELECT id FROM rly_matches
@@ -105,8 +108,8 @@ final class PersonalRecordsService
                 }
                 $won = ($isA && ($outcome['winner_side'] ?? '') === 'a')
                     || (!$isA && ($outcome['winner_side'] ?? '') === 'b');
-                if ($won && $outcome['margin'] !== null) {
-                    $margins[] = (int) $outcome['margin'];
+                if ($won && $outcome['margin'] !== null && is_numeric($outcome['margin'])) {
+                    $margins[] = (float) $outcome['margin'];
                 }
             }
             $streak = $pack['summary']['current_streak'] ?? null;
@@ -117,9 +120,141 @@ final class PersonalRecordsService
 
         return [
             'by_metric' => $records,
+            'competition_records' => $competitionRecords,
+            'recent_baselines' => $baselines,
             'largest_decisive_margin' => $margins === [] ? null : max($margins),
             'closest_decisive_win' => $margins === [] ? null : min($margins),
             'longest_daily_win_streak' => $longestStreak,
         ];
+    }
+
+    /**
+     * Separate Classic and Baseline W–L–D plus per-metric breakdowns.
+     *
+     * @return array<string, mixed>
+     */
+    public static function competitionRecords(int $userId): array
+    {
+        $matches = Database::fetchAll(
+            'SELECT m.*, mt.slug AS metric_slug, mt.name AS metric_name, mt.scoring_strategy
+             FROM rly_matches m
+             JOIN rly_metric_types mt ON mt.id = m.metric_type_id
+             WHERE (m.player_a_user_id = ? OR m.player_b_user_id = ?)
+               AND m.invitation_status = \'accepted\'
+               AND m.status = \'completed\'',
+            [$userId, $userId]
+        );
+
+        $classic = ['wins' => 0, 'losses' => 0, 'draws' => 0, 'by_metric' => []];
+        $baseline = ['wins' => 0, 'losses' => 0, 'draws' => 0, 'by_metric' => []];
+
+        foreach ($matches as $match) {
+            try {
+                $pack = MatchScoringService::forMatchId((int) $match['id']);
+            } catch (\Throwable) {
+                continue;
+            }
+            $summary = $pack['summary'];
+            $type = MetricCompetitionService::competitionType($match);
+            $key = $type === MetricCompetitionService::TYPE_BASELINE ? 'baseline' : 'classic';
+            $slug = (string) $match['metric_slug'];
+            if ($key === 'baseline') {
+                if (!isset($baseline['by_metric'][$slug])) {
+                    $baseline['by_metric'][$slug] = [
+                        'slug' => $slug,
+                        'name' => $match['metric_name'],
+                        'wins' => 0,
+                        'losses' => 0,
+                        'draws' => 0,
+                    ];
+                }
+                if (!empty($summary['is_draw'])) {
+                    $baseline['draws']++;
+                    $baseline['by_metric'][$slug]['draws']++;
+                } elseif (($summary['leader_user_id'] ?? null) === $userId) {
+                    $baseline['wins']++;
+                    $baseline['by_metric'][$slug]['wins']++;
+                } else {
+                    $baseline['losses']++;
+                    $baseline['by_metric'][$slug]['losses']++;
+                }
+            } else {
+                if (!isset($classic['by_metric'][$slug])) {
+                    $classic['by_metric'][$slug] = [
+                        'slug' => $slug,
+                        'name' => $match['metric_name'],
+                        'wins' => 0,
+                        'losses' => 0,
+                        'draws' => 0,
+                    ];
+                }
+                if (!empty($summary['is_draw'])) {
+                    $classic['draws']++;
+                    $classic['by_metric'][$slug]['draws']++;
+                } elseif (($summary['leader_user_id'] ?? null) === $userId) {
+                    $classic['wins']++;
+                    $classic['by_metric'][$slug]['wins']++;
+                } else {
+                    $classic['losses']++;
+                    $classic['by_metric'][$slug]['losses']++;
+                }
+            }
+        }
+
+        return [
+            'classic' => $classic,
+            'baseline' => $baseline,
+            'classic_pool_note' => 'Five supported metrics',
+            'baseline_pool_note' => 'Steps and Active Minutes',
+        ];
+    }
+
+    /**
+     * Estimated recent baselines per metric × source from canonical history.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function recentBaselines(int $userId): array
+    {
+        $sources = Database::fetchAll(
+            'SELECT DISTINCT umd.metric_type_id, umd.data_source_id, mt.slug, mt.name AS metric_name,
+                    ds.name AS source_name, ds.slug AS source_slug
+             FROM rly_user_metric_days umd
+             JOIN rly_metric_types mt ON mt.id = umd.metric_type_id
+             JOIN rly_data_sources ds ON ds.id = umd.data_source_id
+             WHERE umd.user_id = ?
+             ORDER BY mt.slug, ds.name',
+            [$userId]
+        );
+
+        $asOf = Clock::now()->setTimezone(new \DateTimeZone('UTC'))->modify('+1 day')->format('Y-m-d');
+        $out = [];
+        foreach ($sources as $row) {
+            $est = BaselineService::estimate(
+                $userId,
+                (int) $row['metric_type_id'],
+                (int) $row['data_source_id'],
+                $asOf
+            );
+            $out[] = [
+                'metric_slug' => $row['slug'],
+                'metric_name' => $row['metric_name'],
+                'source_name' => $row['source_name'],
+                'source_slug' => $row['source_slug'],
+                'available' => $est['available'],
+                'mean' => $est['mean'],
+                'sample_count' => $est['sample_count'],
+                'typical_range' => $est['typical_range'],
+                'window_start_date' => $est['window_start_date'],
+                'window_end_date' => $est['window_end_date'],
+                'formatted_mean' => $est['available']
+                    ? MetricFormatter::format((int) round((float) $est['mean']), [
+                        'slug' => $row['slug'],
+                        'name' => $row['metric_name'],
+                    ])
+                    : '—',
+            ];
+        }
+        return $out;
     }
 }

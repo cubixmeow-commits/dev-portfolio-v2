@@ -92,4 +92,14 @@ final class MetricFormatter
     {
         return $higherWins ? 'Higher recorded value wins' : 'Lower recorded value wins';
     }
+
+    public static function competitionTypeLabel(string $type): string
+    {
+        return MetricCompetitionService::competitionTypeLabel($type);
+    }
+
+    public static function formatPercentage(?float $pct): string
+    {
+        return BaselineCompetitionService::formatPercentage($pct);
+    }
 }

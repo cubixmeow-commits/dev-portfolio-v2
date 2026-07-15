@@ -30,19 +30,14 @@ $driver = Database::driver();
 
 echo "Rally migrate ({$driver})\n";
 
-$tables = $driver === 'mysql'
-    ? array_map(static fn(array $r): string => (string) $r[0], $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM))
-    : array_map(
-        static fn(array $r): string => (string) $r['name'],
-        Database::fetchAll("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
-    );
+$tables = rally_list_tables($pdo, $driver);
 
 if (!in_array('rly_metric_types', $tables, true)) {
     fwrite(STDERR, "rly_metric_types missing. Run: php scripts/seed.php\n");
     exit(1);
 }
 
-$requiredCols = [
+$requiredMetricCols = [
     'display_unit',
     'classification',
     'scoring_strategy',
@@ -52,22 +47,61 @@ $requiredCols = [
     'context_note',
 ];
 
+$requiredMatchCols = [
+    'competition_type',
+    'baseline_tie_threshold',
+];
+
+$requiredTables = [
+    'rly_user_metric_days',
+    'rly_match_baselines',
+];
+
 if ($statusOnly) {
     echo "rly_metric_types columns:\n";
     $missing = 0;
-    foreach ($requiredCols as $col) {
+    foreach ($requiredMetricCols as $col) {
         $ok = rally_column_exists($pdo, $driver, 'rly_metric_types', $col);
         if (!$ok) {
             $missing++;
         }
         echo '  ' . $col . ': ' . ($ok ? 'OK' : 'MISSING') . "\n";
     }
+    echo "rly_matches columns:\n";
+    foreach ($requiredMatchCols as $col) {
+        $ok = rally_column_exists($pdo, $driver, 'rly_matches', $col);
+        if (!$ok) {
+            $missing++;
+        }
+        echo '  ' . $col . ': ' . ($ok ? 'OK' : 'MISSING') . "\n";
+    }
+    if (rally_column_exists($pdo, $driver, 'rly_matches', 'competition_mode')) {
+        echo "  competition_mode: PRESENT (should be migrated away)\n";
+        $missing++;
+    } else {
+        echo "  competition_mode: absent (OK)\n";
+    }
+    echo "History tables:\n";
+    foreach ($requiredTables as $table) {
+        $ok = rally_table_exists($pdo, $driver, $table);
+        if (!$ok) {
+            $missing++;
+        }
+        echo '  ' . $table . ': ' . ($ok ? 'OK' : 'MISSING') . "\n";
+    }
     $metricCount = (int) Database::fetchValue('SELECT COUNT(*) FROM rly_metric_types');
     echo "Metric rows: {$metricCount}\n";
+    if (rally_table_exists($pdo, $driver, 'rly_user_metric_days')) {
+        echo 'Canonical observations: ' . Database::fetchValue('SELECT COUNT(*) FROM rly_user_metric_days') . "\n";
+    }
+    if (rally_table_exists($pdo, $driver, 'rly_match_baselines')) {
+        echo 'Frozen baselines: ' . Database::fetchValue('SELECT COUNT(*) FROM rly_match_baselines') . "\n";
+    }
     exit($missing > 0 ? 1 : 0);
 }
 
 migrate_rly_metric_types_columns($pdo, $driver);
+migrate_rly_competition_and_history($pdo, $driver);
 
 $now = date('Y-m-d H:i:s');
 $metrics = [
@@ -123,6 +157,6 @@ foreach ($metrics as $row) {
     echo "  updated {$slug}\n";
 }
 
-echo "\nMigrate complete. Profile and match pages should load.\n";
+echo "\nMigrate complete. Classic/Baseline competition schema is ready.\n";
 echo "Verify: php scripts/migrate.php --status\n";
 echo "Optional full demo reseed: php scripts/seed.php\n";

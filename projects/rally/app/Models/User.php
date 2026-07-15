@@ -83,6 +83,7 @@ final class User
              ORDER BY m.start_date DESC, m.id DESC',
             [$userId, $userId]
         );
+        // competition_type is selected via m.*
 
         $matchWins = 0;
         $matchLosses = 0;
@@ -93,11 +94,19 @@ final class User
         $voids = 0;
         $active = [];
         $completed = [];
+        $byType = [
+            'classic' => ['wins' => 0, 'losses' => 0, 'draws' => 0],
+            'baseline' => ['wins' => 0, 'losses' => 0, 'draws' => 0],
+        ];
 
         foreach ($matches as $match) {
             $pack = MatchScoringService::forMatchId((int) $match['id']);
             $summary = $pack['summary'];
             $isA = (int) $match['player_a_user_id'] === $userId;
+            $ctype = (string) ($match['competition_type'] ?? $summary['competition_type'] ?? 'classic');
+            if ($ctype !== 'baseline') {
+                $ctype = 'classic';
+            }
 
             $myDaily = $isA ? $summary['player_a_wins'] : $summary['player_b_wins'];
             $oppDaily = $isA ? $summary['player_b_wins'] : $summary['player_a_wins'];
@@ -110,6 +119,7 @@ final class User
                 'summary' => $summary,
                 'player_a_name' => $pack['match']['player_a_name'],
                 'player_b_name' => $pack['match']['player_b_name'],
+                'competition_type' => $ctype,
             ]);
 
             if (in_array((string) $match['status'], ['active', 'scheduled', 'settling', 'invited'], true)) {
@@ -120,10 +130,13 @@ final class User
                 $completed[] = $row;
                 if ($summary['is_draw']) {
                     $matchDraws++;
+                    $byType[$ctype]['draws']++;
                 } elseif ($summary['leader_user_id'] === $userId) {
                     $matchWins++;
+                    $byType[$ctype]['wins']++;
                 } else {
                     $matchLosses++;
+                    $byType[$ctype]['losses']++;
                 }
             }
         }
@@ -136,6 +149,8 @@ final class User
             'daily_losses' => $dailyLosses,
             'ties' => $ties,
             'voids' => $voids,
+            'classic_record' => $byType['classic'],
+            'baseline_record' => $byType['baseline'],
             'active_matches' => $active,
             'completed_matches' => $completed,
         ];

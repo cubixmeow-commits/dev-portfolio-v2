@@ -7,7 +7,8 @@ namespace Rally\Services;
 use Rally\Core\Database;
 
 /**
- * Match creation, invitation acceptance, and source-comparability helpers.
+ * Match creation, invitation acceptance, competition-type validation,
+ * and source-comparability helpers.
  */
 final class MatchService
 {
@@ -20,9 +21,12 @@ final class MatchService
      *   length_days?: int,
      *   timezone: string,
      *   tie_threshold?: int,
+     *   competition_type?: string,
+     *   baseline_tie_threshold?: float|null,
      *   player_a_source_id: int,
      *   player_b_source_id?: ?int,
-     *   auto_accept?: bool
+     *   auto_accept?: bool,
+     *   baseline_acknowledged?: bool
      * } $input
      * @return array<string, mixed>
      */
@@ -38,6 +42,15 @@ final class MatchService
         $sourceA = (int) $input['player_a_source_id'];
         $sourceB = isset($input['player_b_source_id']) ? (int) $input['player_b_source_id'] : null;
         $autoAccept = (bool) ($input['auto_accept'] ?? false);
+        $competitionType = MetricCompetitionService::competitionType([
+            'competition_type' => (string) ($input['competition_type'] ?? MetricCompetitionService::TYPE_CLASSIC),
+        ]);
+        $baselineTieThreshold = array_key_exists('baseline_tie_threshold', $input)
+            ? ($input['baseline_tie_threshold'] !== null && $input['baseline_tie_threshold'] !== ''
+                ? (float) $input['baseline_tie_threshold']
+                : null)
+            : null;
+        $baselineAcknowledged = (bool) ($input['baseline_acknowledged'] ?? false);
 
         if ($creatorId === $opponentId) {
             throw new \InvalidArgumentException('You cannot challenge yourself.');
@@ -65,6 +78,8 @@ final class MatchService
             throw new \InvalidArgumentException('Metric type not available.');
         }
 
+        MetricCompetitionService::assertValidCombination($metric, $competitionType);
+
         if (!isset($input['length_days'])) {
             $lengthDays = (int) ($metric['default_length_days'] ?? 14);
         }
@@ -78,23 +93,59 @@ final class MatchService
             throw new \InvalidArgumentException('Tie threshold is out of range.');
         }
 
+        if ($competitionType === MetricCompetitionService::TYPE_BASELINE) {
+            if ($baselineTieThreshold === null) {
+                $baselineTieThreshold = BaselineService::DEFAULT_BASELINE_TIE_THRESHOLD;
+            }
+            if ($baselineTieThreshold < 0 || $baselineTieThreshold > 100) {
+                throw new \InvalidArgumentException('Baseline tie threshold must be between 0 and 100 percentage points.');
+            }
+        } else {
+            $baselineTieThreshold = null;
+        }
+
         $now = Clock::nowUtcString();
         $invitationStatus = $autoAccept ? 'accepted' : 'pending';
         $status = $autoAccept ? 'scheduled' : 'invited';
 
+        if ($autoAccept && $sourceB === null) {
+            throw new \InvalidArgumentException('Auto-accept requires a declared source for both players.');
+        }
+
+        if ($autoAccept && $competitionType === MetricCompetitionService::TYPE_BASELINE) {
+            if (!$baselineAcknowledged) {
+                throw new \InvalidArgumentException(
+                    'Baseline matches require acknowledgement that both baseline summaries were reviewed.'
+                );
+            }
+            $avail = BaselineService::availabilityForSources(
+                $metricTypeId,
+                $startDate,
+                $creatorId,
+                $sourceA,
+                $opponentId,
+                (int) $sourceB
+            );
+            if (!$avail['ok']) {
+                throw new \RuntimeException((string) $avail['message']);
+            }
+        }
+
         return Database::transaction(static function () use (
             $creatorId, $opponentId, $metricTypeId, $startDate, $lengthDays,
-            $timezone, $tieThreshold, $sourceA, $sourceB, $invitationStatus, $status, $now, $autoAccept
+            $timezone, $tieThreshold, $sourceA, $sourceB, $invitationStatus, $status, $now,
+            $autoAccept, $competitionType, $baselineTieThreshold
         ): array {
             Database::run(
                 'INSERT INTO rly_matches
                  (metric_type_id, player_a_user_id, player_b_user_id, player_a_source_id, player_b_source_id,
-                  created_by_user_id, start_date, length_days, timezone, tie_threshold, status,
-                  invitation_status, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                  created_by_user_id, start_date, length_days, timezone, tie_threshold,
+                  competition_type, baseline_tie_threshold, status, invitation_status, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
                     $metricTypeId, $creatorId, $opponentId, $sourceA, $sourceB,
                     $creatorId, $startDate, $lengthDays, $timezone, $tieThreshold,
+                    $competitionType, $baselineTieThreshold,
                     $status, $invitationStatus, $now, $now,
                 ]
             );
@@ -102,6 +153,8 @@ final class MatchService
             self::createMatchDays($matchId, $startDate, $lengthDays, $timezone, $now);
 
             if ($autoAccept) {
+                $requireBaseline = $competitionType === MetricCompetitionService::TYPE_BASELINE;
+                BaselineService::freezeForMatch($matchId, $requireBaseline);
                 SettlementService::refreshMatch($matchId);
             }
 
@@ -136,11 +189,18 @@ final class MatchService
     /**
      * Opponent accepts invitation and declares their data source.
      *
+     * @param array{baseline_acknowledged?: bool}|array{} $options
      * @return array<string, mixed>
      */
-    public static function accept(int $matchId, int $userId, int $sourceId): array
+    public static function accept(int $matchId, int $userId, int $sourceId, array $options = []): array
     {
-        $match = Database::fetch('SELECT * FROM rly_matches WHERE id = ?', [$matchId]);
+        $match = Database::fetch(
+            'SELECT m.*, mt.slug AS metric_slug, mt.scoring_strategy, mt.name AS metric_name
+             FROM rly_matches m
+             JOIN rly_metric_types mt ON mt.id = m.metric_type_id
+             WHERE m.id = ?',
+            [$matchId]
+        );
         if ($match === null) {
             throw new \RuntimeException('Match not found.');
         }
@@ -156,17 +216,111 @@ final class MatchService
             throw new \InvalidArgumentException('Choose a valid data source.');
         }
 
+        $competitionType = MetricCompetitionService::competitionType($match);
+        $isBaseline = $competitionType === MetricCompetitionService::TYPE_BASELINE;
+        $acknowledged = (bool) ($options['baseline_acknowledged'] ?? false);
+
+        if ($isBaseline && !$acknowledged) {
+            throw new \InvalidArgumentException(
+                'Review both baseline summaries and confirm acknowledgement before accepting a Baseline match.'
+            );
+        }
+
+        if ($isBaseline) {
+            $avail = BaselineService::availabilityForSources(
+                (int) $match['metric_type_id'],
+                (string) $match['start_date'],
+                (int) $match['player_a_user_id'],
+                (int) $match['player_a_source_id'],
+                $userId,
+                $sourceId
+            );
+            if (!$avail['ok']) {
+                throw new \RuntimeException((string) $avail['message']);
+            }
+        }
+
         $now = Clock::nowUtcString();
-        Database::run(
-            'UPDATE rly_matches
-             SET player_b_source_id = ?, invitation_status = ?, status = ?, updated_at = ?
-             WHERE id = ?',
-            [$sourceId, 'accepted', 'scheduled', $now, $matchId]
+
+        return Database::transaction(static function () use (
+            $matchId, $sourceId, $now, $isBaseline, $match
+        ): array {
+            Database::run(
+                'UPDATE rly_matches
+                 SET player_b_source_id = ?, invitation_status = ?, status = ?, updated_at = ?
+                 WHERE id = ?',
+                [$sourceId, 'accepted', 'scheduled', $now, $matchId]
+            );
+
+            BaselineService::freezeForMatch($matchId, $isBaseline);
+            SettlementService::refreshMatch($matchId);
+
+            return Database::fetch('SELECT * FROM rly_matches WHERE id = ?', [$matchId]) ?? [];
+        });
+    }
+
+    /**
+     * Estimated baseline preview for invitation acceptance UI.
+     *
+     * @return array{player_a: array<string, mixed>, player_b: array<string, mixed>, ok: bool, message: ?string}
+     */
+    public static function baselinePreview(int $matchId, ?int $playerBSourceId = null): array
+    {
+        $match = Database::fetch(
+            'SELECT m.*, mt.slug AS metric_slug, mt.scoring_strategy, mt.name AS metric_name,
+                    ua.name AS player_a_name, ub.name AS player_b_name
+             FROM rly_matches m
+             JOIN rly_metric_types mt ON mt.id = m.metric_type_id
+             JOIN rly_users ua ON ua.id = m.player_a_user_id
+             JOIN rly_users ub ON ub.id = m.player_b_user_id
+             WHERE m.id = ?',
+            [$matchId]
         );
+        if ($match === null) {
+            throw new \RuntimeException('Match not found.');
+        }
 
-        SettlementService::refreshMatch($matchId);
+        $sourceB = $playerBSourceId ?? ($match['player_b_source_id'] !== null ? (int) $match['player_b_source_id'] : null);
+        $playerA = BaselineService::estimate(
+            (int) $match['player_a_user_id'],
+            (int) $match['metric_type_id'],
+            (int) $match['player_a_source_id'],
+            (string) $match['start_date']
+        );
+        $playerA['player_name'] = $match['player_a_name'];
 
-        return Database::fetch('SELECT * FROM rly_matches WHERE id = ?', [$matchId]) ?? [];
+        if ($sourceB === null) {
+            return [
+                'ok' => false,
+                'message' => 'Declare a data source to estimate your baseline.',
+                'player_a' => $playerA,
+                'player_b' => [
+                    'available' => false,
+                    'reason' => 'Source not selected',
+                    'player_name' => $match['player_b_name'],
+                ],
+            ];
+        }
+
+        $playerB = BaselineService::estimate(
+            (int) $match['player_b_user_id'],
+            (int) $match['metric_type_id'],
+            $sourceB,
+            (string) $match['start_date']
+        );
+        $playerB['player_name'] = $match['player_b_name'];
+        $ok = !empty($playerA['available']) && !empty($playerB['available']);
+
+        return [
+            'ok' => $ok,
+            'message' => $ok ? null : (
+                'Baseline unavailable. '
+                . (empty($playerA['available']) ? ('Player A: ' . ($playerA['reason'] ?? '')) : '')
+                . (empty($playerB['available']) ? (' Player B: ' . ($playerB['reason'] ?? '')) : '')
+            ),
+            'player_a' => $playerA,
+            'player_b' => $playerB,
+        ];
     }
 
     public static function decline(int $matchId, int $userId): void
@@ -206,7 +360,6 @@ final class MatchService
             ];
         }
 
-        // Normalize simulated_* into their base class for comparison messaging.
         $normA = self::normalizeClass($classA);
         $normB = self::normalizeClass($classB);
 

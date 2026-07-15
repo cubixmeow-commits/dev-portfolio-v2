@@ -12,15 +12,75 @@ A metric may become a Rally category when it can be measured consistently enough
 - **Health comparison metrics** compare physiological outcomes.
 - Winning a health-stat match does **not** mean someone is healthier overall.
 
+Rally may allow Classic comparison of physiological health statistics, but it does not encourage players to manipulate those values or claim that winning means better overall health.
+
+## Pushability Rule
+
+Baseline matches are only available for metrics a player can safely and intentionally influence during the competition period.
+
 ## One-Court Principle
 
-Each match uses exactly one metric type and one scoring strategy. Do not combine steps, calories, distance, sleep, and heart metrics into one overall match score.
+Each match uses exactly one metric type, one competition type (**Classic** or **Baseline**), and one scoring strategy. Do not combine steps, calories, distance, sleep, and heart metrics into one overall match score.
+
+## Competition types and surfaces
+
+Rally separates **how** values are compared from **which** metric is contested:
+
+| Code | Name | Meaning |
+| --- | --- | --- |
+| `classic` | **Classic** | Head-to-head on recorded values (or series averages for health metrics). |
+| `baseline` | **Baseline** | Head-to-head on favorable percentage change from each player's frozen personal baseline. |
+
+Legacy names `direct`, `baseline_improvement`, and the `competition_mode` column are retired; `php scripts/migrate.php` maps them to `competition_type`.
+
+**Presentation surfaces** (from `MetricCompetitionService::formatSurfaceLabel()`):
+
+- **Classic Daily Game Series** — Classic + `daily_wins` (steps, active minutes).
+- **Baseline Daily Game Series** — Baseline + `daily_wins` (steps, active minutes only).
+- **Health Comparison Series** — Classic + `series_average` (HRV, resting heart rate, sleep duration).
+
+## Metric matrix (V1)
+
+| Metric | Scoring strategy | Classic | Baseline |
+| --- | --- | --- | --- |
+| Daily Steps | `daily_wins` | Yes | Yes |
+| Active Minutes | `daily_wins` | Yes | Yes |
+| Resting Heart Rate | `series_average` | Yes | **No** |
+| Heart Rate Variability | `series_average` | Yes | **No** |
+| Sleep Duration | `series_average` | Yes | **No** |
+
+Rules enforced in `MetricCompetitionService::assertValidCombination()`:
+
+- Baseline **always** requires `daily_wins`.
+- **Reject** `baseline` + `series_average`.
+- **Reject** Baseline for health comparison metrics (HRV, resting heart rate, sleep duration).
+
+## Canonical health history
+
+Player history lives in **`rly_user_metric_days`** (canonical observations). Match competition snapshots live in **`rly_match_day_results`**. They are related but not interchangeable.
+
+**Ingest flow:**
+
+```
+health source
+  → UserMetricDayService::ingest()
+  → MatchObservationProjectionService::projectObservation()
+  → ResultIngestionService::ingest()
+  → rly_match_day_results
+  → MatchScoringService (derived scoring)
+```
+
+- **Source-specific history** — observations are keyed by `(user, metric, data_source, observation_date)`. Never merge readings from different sources into one baseline or history stream.
+- **Baseline snapshots** — frozen rows in **`rly_match_baselines`** at match acceptance (transactional with accept). Preferred window: **30** eligible days before match start; **7-day minimum**. Standard deviation is stored for future use; V1 Baseline scoring uses percentage change, not z-score.
+- **Match timezone authority** — day boundaries and projection eligibility use `rly_matches.timezone`, not the player's account timezone.
 
 ## Try it in two minutes
 
 ```sh
 cd projects/rally
-php scripts/seed.php          # schema + seeded demo (safe to re-run; use --fresh to wipe)
+php scripts/migrate.php          # upgrade existing DB (non-destructive)
+php scripts/seed.php             # schema + seeded demo (safe to re-run)
+php scripts/seed.php --fresh     # optional: wipe and reseed
 php -S localhost:8091 -t public public/index.php
 ```
 
@@ -41,22 +101,24 @@ Seed installs a simulated application clock at **2026-07-21 noon PDT** so the Ia
 
 - User accounts, login / logout / register
 - Five seeded metrics: Daily Steps, Active Minutes, Resting Heart Rate, HRV, Sleep Duration
+- Two competition types: **Classic** (`classic`) and **Baseline** (`baseline`)
 - Two scoring strategies: **daily wins** and **series average**
-- Match creation with metric cards, default length/threshold, 7- or 14-day series
+- Match creation with metric cards, competition type, default length/threshold, 7- or 14-day series
+- Baseline preview, transparency, and acknowledgement checkbox (resets on source, metric, or start-date change)
 - Invitations with accept / decline
 - Live → pending → official settlement
-- Tie threshold (difference **<** threshold = tie; equal = decisive)
+- Tie threshold (difference **<** threshold = tie; equal = decisive); Baseline uses a separate percentage-point threshold
 - Source mismatch warnings (honest, non-blocking)
 - Derived series scores (never stored)
 - Activity feed of structured competition events (`/activity`)
-- Derived personal records on player profiles
-- Shareable daily result cards for both strategies
+- Derived personal records on player profiles (Classic vs Baseline records)
+- Shareable daily result cards for all strategies and competition types
 - Development simulation controls for every metric
-- Seeded demo matches (active, upcoming, completed, draw, void, pending, source mismatch)
+- Seeded demo matches (active, upcoming, completed, draw, void, pending, source mismatch, Classic and Baseline)
 
 ## Explicit non-goals
 
-Native apps, HealthKit / Health Connect / Fitbit / Garmin ingestion, tournaments, brackets, Elo, seasons, payments, push notifications, chat, followers, comments, likes, teams, medical interpretation, multi-metric courts inside one match.
+Native apps, HealthKit / Health Connect / Fitbit / Garmin ingestion, tournaments, brackets, Elo, seasons, payments, push notifications, chat, followers, comments, likes, teams, medical interpretation, multi-metric courts inside one match, z-score Baseline scoring in V1.
 
 ## Technical stack
 
@@ -73,7 +135,7 @@ projects/rally/
 ├── database/      schema.mysql.sql, schema.sqlite.sql
 ├── docs/          Architecture, game rules, future ingest
 ├── public/        Web root (index.php, assets)
-├── scripts/       seed.php (CLI only)
+├── scripts/       migrate.php, seed.php (CLI only)
 ├── storage/       SQLite DB + clock override (gitignored)
 └── tests/         run.php deterministic domain tests
 ```
@@ -84,23 +146,24 @@ projects/rally/
 cd projects/rally
 cp config/config.example.php config/config.php   # optional local edits
 # optional: cp .env.example .env
+php scripts/migrate.php
 php scripts/seed.php
 php scripts/seed.php --status
 php -S localhost:8091 -t public public/index.php
 ```
 
-MySQL (production): set `db.driver` to `mysql` and credentials in `config.php`, then run `php scripts/seed.php`.
+MySQL (production): set `db.driver` to `mysql` and credentials in `config.php`, then run `php scripts/migrate.php` and `php scripts/seed.php`.
 
 ### Upgrading an existing install
 
-If you deployed the multi-metric code onto a database created before these columns existed, `CREATE TABLE IF NOT EXISTS` will not alter `rly_metric_types`. Run:
+`CREATE TABLE IF NOT EXISTS` will not alter existing tables. Run the non-destructive migrator:
 
 ```sh
 php scripts/migrate.php
 php scripts/migrate.php --status
 ```
 
-That adds the missing columns and upserts the five metric definitions without dropping matches. For a full demo reset afterward, run `php scripts/seed.php`.
+That adds missing columns (`competition_type`, `baseline_tie_threshold` on `rly_matches`), creates `rly_user_metric_days` and `rly_match_baselines`, upserts metric definitions, and migrates legacy `competition_mode` / `direct` / `baseline_improvement` values to `classic` / `baseline`. For a full demo reset afterward, run `php scripts/seed.php --fresh`.
 
 ## Environment configuration
 
@@ -132,7 +195,9 @@ Statuses: `scheduled` → `live` → `pending` → `official` | `void`
 
 ## Tie-threshold rules
 
-`absolute_difference < tie_threshold` → tie / within threshold. Difference **equal to** the threshold is decisive for the metric direction (`higher_wins`). For series averages the threshold applies to the final official average difference.
+**Classic:** `absolute_difference < tie_threshold` → tie / within threshold. Difference **equal to** the threshold is decisive for the metric direction (`higher_wins`). For series averages the threshold applies to the final official average difference.
+
+**Baseline:** daily games compare favorable percentage change from each player's frozen baseline mean. `absolute_percentage_difference < baseline_tie_threshold` → tie (default 1.00 percentage points). Equal to the threshold is decisive. Series score remains daily wins.
 
 ## Missing-data policy
 
@@ -140,15 +205,15 @@ Before settlement: show “Awaiting sync.” Never treat missing as zero. At set
 
 ## Source mismatch policy
 
-Each player declares a data source. Matching source classes show a comparable notice. Differing classes (e.g. watch vs phone) show a clear warning. Matches still proceed in V1.
+Each player declares a data source. Matching source classes show a comparable notice. Differing classes (e.g. watch vs phone) show a clear warning. Matches still proceed in V1. Canonical history and baselines always use the **declared source only** — never blend sources.
 
 ## Derived-score architecture
 
-Series score, averages, streaks, margins, voids, and ties are computed by `MatchScoringService` from official days. Activity events and personal records are also derived. Nothing is stored in statistics or social tables.
+Series score, averages, streaks, margins, voids, and ties are computed by `MatchScoringService` from official days. Activity events and personal records are also derived. Nothing is stored in statistics or social tables. Frozen baselines in `rly_match_baselines` are the exception — they are persisted snapshots, not live scores.
 
 ## Simulation workflow
 
-Visit `/simulation` in development (or as admin). Select any metric match, advance the application clock, edit day values through `ResultIngestionService`, settle days, recalculate strategy summaries, and preview feed events. Reset demo data with `php scripts/seed.php`. Clock override is stored in `storage/clock_override.txt`.
+Visit `/simulation` in development (or as admin). Select any metric match, advance the application clock, edit day values through `UserMetricDayService` / `ResultIngestionService`, settle days, recalculate strategy summaries, and preview feed events. Reset demo data with `php scripts/seed.php`. Clock override is stored in `storage/clock_override.txt`.
 
 ## Security notes
 
@@ -166,7 +231,7 @@ See also `docs/DEPLOYMENT.md`.
 
 ## Future health ingestion
 
-`ResultIngestionService::ingest()` is the normalized boundary for a future iOS/Android connector. Seeds and simulation already use it. See `docs/HEALTH_INGEST_FUTURE.md`.
+A future mobile companion app should call `UserMetricDayService::ingest()` once per canonical observation; projection fans values into eligible matches via `MatchObservationProjectionService` and `ResultIngestionService`. Seeds and simulation already use this path. See `docs/HEALTH_INGEST_FUTURE.md`.
 
 ## Testing
 
@@ -178,10 +243,10 @@ php tests/run.php
 
 | Doc | Contents |
 | --- | --- |
-| `docs/GAME_RULES.md` | Strategies, settlement, voids, ties, suitability |
-| `docs/ARCHITECTURE.md` | Services, clock, schema |
-| `docs/HEALTH_INGEST_FUTURE.md` | Connector boundary |
-| `docs/DEPLOYMENT.md` | Hostinger checklist |
+| `docs/GAME_RULES.md` | Classic/Baseline, strategies, settlement, voids, ties, suitability |
+| `docs/ARCHITECTURE.md` | Services, canonical history, schema, data flow |
+| `docs/HEALTH_INGEST_FUTURE.md` | Connector boundary via `UserMetricDayService` |
+| `docs/DEPLOYMENT.md` | Hostinger checklist and migration |
 | `docs/DESIGN.md` | Visual system notes |
 
 ## Disclaimer
@@ -192,5 +257,6 @@ Rally presents health and activity data for friendly comparison and entertainmen
 
 - Beta data is seeded/simulated only
 - No email verification or password-reset emails
-- No real wearable sync
-- Shared hosting: CLI seed required (no web installer)
+- No real wearable sync yet (ingest boundary is defined)
+- Baseline scoring uses percentage change, not z-score (stddev stored for future)
+- Shared hosting: CLI seed/migrate required (no web installer)
