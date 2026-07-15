@@ -50,7 +50,7 @@ foreach ($cookbooks as $c) {
             <a class="button button-ghost button-large" href="#how-it-works">See how it works</a>
           </div>
           <p class="hero-law">
-            <a href="<?= e($productLawUrl) ?>">Built on Product Law 002 — Remove Cognitive Load</a>
+            <a href="<?= e($productLawUrl) ?>">Built on Product Law 002: Remove Cognitive Load</a>
           </p>
         </div>
 
