@@ -50,7 +50,7 @@ $needsVerification = $auth && !Auth::isVerified();
         <?php if ($auth): ?>
           <a href="<?= e(url('/kitchen')) ?>">My projects</a>
           <a href="<?= e(url('/marketplace')) ?>">Find something</a>
-          <a href="<?= e(url('/categories')) ?>">Browse by topic</a>
+          <a href="<?= e(url('/categories')) ?>">Categories</a>
           <a href="<?= e(url('/account')) ?>">Account</a>
           <?php if ($isAdmin): ?><a href="<?= e(url('/admin')) ?>">Admin</a><?php endif; ?>
           <form method="post" action="<?= e(url('/logout')) ?>" class="nav-logout">
@@ -61,7 +61,7 @@ $needsVerification = $auth && !Auth::isVerified();
         <?php else: ?>
           <a href="<?= e(url('/#how-it-works')) ?>">How it works</a>
           <a href="<?= e(url('/marketplace')) ?>">Find something</a>
-          <a href="<?= e(url('/categories')) ?>">Browse by topic</a>
+          <a href="<?= e(url('/categories')) ?>">Categories</a>
           <a href="<?= e(url('/login')) ?>">Sign in</a>
           <a class="button button-primary button-small" href="<?= e(url('/register')) ?>">Start free</a>
         <?php endif; ?>
