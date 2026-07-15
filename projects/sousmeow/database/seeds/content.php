@@ -5,12 +5,13 @@ declare(strict_types=1);
 /**
  * Seed content loader for SousMeow first-party Cookbook library.
  *
- * Five curated Cookbooks (three executable, two preview):
+ * Six curated Cookbooks (four executable, two preview):
  * - Launch Day Kit (executable)
  * - Validate a SaaS Idea (executable)
  * - Build a Professional Portfolio (preview)
  * - Plan a YouTube Video (executable)
  * - Plan a Novel (preview)
+ * - Build a Study Plan (executable)
  *
  * Each Cookbook is defined in database/seeds/cookbooks/{slug}.php.
  * Prompt templates use {{field_key}} for Pantry values and
@@ -23,6 +24,7 @@ $cookbookFiles = [
     'professional-portfolio.php',
     'plan-youtube-video.php',
     'plan-a-novel.php',
+    'build-a-study-plan.php',
 ];
 
 $cookbooks = [];

@@ -70,8 +70,8 @@ export, works without any AI at all; sample content is always labeled.
 
 ## Deliberate limits (v1 scope)
 
-One executable Cookbook; seven marketplace Cookbooks are presentation
-previews with honest "coming soon" states and no checkout. No SMTP, no
+Four executable Cookbooks and two marketplace previews with honest
+"coming soon" states and no checkout. No SMTP, no
 payment SDK, no Node build step, no Docker, no background workers.
 Password resets are an admin CLI action
 (`php scripts/seed.php --reset-password you@example.com`).
