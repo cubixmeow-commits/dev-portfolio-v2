@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of twelve first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
+Curated library of twenty-four first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform. Every primary category has exactly two Cookbooks.
 
 ## Mandatory authoring rule
 
@@ -10,22 +10,36 @@ That document is the authoritative source for the Complexity Scorecard and Compl
 
 ## STRUCTURAL SIGNATURES
 
-| Cookbook | Availability | Stage count | Recipe count | Pantry field count | Difficulty | Duration | Dominant Recipe types | Review pattern | Structural distinction | Project Kit |
-|----------|--------------|-------------|--------------|-------------------|------------|----------|-------------------------|----------------|----------------------|-------------|
-| Launch Day Kit | Executable | 4 | 4 | 8 | Intermediate | 25 min | Sequential copy assembly | 3 checks per Recipe, fast approval | Deadline-driven campaign assembly; positioning becomes ground truth | Positioning, landing page, announcements, FAQ |
-| Validate a SaaS Idea | Executable | 5 | 12 | 10 | Advanced | 180 min | Evidence briefs, matrices, decision memos | 4 checks per Recipe, longer assumption review | Evidence gates ending in explicit go / revise / stop decision | Problem brief, ICP, competitor map, assumptions, MVP scope, experiment plan, decision memo |
-| Build a Professional Portfolio | Preview | 4 | 14 | 12 | Intermediate | 150 min | Strategic selection + polished writing | 3 checks per Recipe, recruiter-lens review | Modular case-study tracks converging into one site brief | Positioning, case structures, homepage copy, navigation plan, implementation brief |
-| Plan a YouTube Video | Executable | 3 | 10 | 6 | Beginner | 45 min | Rapid creative micro-deliverables | 3 checks per Recipe, immediate progress feel | Fast sequence of small visible outputs | Research brief, hooks, outline, titles, thumbnails, publishing checklist |
-| Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | Exploratory decisions + continuity planning | 3 checks per Recipe, decision-heavy branching | Deep Pantry with world rules and continuity control | Premise, cast, world rules, conflict engine, act outline, chapter roadmap, continuity guide |
-| Build a Study Plan | Executable | 4 | 5 | 7 | Beginner | 40 min | Success criteria + schedule + retrieval kit | 3 checks per Recipe, beginner coaching in why_it_matters | Public learning-strategy concepts turned into SousMeow steps; invent-nothing schedule honesty | Success criteria, topic map, weekly rhythm, retrieval kit, final-week plan |
-| Write an Email That Gets Answered | Executable | 3 | 3 | 7 | Beginner | 28 min | Reader brief → full draft → revise | 3 checks per Recipe, plain-language coaching | Federal plain-language ideas adapted to one-ask emails | Reader brief, subject + short email, revised email + checklist |
-| Write a Feature Spec | Executable | 3 | 6 | 8 | Intermediate | 50 min | Problem → scope locks → acceptance | 3 checks per Recipe, invent-nothing eng claims | Public agile/PRD ideas turned into pre-build decisions | Problem, users, must-haves, non-goals, acceptance, ship checklist |
-| Name Your Brand Voice | Executable | 3 | 7 | 6 | Beginner | 30 min | Audience → voice traits → one-pager | 3 checks per Recipe, plain brand coaching | Public brand-voice teaching adapted to solopreneur facts | Audience, promise, traits, do/don't, samples, visual cues, brief |
-| Compare Three Competitors | Executable | 3 | 8 | 8 | Intermediate | 55 min | Field → side-by-side → memo | 3 checks per Recipe, honesty on unknown facts | University competitive-analysis teaching without invented metrics | Frame, cards, offers, audiences, pricing, gaps, opportunity, memo |
-| Make a Criteria Decision | Executable | 2 | 2 | 6 | Beginner | 20 min | Frame → score and choose | 3 checks per Recipe, thin decision surface | Structured decision worksheets as two approve-able steps | Options/criteria frame, scored choice + next step |
-| Finish a Personal Project | Executable | 3 | 9 | 7 | Beginner | 70 min | Aim → plan → first week | 3 checks per Recipe, calendar honesty | SMART/WBS ideas turned into personal finish-line coaching | Done, why, constraints, chunks, weeks, risks, check-in, week one, finish list |
+Each Cookbook must keep a unique **stage shape** (recipes per stage, e.g. `2-2-1`). Recipe counts may repeat when Product Law 002 favors a short surface, as long as stage shapes stay unique.
 
-No two Cookbooks share the same stage shape, recipe count, or review rhythm.
+| Cookbook | Availability | Stages | Recipes | Fields | Difficulty | Duration | Stage shape | Category |
+|----------|--------------|--------|---------|--------|------------|----------|-------------|----------|
+| Launch Day Kit | Executable | 4 | 4 | 8 | Intermediate | 25 min | 1-1-1-1 | marketing-growth |
+| Validate a SaaS Idea | Executable | 5 | 12 | 10 | Advanced | 180 min | 2-2-2-3-3 | start-grow-business |
+| Build a Professional Portfolio | Preview | 4 | 14 | 12 | Intermediate | 150 min | 3-4-4-3 | career-freelance |
+| Plan a YouTube Video | Executable | 3 | 10 | 6 | Beginner | 45 min | 3-4-3 | content-audience |
+| Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | 2-2-3-3-3-3-2 | creative-worlds |
+| Build a Study Plan | Executable | 4 | 5 | 7 | Beginner | 40 min | 1-1-1-2 | learning-teaching |
+| Write an Email That Gets Answered | Executable | 3 | 3 | 7 | Beginner | 28 min | 1-1-1 | writing-publishing |
+| Write a Feature Spec | Executable | 3 | 6 | 8 | Intermediate | 50 min | 2-2-2 | software-product |
+| Name Your Brand Voice | Executable | 3 | 7 | 6 | Beginner | 30 min | 2-3-2 | design-brand |
+| Compare Three Competitors | Executable | 3 | 8 | 8 | Intermediate | 55 min | 2-4-2 | research-insights |
+| Make a Criteria Decision | Executable | 2 | 2 | 6 | Beginner | 20 min | 1-1 | planning-productivity |
+| Finish a Personal Project | Executable | 3 | 9 | 7 | Beginner | 70 min | 3-3-3 | personal-projects |
+| Price Your Offer | Executable | 1 | 1 | 5 | Beginner | 15 min | 1 | start-grow-business |
+| Write a Campaign Brief | Executable | 3 | 5 | 7 | Intermediate | 45 min | 2-2-1 | marketing-growth |
+| Pack a Release Checklist | Executable | 3 | 4 | 7 | Intermediate | 40 min | 1-2-1 | software-product |
+| Plan a Newsletter Issue | Executable | 3 | 8 | 6 | Beginner | 35 min | 2-3-3 | content-audience |
+| Outline an Article | Executable | 3 | 5 | 6 | Beginner | 25 min | 1-3-1 | writing-publishing |
+| Critique a Screen | Executable | 3 | 7 | 7 | Intermediate | 40 min | 2-2-3 | design-brand |
+| Prep for an Interview | Executable | 3 | 8 | 7 | Beginner | 35 min | 3-2-3 | career-freelance |
+| Synthesize Interview Notes | Executable | 4 | 6 | 7 | Intermediate | 50 min | 1-2-2-1 | research-insights |
+| Plan a Lesson | Executable | 3 | 5 | 7 | Beginner | 45 min | 2-1-2 | learning-teaching |
+| Document a Simple Process | Executable | 3 | 7 | 6 | Beginner | 30 min | 3-2-2 | planning-productivity |
+| Design a Game Loop | Executable | 3 | 8 | 7 | Intermediate | 50 min | 4-2-2 | creative-worlds |
+| Set a Thirty-Day Goal | Executable | 3 | 6 | 6 | Beginner | 22 min | 1-4-1 | personal-projects |
+
+No two Cookbooks share the same stage shape.
 
 ---
 
@@ -518,21 +532,60 @@ Nine numbered Markdown files plus README.
 
 ---
 
+## 13–24. Second Cookbook per category
+
+Compact catalog entries for the second Cookbook in every primary category. Full prompts live in the seed files. See `docs/COOKBOOK_SOURCE_TRANSFORM_SECOND_PER_CATEGORY.md`.
+
+### 13. Price Your Offer (`price-your-offer`)
+**Category:** Start & Grow a Business · **Accent:** Sage · **1 stage / 1 recipe / ~15 min · Beginner**  
+Cost floor + value proof → price you can say out loud. Source ideas: SBA/SBDC-style public pricing teaching.
+
+### 14. Write a Campaign Brief (`write-a-campaign-brief`)
+**Category:** Marketing & Growth · **Accent:** Terracotta · **3 stages / 5 recipes (`2-2-1`) / ~45 min · Intermediate**  
+Audience, promise, channels, offer details, success measure. Source ideas: public AIDA / campaign-brief teaching.
+
+### 15. Pack a Release Checklist (`pack-a-release-checklist`)
+**Category:** Software & Product · **Accent:** Indigo · **3 stages / 4 recipes (`1-2-1`) / ~40 min · Intermediate**  
+Frame release → must-finish work → owners/risks → go/no-go. Source ideas: public release checklist practices.
+
+### 16. Plan a Newsletter Issue (`plan-a-newsletter-issue`)
+**Category:** Content & Audience · **Accent:** Amber · **3 stages / 8 recipes (`2-3-3`) / ~35 min · Beginner**  
+Reader promise through send checklist. Source ideas: public newsletter planning teaching.
+
+### 17. Outline an Article (`outline-an-article`)
+**Category:** Writing & Publishing · **Accent:** Clay · **3 stages / 5 recipes (`1-3-1`) / ~25 min · Beginner**  
+Angle → ordered points → outline. Source ideas: inverted pyramid / journalism outline teaching.
+
+### 18. Critique a Screen (`critique-a-screen`)
+**Category:** Design & Brand · **Accent:** Lilac · **3 stages / 7 recipes (`2-2-3`) / ~40 min · Intermediate**  
+User goal → findings → prioritized fixes. Source ideas: public usability / heuristic evaluation teaching (original wording).
+
+### 19. Prep for an Interview (`prep-for-an-interview`)
+**Category:** Career & Freelance · **Accent:** Indigo · **3 stages / 8 recipes (`3-2-3`) / ~35 min · Beginner**  
+Story bank → STAR answers → rehearsal plan. Source ideas: public STAR / career-center interview prep.
+
+### 20. Synthesize Interview Notes (`synthesize-interview-notes`)
+**Category:** Research & Insights · **Accent:** Slate · **4 stages / 6 recipes (`1-2-2-1`) / ~50 min · Intermediate**  
+Facts only → themes → implications memo. Source ideas: public 18F-style research synthesis. Invent no quotes.
+
+### 21. Plan a Lesson (`plan-a-lesson`)
+**Category:** Learning & Teaching · **Accent:** Pine · **3 stages / 5 recipes (`2-1-2`) / ~45 min · Beginner**  
+Objective → activities → learning check. Source ideas: public lesson-plan frameworks.
+
+### 22. Document a Simple Process (`document-a-simple-process`)
+**Category:** Planning & Productivity · **Accent:** Ochre · **3 stages / 7 recipes (`3-2-2`) / ~30 min · Beginner**  
+Trigger → clear steps → one-pager handoff. Source ideas: public SOP / process documentation teaching.
+
+### 23. Design a Game Loop (`design-a-game-loop`)
+**Category:** Creative Worlds · **Accent:** Plum · **3 stages / 8 recipes (`4-2-2`) / ~50 min · Intermediate**  
+Fantasy → core loop → session sheet. Source ideas: public game-loop / lightweight MDA teaching.
+
+### 24. Set a Thirty-Day Goal (`set-a-thirty-day-goal`)
+**Category:** Personal Projects · **Accent:** Moss · **3 stages / 6 recipes (`1-4-1`) / ~22 min · Beginner**  
+One finish line → four weeks → commitment card. Source ideas: public habit / short-horizon goal advising (distinct from Finish a Personal Project).
+
+---
+
 ## Seed source of truth
 
-Full prompts, checks, and sample outputs live in:
-
-- `database/seeds/cookbooks/launch-day-kit.php`
-- `database/seeds/cookbooks/validate-saas-idea.php`
-- `database/seeds/cookbooks/professional-portfolio.php`
-- `database/seeds/cookbooks/plan-youtube-video.php`
-- `database/seeds/cookbooks/plan-a-novel.php`
-- `database/seeds/cookbooks/build-a-study-plan.php`
-- `database/seeds/cookbooks/write-email-that-gets-answered.php`
-- `database/seeds/cookbooks/write-a-feature-spec.php`
-- `database/seeds/cookbooks/name-your-brand-voice.php`
-- `database/seeds/cookbooks/compare-three-competitors.php`
-- `database/seeds/cookbooks/make-a-criteria-decision.php`
-- `database/seeds/cookbooks/finish-a-personal-project.php`
-
-Loaded by `database/seeds/content.php` and inserted via `scripts/seed.php`.
+Full prompts, checks, and sample outputs live in `database/seeds/cookbooks/*.php` (twenty-four files), loaded by `database/seeds/content.php` and inserted via `scripts/seed.php`.
