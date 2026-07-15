@@ -83,7 +83,7 @@ $formatRuns = static function (int $n): string {
       <?php endforeach; ?>
     </div>
     <p class="marketplace-honesty">
-      Portfolio demonstration: three Cookbooks are ready to run today; two are full previews
+      Portfolio demonstration: four Cookbooks are ready to run today; two are full previews
       labeled clearly. There is no checkout. You bring your own AI assistant.
     </p>
   <?php endif; ?>

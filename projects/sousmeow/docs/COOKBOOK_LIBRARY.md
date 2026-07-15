@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of five first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
+Curated library of six first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
 
 ## Mandatory authoring rule
 
@@ -17,6 +17,7 @@ That document is the authoritative source for the Complexity Scorecard and Compl
 | Build a Professional Portfolio | Preview | 4 | 14 | 12 | Intermediate | 150 min | Strategic selection + polished writing | 3 checks per Recipe, recruiter-lens review | Modular case-study tracks converging into one site brief | Positioning, case structures, homepage copy, navigation plan, implementation brief |
 | Plan a YouTube Video | Executable | 3 | 10 | 6 | Beginner | 45 min | Rapid creative micro-deliverables | 3 checks per Recipe, immediate progress feel | Fast sequence of small visible outputs | Research brief, hooks, outline, titles, thumbnails, publishing checklist |
 | Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | Exploratory decisions + continuity planning | 3 checks per Recipe, decision-heavy branching | Deep Pantry with world rules and continuity control | Premise, cast, world rules, conflict engine, act outline, chapter roadmap, continuity guide |
+| Build a Study Plan | Executable | 4 | 5 | 7 | Beginner | 40 min | Success criteria + schedule + retrieval kit | 3 checks per Recipe, beginner coaching in why_it_matters | Public learning-strategy concepts turned into SousMeow steps; invent-nothing schedule honesty | Success criteria, topic map, weekly rhythm, retrieval kit, final-week plan |
 
 No two Cookbooks share the same stage shape, recipe count, or review rhythm.
 
@@ -252,6 +253,44 @@ Eighteen numbered Markdown files plus README.
 
 ---
 
+## 6. Build a Study Plan
+
+**Slug:** `build-a-study-plan`  
+**Availability:** Executable (Available now)  
+**Category:** Learning & Teaching | **Accent:** Pine | **Price:** Free  
+**Demo metrics:** 214 completed runs, 4.7 average rating
+
+### Metadata
+
+- **Subtitle:** Turn a looming exam or skill goal into a calm, realistic practice schedule.
+- **Intended user:** Students and self-learners facing an exam, certification, or skill checkpoint
+- **Expected outcome:** Success criteria, topic map, weekly rhythm, retrieval practice kit, final-week plan
+- **Prerequisites:** A real deadline, an honest estimate of weekly hours, and materials you already have
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+University learning-center methods (Cornell LSC study strategies; common five-day exam plans; spaced / retrieval practice). All SousMeow copy and examples are original. See `docs/COOKBOOK_SOURCE_TRANSFORM_STUDY_PLAN.md`.
+
+### Pantry (7 ingredients)
+
+subject_name, success_goal, deadline, hours_per_week, starting_point, weak_spots, materials
+
+### Stages and Recipes (5)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Aim | Define what finished looks like |
+| 2. Map | Map the subject into study chunks |
+| 3. Schedule | Place practice on real days |
+| 4. Practice kit | Build your self-test kit, Plan the final week |
+
+### Project Kit
+
+Five numbered Markdown files plus README.
+
+---
+
 ## Seed source of truth
 
 Full prompts, checks, and sample outputs live in:
@@ -261,5 +300,6 @@ Full prompts, checks, and sample outputs live in:
 - `database/seeds/cookbooks/professional-portfolio.php`
 - `database/seeds/cookbooks/plan-youtube-video.php`
 - `database/seeds/cookbooks/plan-a-novel.php`
+- `database/seeds/cookbooks/build-a-study-plan.php`
 
 Loaded by `database/seeds/content.php` and inserted via `scripts/seed.php`.
