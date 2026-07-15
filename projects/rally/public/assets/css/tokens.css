@@ -1,0 +1,31 @@
+:root {
+  --bg: #071410;
+  --bg-elevated: #0d1f18;
+  --bg-panel: #12261e;
+  --ink: #e8f0ea;
+  --ink-muted: #9bb3a4;
+  --line: #243f34;
+  --accent: #c4f042;
+  --accent-ink: #0b1f17;
+  --warn: #f0b429;
+  --danger: #ff6b4a;
+  --live: #c4f042;
+  --pending: #f0b429;
+  --official: #8fd3b0;
+  --void: #7a8f84;
+  --font-display: "Bebas Neue", "Arial Narrow", Impact, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+  --radius: 4px;
+  --space: 1rem;
+  --max: 42rem;
+  --header-h: 3.5rem;
+  --focus: 0 0 0 3px rgba(196, 240, 66, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

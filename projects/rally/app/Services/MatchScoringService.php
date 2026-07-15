@@ -1,0 +1,350 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Rally\Services;
+
+use Rally\Core\Database;
+
+/**
+ * Derives match scores and summary statistics from official match days.
+ * Nothing here is persisted — tie counts, voids, streaks, and margins are
+ * always computed from current day and result rows.
+ */
+final class MatchScoringService
+{
+    /**
+     * @param array<string, mixed> $match
+     * @param list<array<string, mixed>> $days With optional embedded results.
+     * @return array<string, mixed>
+     */
+    public static function summarize(array $match, array $days): array
+    {
+        $playerA = (int) $match['player_a_user_id'];
+        $playerB = (int) $match['player_b_user_id'];
+        $tieThreshold = (int) $match['tie_threshold'];
+        $higherWins = (int) ($match['higher_wins'] ?? 1) === 1;
+
+        $playerAWins = 0;
+        $playerBWins = 0;
+        $ties = 0;
+        $voids = 0;
+        $officialDays = 0;
+        $pendingDays = 0;
+        $remainingDays = 0;
+        $liveDays = 0;
+
+        $officialOutcomes = []; // chronological decisive or tie outcomes for streak
+        $margins = [];
+        $valuesA = [];
+        $valuesB = [];
+
+        foreach ($days as $day) {
+            $status = (string) $day['status'];
+
+            if ($status === 'scheduled') {
+                $remainingDays++;
+                continue;
+            }
+            if ($status === 'live') {
+                $liveDays++;
+                $remainingDays++;
+                continue;
+            }
+            if ($status === 'pending') {
+                $pendingDays++;
+                continue;
+            }
+            if ($status === 'void') {
+                $voids++;
+                $officialDays++;
+                continue;
+            }
+            if ($status !== 'official') {
+                continue;
+            }
+
+            $officialDays++;
+            $resultA = self::resultFor($day, $playerA);
+            $resultB = self::resultFor($day, $playerB);
+
+            if ($resultA === null || $resultB === null) {
+                // Should not happen for official days; treat as void-like anomaly.
+                $voids++;
+                continue;
+            }
+
+            $valA = (int) $resultA['metric_value'];
+            $valB = (int) $resultB['metric_value'];
+            $valuesA[] = $valA;
+            $valuesB[] = $valB;
+
+            $cmp = MetricComparisonService::compare($valA, $valB, $tieThreshold, $higherWins);
+
+            if ($cmp['is_tie']) {
+                $ties++;
+                $officialOutcomes[] = 'tie';
+            } elseif ($cmp['winner_side'] === 'a') {
+                $playerAWins++;
+                $officialOutcomes[] = 'a';
+                $margins[] = $cmp['margin'];
+            } else {
+                $playerBWins++;
+                $officialOutcomes[] = 'b';
+                $margins[] = $cmp['margin'];
+            }
+        }
+
+        $isComplete = ((string) $match['status'] === 'completed')
+            || (self::allDaysTerminal($days) && $remainingDays === 0 && $pendingDays === 0 && $liveDays === 0
+                && $officialDays === count($days));
+
+        // More accurate complete check: every day official or void.
+        $isComplete = self::allDaysTerminal($days);
+
+        $leaderUserId = null;
+        $isDraw = false;
+        if ($playerAWins > $playerBWins) {
+            $leaderUserId = $playerA;
+        } elseif ($playerBWins > $playerAWins) {
+            $leaderUserId = $playerB;
+        } else {
+            $isDraw = $isComplete && $playerAWins === $playerBWins;
+            // When not complete and tied on wins, no leader.
+        }
+
+        $isProvisional = !$isComplete;
+
+        return [
+            'player_a_wins' => $playerAWins,
+            'player_b_wins' => $playerBWins,
+            'ties' => $ties,
+            'voids' => $voids,
+            'official_days' => $officialDays,
+            'pending_days' => $pendingDays,
+            'remaining_days' => $remainingDays + $liveDays,
+            'live_days' => $liveDays,
+            'leader_user_id' => $leaderUserId,
+            'is_provisional' => $isProvisional,
+            'is_complete' => $isComplete,
+            'is_draw' => $isComplete && $playerAWins === $playerBWins,
+            'current_streak' => self::currentStreak($officialOutcomes, $playerA, $playerB),
+            'largest_margin' => $margins === [] ? null : max($margins),
+            'closest_decisive_margin' => $margins === [] ? null : min($margins),
+            'average_a' => $valuesA === [] ? null : (int) round(array_sum($valuesA) / count($valuesA)),
+            'average_b' => $valuesB === [] ? null : (int) round(array_sum($valuesB) / count($valuesB)),
+            'score_display' => $playerAWins . '–' . $playerBWins,
+        ];
+    }
+
+    /**
+     * Load days + results and summarize a match by id.
+     *
+     * @return array{match: array<string, mixed>, days: list<array<string, mixed>>, summary: array<string, mixed>}
+     */
+    public static function forMatchId(int $matchId): array
+    {
+        $match = Database::fetch(
+            'SELECT m.*, mt.slug AS metric_slug, mt.name AS metric_name, mt.unit AS metric_unit,
+                    mt.higher_wins,
+                    ua.name AS player_a_name, ua.username AS player_a_username,
+                    ub.name AS player_b_name, ub.username AS player_b_username,
+                    sa.name AS player_a_source_name, sa.source_class AS player_a_source_class, sa.slug AS player_a_source_slug,
+                    sb.name AS player_b_source_name, sb.source_class AS player_b_source_class, sb.slug AS player_b_source_slug
+             FROM rly_matches m
+             JOIN rly_metric_types mt ON mt.id = m.metric_type_id
+             JOIN rly_users ua ON ua.id = m.player_a_user_id
+             JOIN rly_users ub ON ub.id = m.player_b_user_id
+             JOIN rly_data_sources sa ON sa.id = m.player_a_source_id
+             LEFT JOIN rly_data_sources sb ON sb.id = m.player_b_source_id
+             WHERE m.id = ?',
+            [$matchId]
+        );
+        if ($match === null) {
+            throw new \RuntimeException('Match not found: ' . $matchId);
+        }
+
+        $days = self::daysWithResults($matchId);
+        $summary = self::summarize($match, $days);
+
+        return ['match' => $match, 'days' => $days, 'summary' => $summary];
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public static function daysWithResults(int $matchId): array
+    {
+        $days = Database::fetchAll(
+            'SELECT * FROM rly_match_days WHERE match_id = ? ORDER BY day_number ASC',
+            [$matchId]
+        );
+        if ($days === []) {
+            return [];
+        }
+
+        $dayIds = array_map(static fn(array $d): int => (int) $d['id'], $days);
+        $placeholders = implode(',', array_fill(0, count($dayIds), '?'));
+        $results = Database::fetchAll(
+            "SELECT * FROM rly_match_day_results WHERE match_day_id IN ({$placeholders})",
+            $dayIds
+        );
+
+        $byDay = [];
+        foreach ($results as $row) {
+            $byDay[(int) $row['match_day_id']][] = $row;
+        }
+
+        foreach ($days as &$day) {
+            $day['results'] = $byDay[(int) $day['id']] ?? [];
+        }
+        unset($day);
+
+        return $days;
+    }
+
+    /**
+     * @param array<string, mixed> $day
+     * @return array<string, mixed>|null
+     */
+    private static function resultFor(array $day, int $userId): ?array
+    {
+        foreach ($day['results'] ?? [] as $result) {
+            if ((int) $result['user_id'] === $userId) {
+                return $result;
+            }
+        }
+        return null;
+    }
+
+    /** @param list<array<string, mixed>> $days */
+    private static function allDaysTerminal(array $days): bool
+    {
+        if ($days === []) {
+            return false;
+        }
+        foreach ($days as $day) {
+            $status = (string) $day['status'];
+            if ($status !== 'official' && $status !== 'void') {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param list<string> $outcomes
+     * @return array{user_id: ?int, length: int, side: ?string}|null
+     */
+    private static function currentStreak(array $outcomes, int $playerA, int $playerB): ?array
+    {
+        if ($outcomes === []) {
+            return null;
+        }
+        $last = null;
+        $length = 0;
+        for ($i = count($outcomes) - 1; $i >= 0; $i--) {
+            $outcome = $outcomes[$i];
+            if ($outcome === 'tie') {
+                break;
+            }
+            if ($last === null) {
+                $last = $outcome;
+                $length = 1;
+                continue;
+            }
+            if ($outcome === $last) {
+                $length++;
+            } else {
+                break;
+            }
+        }
+        if ($last === null || $length === 0) {
+            return null;
+        }
+        return [
+            'user_id' => $last === 'a' ? $playerA : $playerB,
+            'length' => $length,
+            'side' => $last,
+        ];
+    }
+
+    /**
+     * Daily winner label for an official day.
+     *
+     * @param array<string, mixed> $match
+     * @param array<string, mixed> $day
+     * @return array<string, mixed>
+     */
+    public static function dayOutcome(array $match, array $day): array
+    {
+        $status = (string) $day['status'];
+        if ($status === 'void') {
+            return [
+                'kind' => 'void',
+                'label' => 'Void',
+                'winner_user_id' => null,
+                'margin' => null,
+                'value_a' => null,
+                'value_b' => null,
+            ];
+        }
+
+        $playerA = (int) $match['player_a_user_id'];
+        $playerB = (int) $match['player_b_user_id'];
+        $resultA = self::resultFor($day, $playerA);
+        $resultB = self::resultFor($day, $playerB);
+
+        if ($resultA === null && $resultB === null) {
+            return [
+                'kind' => 'awaiting',
+                'label' => 'Awaiting sync',
+                'winner_user_id' => null,
+                'margin' => null,
+                'value_a' => null,
+                'value_b' => null,
+            ];
+        }
+        if ($resultA === null || $resultB === null) {
+            return [
+                'kind' => 'partial',
+                'label' => 'Awaiting sync',
+                'winner_user_id' => null,
+                'margin' => null,
+                'value_a' => $resultA !== null ? (int) $resultA['metric_value'] : null,
+                'value_b' => $resultB !== null ? (int) $resultB['metric_value'] : null,
+            ];
+        }
+
+        $valA = (int) $resultA['metric_value'];
+        $valB = (int) $resultB['metric_value'];
+        $cmp = MetricComparisonService::compare(
+            $valA,
+            $valB,
+            (int) $match['tie_threshold'],
+            (int) ($match['higher_wins'] ?? 1) === 1
+        );
+
+        if ($cmp['is_tie']) {
+            return [
+                'kind' => 'tie',
+                'label' => 'Tie',
+                'winner_user_id' => null,
+                'margin' => $cmp['margin'],
+                'value_a' => $valA,
+                'value_b' => $valB,
+            ];
+        }
+
+        $winnerId = $cmp['winner_side'] === 'a' ? $playerA : $playerB;
+        return [
+            'kind' => 'win',
+            'label' => 'Win',
+            'winner_user_id' => $winnerId,
+            'winner_side' => $cmp['winner_side'],
+            'margin' => $cmp['margin'],
+            'value_a' => $valA,
+            'value_b' => $valB,
+        ];
+    }
+}
