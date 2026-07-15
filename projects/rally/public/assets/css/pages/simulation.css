@@ -1,25 +1,39 @@
-.sim-page { padding-bottom: 3rem; }
+.sim-page {
+  width: min(100% - (var(--gutter) * 2), var(--max-narrow));
+  margin: 0 auto;
+  padding-bottom: var(--s-7);
+}
 .sim-block {
-  margin: 1.5rem 0;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
+  margin: var(--s-5) 0;
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line-strong);
 }
 .sim-day-form {
-  margin: 0.75rem 0;
-  padding: 0.75rem;
-  background: var(--bg-panel);
+  margin: var(--s-3) 0;
+  padding: var(--s-3);
+  background: var(--surface-1);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--r-m);
 }
 .sim-day-form fieldset {
   border: 0;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.55rem;
+  gap: var(--s-2);
 }
 .sim-day-form legend {
-  font-weight: 700;
-  margin-bottom: 0.35rem;
+  font-weight: 650;
+  margin-bottom: var(--s-2);
+  font-variant-numeric: tabular-nums;
 }
 .inline-form { max-width: 28rem; }
+.sim-score {
+  font-family: var(--font-display);
+  font-stretch: var(--stretch-wide);
+  font-weight: 820;
+  font-size: 2.4rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 var(--s-2);
+}

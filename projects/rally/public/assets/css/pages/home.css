@@ -1,83 +1,98 @@
+/* ==========================================================================
+   Landing page — hero statement over a live match demonstration
+   ========================================================================== */
+
 .home-hero {
-  min-height: calc(100vh - var(--header-h) - 6rem);
-  display: grid;
-  align-items: end;
-  padding: 2rem 0 1.5rem;
-  position: relative;
+  padding: var(--s-6) 0 var(--s-5);
+  text-align: center;
 }
-.home-hero::before {
-  content: "";
-  position: absolute;
-  inset: -2rem -10vw auto;
-  height: 55vh;
-  background:
-    linear-gradient(120deg, transparent 40%, rgba(196, 240, 66, 0.08) 100%),
-    repeating-linear-gradient(
-      -18deg,
-      transparent 0,
-      transparent 18px,
-      rgba(255, 255, 255, 0.02) 18px,
-      rgba(255, 255, 255, 0.02) 19px
-    );
-  pointer-events: none;
-}
-.home-hero-inner { position: relative; }
-.brand-hero {
-  font-family: var(--font-display);
-  font-size: clamp(4.5rem, 18vw, 7rem);
-  letter-spacing: 0.04em;
-  line-height: 0.9;
-  margin: 0 0 0.75rem;
-  color: var(--ink);
-  animation: rise-in 0.7s ease both;
-}
-.home-hero h1 {
-  font-family: var(--font-body);
-  font-size: clamp(1.25rem, 4vw, 1.55rem);
-  font-weight: 600;
-  max-width: 22ch;
-  margin-bottom: 0.75rem;
-  animation: rise-in 0.7s ease 0.08s both;
+.home-title {
+  font-size: var(--display-l);
+  text-transform: uppercase;
+  letter-spacing: -0.005em;
+  max-width: 16ch;
+  margin: 0 auto var(--s-3);
+  animation: rise-in 0.6s var(--ease-out) both;
 }
 .home-lede {
-  color: var(--ink-muted);
-  max-width: 34ch;
-  animation: rise-in 0.7s ease 0.14s both;
+  color: var(--ink-2);
+  max-width: 44ch;
+  margin: 0 auto var(--s-4);
+  font-size: var(--text-l);
+  animation: rise-in 0.6s var(--ease-out) 0.06s both;
 }
 .home-cta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin: 1.25rem 0 0.75rem;
-  animation: rise-in 0.7s ease 0.2s both;
+  gap: var(--s-3);
+  justify-content: center;
+  animation: rise-in 0.6s var(--ease-out) 0.12s both;
 }
-.home-demo {
-  color: var(--ink-muted);
-  font-size: 0.9rem;
+.home-demo-hint { margin-top: var(--s-3); }
+
+/* --- Match demonstration ----------------------------------------------------- */
+
+.home-board { margin: var(--s-4) auto var(--s-6); }
+.demo-shell {
+  max-width: 52rem;
+  margin: 0 auto;
+  background: var(--surface-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-m);
+  padding: var(--s-4) var(--s-4) var(--s-5);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  animation: rise-in 0.7s var(--ease-out) 0.18s both;
 }
-.home-strip {
+.demo-shell .board-meta { border-top: 0; }
+.demo-shell .board { padding-top: var(--s-4); }
+.demo-shell .rail-track { background: var(--surface-2); }
+.demo-shell .rail-cell--future .rail-track { background: transparent; }
+
+.demo-live {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
   border-top: 1px solid var(--line);
-  padding: 1.75rem 0 2.5rem;
 }
-.home-strip-inner {
+.demo-live-vals { font-weight: 700; font-size: var(--text-l); }
+.demo-dim { color: var(--ink-3); }
+.demo-live-lead { color: var(--ink-2); font-size: var(--text-s); }
+
+/* --- Product points ------------------------------------------------------------ */
+
+.home-points {
   display: grid;
-  gap: 1.25rem;
+  gap: var(--s-6);
+  padding: var(--s-6) 0;
+  max-width: var(--max-narrow);
 }
-.home-strip h2 {
-  font-size: 1.5rem;
-  margin-bottom: 0.35rem;
+.home-point > .t-label { display: block; margin-bottom: var(--s-2); }
+.home-point h2 { text-transform: uppercase; }
+.home-point p { color: var(--ink-2); max-width: 52ch; }
+.home-point .settle-panel,
+.home-point .source-strip { max-width: 32rem; }
+
+.home-final {
+  text-align: center;
+  border-top: 1px solid var(--line-strong);
+  padding: var(--s-7) 0 var(--s-6);
 }
-.home-strip p {
-  color: var(--ink-muted);
-  margin: 0;
-}
-@media (min-width: 720px) {
-  .home-strip-inner {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+.home-final h2 { font-size: var(--display-m); text-transform: uppercase; }
+.home-final .home-lede { margin-bottom: var(--s-4); }
+
+@media (min-width: 900px) {
+  .home-hero { padding-top: var(--s-7); }
+  .home-points {
+    max-width: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-7) var(--s-7);
   }
 }
+
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }

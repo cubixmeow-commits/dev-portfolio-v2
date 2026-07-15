@@ -8,6 +8,7 @@
 ?>
 <section class="sim-page">
   <header class="page-header">
+    <p class="t-label">Development</p>
     <h1>Simulation controls</h1>
     <p class="lede">Development only. Mutates results through the ingestion service and advances the application clock.</p>
     <p class="hint">Application clock: <strong><?= e($clock->format('Y-m-d H:i:s')) ?> UTC</strong>
@@ -63,7 +64,7 @@
   ?>
   <section class="sim-block">
     <h2>Derived score</h2>
-    <p class="dash-score"><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></p>
+    <p class="sim-score"><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></p>
     <ul class="hint">
       <li>Ties: <?= (int) $s['ties'] ?> · Voids: <?= (int) $s['voids'] ?></li>
       <li>Official: <?= (int) $s['official_days'] ?> · Pending: <?= (int) $s['pending_days'] ?> · Remaining: <?= (int) $s['remaining_days'] ?></li>

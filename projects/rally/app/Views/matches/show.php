@@ -1,189 +1,309 @@
 <?php
+
+use Rally\Core\View;
+
 /** @var array $pack */
 /** @var array $comparability */
 /** @var list<array> $timeline */
 /** @var array|null $today */
 $m = $pack['match'];
 $s = $pack['summary'];
+$days = $pack['days'];
 $matchId = (int) $m['id'];
+$status = (string) $m['status'];
 $provisional = !empty($s['is_provisional']);
-?>
-<article class="scoreboard" aria-labelledby="match-title">
-  <header class="scoreboard-header">
-    <p class="brand-kicker">Rally</p>
-    <p class="metric-line"><?= e($m['metric_name']) ?></p>
-    <p class="series-line"><?= (int) $m['length_days'] ?>-Game Series</p>
-    <h1 id="match-title" class="visually-hidden"><?= e($m['player_a_name']) ?> versus <?= e($m['player_b_name']) ?></h1>
-  </header>
 
-  <div class="scoreboard-players" aria-hidden="false">
-    <div class="player player-a">
-      <a class="player-name" href="<?= e(url('/players/' . (int) $m['player_a_user_id'])) ?>"><?= e($m['player_a_name']) ?></a>
-      <p class="player-source"><?= e($m['player_a_source_name']) ?></p>
+$tz = new DateTimeZone((string) $m['timezone']);
+$startDate = new DateTimeImmutable((string) $m['start_date']);
+$endDate = $days !== [] ? new DateTimeImmutable((string) end($days)['competition_date']) : $startDate;
+$dateRange = $startDate->format('M j') . ' – ' . ($startDate->format('M') === $endDate->format('M') ? $endDate->format('j') : $endDate->format('M j'));
+
+$liveDayNum = null;
+$currentDayNum = null;
+$remainingGames = 0;
+foreach ($days as $d) {
+    if ((string) $d['status'] === 'live') {
+        $liveDayNum = (int) $d['day_number'];
+    }
+    if (in_array((string) $d['status'], ['live', 'pending'], true)) {
+        $currentDayNum = max((int) $d['day_number'], (int) $currentDayNum);
+    }
+    if (in_array((string) $d['status'], ['live', 'scheduled'], true)) {
+        $remainingGames++;
+    }
+}
+
+$aWins = (int) $s['player_a_wins'];
+$bWins = (int) $s['player_b_wins'];
+$leaderSide = $aWins > $bWins ? 'a' : ($bWins > $aWins ? 'b' : null);
+
+$matchChip = match (true) {
+    $liveDayNum !== null => ['live', 'Live'],
+    $status === 'settling' => ['settling', 'Settling'],
+    $status === 'completed' => ['completed', 'Final'],
+    $status === 'scheduled' => ['scheduled', 'Scheduled'],
+    default => ['active', ucfirst($status)],
+};
+
+if ($status === 'completed') {
+    if (!empty($s['is_draw'])) {
+        $verdict = '<strong>Final</strong> — drawn series';
+    } else {
+        $winnerName = $leaderSide === 'a' ? $m['player_a_name'] : $m['player_b_name'];
+        $verdict = '<strong>Final</strong> — ' . e($winnerName) . ' wins the series';
+    }
+} elseif ($status === 'settling') {
+    $verdict = '<strong>Settling</strong> — ' . (int) $s['pending_days'] . ' result' . ((int) $s['pending_days'] === 1 ? '' : 's') . ' awaiting official review';
+} elseif ($provisional) {
+    $verdict = '<strong>Provisional</strong> — ' . $remainingGames . ' game' . ($remainingGames === 1 ? '' : 's') . ' remaining';
+} else {
+    $verdict = '<strong>Final</strong>';
+}
+$tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
+    ? 'Ties ' . (int) $s['ties'] . ' · Voids ' . (int) $s['voids']
+    : null;
+?>
+<article class="scoreboard wrap" aria-labelledby="match-title">
+  <h1 id="match-title" class="visually-hidden"><?= e($m['player_a_name']) ?> versus <?= e($m['player_b_name']) ?>, series score <?= $aWins ?>–<?= $bWins ?><?= $provisional ? ', provisional' : ', final' ?></h1>
+
+  <div class="board-meta">
+    <span class="t-label"><?= e($m['metric_name']) ?></span>
+    <span class="t-label" aria-hidden="true">·</span>
+    <span class="t-label"><?= (int) $m['length_days'] ?>-game series</span>
+    <span class="t-label" aria-hidden="true">·</span>
+    <span class="t-label t-num"><?= e($dateRange) ?></span>
+    <?php if ($currentDayNum !== null && $status !== 'completed'): ?>
+      <span class="t-label" aria-hidden="true">·</span>
+      <span class="t-label">Game <?= $currentDayNum ?> of <?= (int) $m['length_days'] ?></span>
+    <?php endif; ?>
+    <span class="board-meta-spacer"></span>
+    <span class="status-pill status-<?= e($matchChip[0]) ?>"><?= e($matchChip[1]) ?></span>
+  </div>
+
+  <div class="board" aria-hidden="true">
+    <div class="board-side board-side--a">
+      <div class="board-ident">
+        <span class="avatar"><?= e(mb_strtoupper(mb_substr((string) $m['player_a_name'], 0, 1))) ?></span>
+        <a class="board-name" href="<?= e(url('/players/' . (int) $m['player_a_user_id'])) ?>"><?= e($m['player_a_name']) ?></a>
+      </div>
+      <p class="board-source"><?= e($m['player_a_source_name']) ?></p>
+      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'b' ? ' is-trailing' : '' ?>"><?= $aWins ?></p>
+      <span class="board-lead-tick board-score-inner<?= $leaderSide === 'a' ? '' : ' is-hidden' ?>"></span>
     </div>
-    <div class="player player-b">
-      <a class="player-name" href="<?= e(url('/players/' . (int) $m['player_b_user_id'])) ?>"><?= e($m['player_b_name']) ?></a>
-      <p class="player-source"><?= e($m['player_b_source_name'] ?? 'Source pending') ?></p>
+    <div class="board-center">
+      <span class="board-center-rule"></span>
+    </div>
+    <div class="board-side board-side--b">
+      <div class="board-ident">
+        <span class="avatar"><?= e(mb_strtoupper(mb_substr((string) $m['player_b_name'], 0, 1))) ?></span>
+        <a class="board-name" href="<?= e(url('/players/' . (int) $m['player_b_user_id'])) ?>"><?= e($m['player_b_name']) ?></a>
+      </div>
+      <p class="board-source"><?= e($m['player_b_source_name'] ?? 'Source pending') ?></p>
+      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'a' ? ' is-trailing' : '' ?>"><?= $bWins ?></p>
+      <span class="board-lead-tick board-score-inner<?= $leaderSide === 'b' ? '' : ' is-hidden' ?>"></span>
     </div>
   </div>
 
-  <p class="series-score" aria-live="polite"
-     aria-label="Series score: <?= e($m['player_a_name']) ?> <?= (int) $s['player_a_wins'] ?>, <?= e($m['player_b_name']) ?> <?= (int) $s['player_b_wins'] ?><?= $provisional ? ', provisional' : '' ?>">
-    <span class="score-num"><?= (int) $s['player_a_wins'] ?></span>
-    <span class="score-sep" aria-hidden="true">–</span>
-    <span class="score-num"><?= (int) $s['player_b_wins'] ?></span>
-  </p>
-  <?php if ($provisional && (string) $m['status'] !== 'completed'): ?>
-    <p class="score-note">Provisional series score · ties <?= (int) $s['ties'] ?> · voids <?= (int) $s['voids'] ?></p>
-  <?php elseif (!empty($s['is_draw'])): ?>
-    <p class="score-note">Final draw · ties <?= (int) $s['ties'] ?> · voids <?= (int) $s['voids'] ?></p>
-  <?php elseif ((string) $m['status'] === 'completed'): ?>
-    <p class="score-note">Final · ties <?= (int) $s['ties'] ?> · voids <?= (int) $s['voids'] ?></p>
-  <?php endif; ?>
+  <div class="board-verdict" aria-live="polite">
+    <span class="board-verdict-text"><?= $verdict ?><?= $tieVoidNote !== null ? ' <span class="verdict-sep" aria-hidden="true">·</span> ' . e($tieVoidNote) : '' ?></span>
+  </div>
 
-  <?php if ((string) $m['status'] === 'settling'): ?>
-    <div class="settling-banner" role="status">
-      <strong>Series ended</strong>
-      <p>Final results are settling. <?= (int) $s['pending_days'] ?> result<?= (int) $s['pending_days'] === 1 ? '' : 's' ?> remain provisional.</p>
-    </div>
-  <?php endif; ?>
-
-  <ol class="timeline" aria-label="Daily results timeline">
-    <?php foreach ($timeline as $item):
-      $day = $item['day'];
-      $sym = $item['symbol'];
-      $label = $item['label'];
-    ?>
-      <li>
-        <a href="<?= e(url('/matches/' . $matchId . '/day/' . (int) $day['day_number'])) ?>"
-           class="timeline-mark status-<?= e((string) $day['status']) ?>"
-           title="Game <?= (int) $day['day_number'] ?>: <?= e($label) ?>"
-           aria-label="Game <?= (int) $day['day_number'] ?>: <?= e($label) ?>">
-          <span aria-hidden="true"><?= e($sym) ?></span>
-        </a>
-      </li>
-    <?php endforeach; ?>
-  </ol>
-  <p class="timeline-legend" aria-hidden="false">
-    <span>● <?= e($m['player_a_name']) ?> win</span>
-    <span>○ <?= e($m['player_b_name']) ?> win</span>
-    <span>– Tie</span>
-    <span>× Void</span>
-    <span>◌ Pending / live</span>
-    <span>· Future</span>
-  </p>
-
-  <?php if ($comparability['mismatch']): ?>
-    <aside class="source-warning" role="alert">
-      <strong><?= e($comparability['title']) ?></strong>
-      <p><?= e($comparability['message']) ?></p>
-    </aside>
-  <?php else: ?>
-    <aside class="source-ok" role="status">
-      <strong><?= e($comparability['title']) ?></strong>
-      <p><?= e($comparability['message']) ?></p>
-    </aside>
-  <?php endif; ?>
-
-  <?php if ($today !== null):
-    $day = $today['day'];
-    $outcome = $today['outcome'];
-    $isLive = (string) $day['status'] === 'live';
-  ?>
-  <section class="today-panel" aria-labelledby="today-heading">
-    <h2 id="today-heading"><?= $isLive ? 'Today' : 'Latest provisional' ?> — Game <?= (int) $day['day_number'] ?></h2>
-    <div class="today-grid">
+  <?php if ($status === 'settling'): ?>
+    <div class="settle-panel" role="status">
+      <span class="settle-glyph" aria-hidden="true">…</span>
       <div>
-        <p class="today-name"><?= e($m['player_a_name']) ?></p>
-        <p class="today-value"><?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : 'Awaiting sync' ?></p>
-      </div>
-      <div>
-        <p class="today-name"><?= e($m['player_b_name']) ?></p>
-        <p class="today-value"><?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : 'Awaiting sync' ?></p>
+        <p class="settle-title">Series settling</p>
+        <p class="settle-body">All games are played. <strong><?= (int) $s['pending_days'] ?> result<?= (int) $s['pending_days'] === 1 ? '' : 's' ?></strong> remain<?= (int) $s['pending_days'] === 1 ? 's' : '' ?> provisional until final device sync is reviewed.</p>
       </div>
     </div>
-    <?php if ($outcome['value_a'] !== null && $outcome['value_b'] !== null && $outcome['kind'] !== 'tie'): ?>
-      <?php
-        $leaderName = ((int) $outcome['value_a'] > (int) $outcome['value_b']) ? $m['player_a_name'] : $m['player_b_name'];
-        $margin = abs((int) $outcome['value_a'] - (int) $outcome['value_b']);
-      ?>
-      <p class="today-lead"><?= e($leaderName) ?> leads by <?= e(number_format($margin)) ?></p>
-    <?php elseif ($outcome['kind'] === 'tie' || ($outcome['value_a'] !== null && $outcome['value_b'] !== null && abs((int)$outcome['value_a']-(int)$outcome['value_b']) < (int)$m['tie_threshold'])): ?>
-      <p class="today-lead">Within tie threshold (<?= (int) $m['tie_threshold'] ?>)</p>
-    <?php endif; ?>
-    <p>
-      <span class="status-pill status-<?= e((string) $day['status']) ?>"><?= e(strtoupper((string) $day['status'])) ?></span>
-      <?php if ($isLive): ?>
-        <span class="countdown" data-ends-at="<?= e($day['competition_date']) ?>" data-tz="<?= e($m['timezone']) ?>">Competition day in progress</span>
-      <?php else: ?>
-        <span>Settles at <?= e((new DateTimeImmutable((string) $day['settles_at'], new DateTimeZone('UTC')))->setTimezone(new DateTimeZone((string) $m['timezone']))->format('M j, g:i A T')) ?></span>
-      <?php endif; ?>
-    </p>
-    <p class="today-note"><?= (int) $s['remaining_days'] ?> games remaining · values may still change until settlement</p>
-  </section>
   <?php endif; ?>
 
-  <section class="recent-games" aria-labelledby="recent-heading">
-    <h2 id="recent-heading">Recent games</h2>
-    <ul class="game-list">
-      <?php
-      $shown = 0;
-      foreach (array_reverse($timeline) as $item):
-        $day = $item['day'];
-        $outcome = $item['outcome'];
-        if (!in_array((string) $day['status'], ['official', 'void', 'pending'], true)) {
-            continue;
+  <?php View::partial('partials/rail', ['match' => $m, 'days' => $days]); ?>
+
+  <div class="source-strip<?= $comparability['mismatch'] ? ' source-strip--mismatch' : '' ?>" role="<?= $comparability['mismatch'] ? 'alert' : 'status' ?>">
+    <span class="source-strip-kicker"><?= e($comparability['title']) ?></span>
+    <span class="source-strip-pair"><?= e($m['player_a_source_name']) ?> vs <?= e($m['player_b_source_name'] ?? 'Source pending') ?></span>
+    <p class="source-strip-note"><?= e($comparability['message']) ?></p>
+  </div>
+
+  <div class="match-columns">
+    <div class="match-col-main">
+      <?php if ($today !== null):
+        $day = $today['day'];
+        $outcome = $today['outcome'];
+        $isLive = (string) $day['status'] === 'live';
+        $dayDate = new DateTimeImmutable((string) $day['competition_date']);
+        $settlesLocal = (new DateTimeImmutable((string) $day['settles_at'], new DateTimeZone('UTC')))->setTimezone($tz);
+        $lastSync = null;
+        foreach ($day['results'] ?? [] as $r) {
+            if (!empty($r['ingested_at']) && ($lastSync === null || $r['ingested_at'] > $lastSync)) {
+                $lastSync = (string) $r['ingested_at'];
+            }
         }
-        if ($shown >= 5) {
-            break;
+        $bothIn = $outcome['value_a'] !== null && $outcome['value_b'] !== null;
+        $dayLeader = null;
+        $margin = null;
+        $withinTie = false;
+        if ($bothIn) {
+            $margin = abs((int) $outcome['value_a'] - (int) $outcome['value_b']);
+            $withinTie = $margin < (int) $m['tie_threshold'];
+            if (!$withinTie) {
+                $dayLeader = ((int) $outcome['value_a'] > (int) $outcome['value_b']) ? 'a' : 'b';
+            }
         }
-        $shown++;
-        $status = (string) $day['status'];
       ?>
-        <li class="game-row status-<?= e($status) ?>">
-          <a href="<?= e(url('/matches/' . $matchId . '/day/' . (int) $day['day_number'])) ?>">
-            <span class="game-label">Game <?= (int) $day['day_number'] ?> — <?= e(strtoupper($status)) ?></span>
-            <?php if ($status === 'void'): ?>
-              <span class="game-result">Void · no winner awarded</span>
-            <?php elseif ($status === 'pending'): ?>
-              <span class="game-result">
-                <?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : '—' ?>
-                vs
-                <?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : '—' ?>
-                · provisional
-              </span>
-            <?php elseif ($outcome['kind'] === 'tie'): ?>
-              <span class="game-result">Tie · <?= e(number_format((int) $outcome['value_a'])) ?> vs <?= e(number_format((int) $outcome['value_b'])) ?></span>
-            <?php elseif ($outcome['kind'] === 'win'): ?>
-              <?php $winner = ($outcome['winner_side'] ?? '') === 'a' ? $m['player_a_name'] : $m['player_b_name'];
-                    $loser = ($outcome['winner_side'] ?? '') === 'a' ? $m['player_b_name'] : $m['player_a_name']; ?>
-              <span class="game-result"><?= e($winner) ?> defeats <?= e($loser) ?></span>
-              <span class="game-meta"><?= e(number_format((int) $outcome['value_a'])) ?> vs <?= e(number_format((int) $outcome['value_b'])) ?> · Margin <?= e(number_format((int) $outcome['margin'])) ?></span>
-            <?php endif; ?>
-          </a>
-          <?php if ($status === 'official'): ?>
-            <a class="share-link" href="<?= e(url('/matches/' . $matchId . '/day/' . (int) $day['day_number'] . '/share')) ?>">Share card</a>
+      <section class="live-panel<?= $isLive ? '' : ' live-panel--pending' ?>" aria-labelledby="today-heading">
+        <div class="live-panel-head">
+          <h2 class="live-panel-title" id="today-heading">Game <?= (int) $day['day_number'] ?><?= $isLive ? ' · Today' : '' ?></h2>
+          <span>
+            <span class="status-pill status-<?= e((string) $day['status']) ?>"><?= $isLive ? 'Live' : 'Pending' ?></span>
+            <span class="live-panel-date t-num"><?= e($dayDate->format('D M j')) ?></span>
+          </span>
+        </div>
+
+        <div class="live-values">
+          <div class="live-side live-side--a">
+            <p class="live-side-name"><?= e($m['player_a_name']) ?></p>
+            <p class="live-side-value t-num<?= $outcome['value_a'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'a' ? ' is-leading' : '' ?>">
+              <?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : 'Awaiting sync' ?>
+            </p>
+          </div>
+          <div class="live-mid" aria-hidden="true">
+            <span class="t-label">vs</span>
+          </div>
+          <div class="live-side live-side--b">
+            <p class="live-side-name"><?= e($m['player_b_name']) ?></p>
+            <p class="live-side-value t-num<?= $outcome['value_b'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'b' ? ' is-leading' : '' ?>">
+              <?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : 'Awaiting sync' ?>
+            </p>
+          </div>
+        </div>
+
+        <div class="live-margin">
+          <?php if ($dayLeader !== null): ?>
+            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> leads by <span class="t-num"><?= e(number_format((int) $margin)) ?></span></span>
+          <?php elseif ($withinTie): ?>
+            <span class="live-margin-lead">Level — within tie threshold (<span class="t-num"><?= (int) $m['tie_threshold'] ?></span>)</span>
+          <?php else: ?>
+            <span class="live-margin-lead hint">Waiting for both competitors to sync</span>
           <?php endif; ?>
-        </li>
-      <?php endforeach; ?>
-      <?php if ($shown === 0): ?>
-        <li class="game-row"><span class="game-result">No settled games yet.</span></li>
-      <?php endif; ?>
-    </ul>
-    <p><a href="<?= e(url('/matches/' . $matchId . '/history')) ?>">Full match history</a></p>
-  </section>
+        </div>
 
-  <?php if (($s['largest_margin'] ?? null) !== null || ($s['average_a'] ?? null) !== null): ?>
-  <section class="secondary-stats" aria-labelledby="stats-heading">
-    <h2 id="stats-heading">Series notes</h2>
-    <ul>
-      <?php if ($s['largest_margin'] !== null): ?><li>Largest official margin: <?= e(number_format((int) $s['largest_margin'])) ?></li><?php endif; ?>
-      <?php if ($s['closest_decisive_margin'] !== null): ?><li>Closest decisive game: <?= e(number_format((int) $s['closest_decisive_margin'])) ?></li><?php endif; ?>
-      <?php if ($s['average_a'] !== null): ?><li><?= e($m['player_a_name']) ?> avg (official): <?= e(number_format((int) $s['average_a'])) ?></li><?php endif; ?>
-      <?php if ($s['average_b'] !== null): ?><li><?= e($m['player_b_name']) ?> avg (official): <?= e(number_format((int) $s['average_b'])) ?></li><?php endif; ?>
-      <li>Tie threshold: <?= (int) $m['tie_threshold'] ?> <?= e($m['metric_unit']) ?></li>
-      <li>Match timezone: <?= e($m['timezone']) ?></li>
-    </ul>
-  </section>
-  <?php endif; ?>
+        <?php if (!$isLive): ?>
+          <div class="settle-panel settle-inline" role="status">
+            <span class="settle-glyph" aria-hidden="true">…</span>
+            <div>
+              <p class="settle-title">Pending review</p>
+              <p class="settle-body">Waiting for final device sync. Locks <strong class="t-num"><?= e($settlesLocal->format('M j \a\t g:i A T')) ?></strong>.</p>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <div class="live-meta">
+          <?php if ($isLive): ?>
+            <span>Competition day in progress · settles <span class="t-num"><?= e($settlesLocal->format('M j, g:i A T')) ?></span></span>
+          <?php endif; ?>
+          <?php if ($lastSync !== null): ?>
+            <span>Last sync <span class="t-num"><?= e(time_ago($lastSync)) ?></span></span>
+          <?php endif; ?>
+          <?php if ($remainingGames > 0): ?>
+            <span><span class="t-num"><?= $remainingGames ?></span> game<?= $remainingGames === 1 ? '' : 's' ?> remaining</span>
+          <?php endif; ?>
+        </div>
+      </section>
+      <?php endif; ?>
+
+      <section aria-labelledby="recent-heading">
+        <div class="section-head">
+          <h2 id="recent-heading">Recent games</h2>
+          <a class="section-aside" href="<?= e(url('/matches/' . $matchId . '/history')) ?>">Full history</a>
+        </div>
+        <ul class="fixture-list">
+          <?php
+          $shown = 0;
+          foreach (array_reverse($timeline) as $item):
+            $day = $item['day'];
+            $outcome = $item['outcome'];
+            $st = (string) $day['status'];
+            if (!in_array($st, ['official', 'void', 'pending'], true)) {
+                continue;
+            }
+            if ($shown >= 5) {
+                break;
+            }
+            $shown++;
+            $dayNum = (int) $day['day_number'];
+            $dayUrl = url('/matches/' . $matchId . '/day/' . $dayNum);
+            $rowDate = (new DateTimeImmutable((string) $day['competition_date']))->format('M j');
+            $winnerSide = ($outcome['winner_side'] ?? null);
+          ?>
+          <li class="fixture">
+            <span class="fixture-game" aria-hidden="true">
+              <span class="fixture-game-num t-num"><?= $dayNum ?></span>
+              <span class="fixture-game-label">Game</span>
+            </span>
+            <div class="fixture-main">
+              <p class="fixture-result">
+                <a href="<?= e($dayUrl) ?>">
+                <?php if ($st === 'void'): ?>
+                  Void — no winner awarded
+                <?php elseif ($st === 'pending'): ?>
+                  <?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?>
+                <?php elseif ($outcome['kind'] === 'tie'): ?>
+                  Tie
+                <?php elseif ($outcome['kind'] === 'win'): ?>
+                  <?= e($winnerSide === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> d. <span class="is-loser"><?= e($winnerSide === 'a' ? $m['player_b_name'] : $m['player_a_name']) ?></span>
+                <?php else: ?>
+                  Awaiting sync
+                <?php endif; ?>
+                </a>
+              </p>
+              <p class="fixture-meta">
+                <span class="t-num"><?= e($rowDate) ?></span>
+                <span class="status-pill status-<?= e($st) ?>"><?= e($st === 'pending' ? 'Pending' : ucfirst($st)) ?></span>
+                <?php if ($st === 'official' && $outcome['kind'] === 'win'): ?>
+                  <span>Margin <span class="t-num"><?= e(number_format((int) $outcome['margin'])) ?></span></span>
+                <?php endif; ?>
+                <?php if ($st === 'official'): ?>
+                  <a class="share-link" href="<?= e(url('/matches/' . $matchId . '/day/' . $dayNum . '/share')) ?>">Share card</a>
+                <?php endif; ?>
+              </p>
+            </div>
+            <div class="fixture-vals" aria-hidden="true">
+              <?php if ($st !== 'void'): ?>
+                <div class="<?= $winnerSide === 'a' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : '—' ?></div>
+                <div class="<?= $winnerSide === 'b' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : '—' ?></div>
+              <?php endif; ?>
+            </div>
+          </li>
+          <?php endforeach; ?>
+          <?php if ($shown === 0): ?>
+            <li class="fixture"><span></span><div class="fixture-main"><p class="fixture-result hint">No settled games yet.</p></div></li>
+          <?php endif; ?>
+        </ul>
+      </section>
+    </div>
+
+    <aside class="match-col-aside">
+      <div class="section-head">
+        <h2 id="stats-heading">Series notes</h2>
+      </div>
+      <dl class="note-list" aria-labelledby="stats-heading">
+        <?php if (($s['largest_margin'] ?? null) !== null): ?>
+          <div><dt>Largest official margin</dt><dd class="t-num"><?= e(number_format((int) $s['largest_margin'])) ?></dd></div>
+        <?php endif; ?>
+        <?php if (($s['closest_decisive_margin'] ?? null) !== null): ?>
+          <div><dt>Closest decisive game</dt><dd class="t-num"><?= e(number_format((int) $s['closest_decisive_margin'])) ?></dd></div>
+        <?php endif; ?>
+        <?php if (($s['average_a'] ?? null) !== null): ?>
+          <div><dt><?= e($m['player_a_name']) ?> official average</dt><dd class="t-num"><?= e(number_format((int) $s['average_a'])) ?></dd></div>
+        <?php endif; ?>
+        <?php if (($s['average_b'] ?? null) !== null): ?>
+          <div><dt><?= e($m['player_b_name']) ?> official average</dt><dd class="t-num"><?= e(number_format((int) $s['average_b'])) ?></dd></div>
+        <?php endif; ?>
+        <div><dt>Tie threshold</dt><dd class="t-num"><?= (int) $m['tie_threshold'] ?> <?= e($m['metric_unit']) ?></dd></div>
+        <div><dt>Match timezone</dt><dd><?= e($m['timezone']) ?></dd></div>
+      </dl>
+    </aside>
+  </div>
 </article>

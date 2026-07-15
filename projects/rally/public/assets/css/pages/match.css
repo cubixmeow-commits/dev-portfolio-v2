@@ -1,203 +1,118 @@
-.scoreboard {
-  padding-bottom: 2rem;
-}
-.scoreboard-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-.brand-kicker {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  margin: 0;
-  color: var(--accent);
-}
-.metric-line, .series-line {
-  margin: 0.15rem 0;
-  color: var(--ink-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.82rem;
-}
+/* ==========================================================================
+   Match view, day detail, match history
+   ========================================================================== */
 
-.scoreboard-players {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 1rem 0 0.5rem;
-}
-.player-a { text-align: left; }
-.player-b { text-align: right; }
-.player-name {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 7vw, 2.6rem);
-  color: var(--ink);
-  text-decoration: none;
-  letter-spacing: 0.02em;
-}
-.player-source {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.9rem;
-}
+.verdict-sep { color: var(--ink-3); }
 
-.series-score {
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: clamp(4.5rem, 18vw, 6.5rem);
-  line-height: 0.9;
-  margin: 0.35rem 0;
-  letter-spacing: 0.02em;
-  animation: score-pop 0.55s ease both;
-}
-.score-sep { opacity: 0.55; margin: 0 0.15rem; }
-.score-note {
-  text-align: center;
-  color: var(--ink-muted);
-  font-size: 0.92rem;
-}
-@keyframes score-pop {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
-}
+/* Inline settlement inside the live panel */
+.settle-inline { margin: var(--s-4) 0 0; background: var(--surface-2); }
 
-.settling-banner {
-  margin: 1rem 0;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(240, 180, 41, 0.45);
-  background: rgba(240, 180, 41, 0.08);
-  border-radius: var(--radius);
-}
-.settling-banner p { margin: 0.25rem 0 0; color: var(--ink-muted); }
+/* --- Series notes ------------------------------------------------------- */
 
-.timeline {
-  list-style: none;
+.note-list { margin: 0; }
+.note-list > div {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.35rem;
-  padding: 0;
-  margin: 1.25rem 0 0.5rem;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-s);
 }
-.timeline-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.7rem;
-  height: 1.7rem;
-  border: 1px solid var(--line);
-  border-radius: 2px;
-  color: var(--ink);
-  text-decoration: none;
-  font-size: 0.95rem;
-  background: var(--bg-panel);
-}
-.timeline-mark:hover { border-color: var(--accent); }
-.timeline-mark.status-official { border-color: rgba(143, 211, 176, 0.5); }
-.timeline-mark.status-pending,
-.timeline-mark.status-live { border-color: rgba(240, 180, 41, 0.55); color: var(--pending); }
-.timeline-mark.status-void { color: var(--void); }
-.timeline-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-  justify-content: center;
-  color: var(--ink-muted);
-  font-size: 0.82rem;
-  margin-bottom: 1rem;
+.note-list dt { color: var(--ink-2); }
+.note-list dd { margin: 0; font-weight: 650; }
+
+/* --- Desktop composition -------------------------------------------------- */
+
+.match-columns { display: grid; gap: var(--s-4); }
+
+@media (min-width: 900px) {
+  .board { padding: var(--s-6) 0 var(--s-4); }
+  .board-name { font-size: var(--display-m); }
+  .board-score-num { margin-top: var(--s-4); }
+  .match-columns {
+    grid-template-columns: minmax(0, 1.7fr) minmax(15rem, 1fr);
+    gap: var(--s-6);
+    align-items: start;
+  }
+  .match-col-aside { position: sticky; top: calc(var(--header-h) + var(--s-4)); }
+  .match-col-aside .section-head { margin-top: 0; }
+  .rail { gap: 4px; }
+  .rail-track { height: 3.5rem; }
 }
 
-.today-panel {
-  margin: 1.5rem 0;
-  padding: 1.1rem 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-.today-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 0.75rem 0;
-}
-.today-name {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.9rem;
-}
-.today-value {
-  margin: 0.15rem 0 0;
-  font-family: var(--font-display);
-  font-size: clamp(2.2rem, 9vw, 3.2rem);
-  line-height: 1;
-}
-.today-lead {
-  font-weight: 600;
-  margin: 0.35rem 0 0.75rem;
-}
-.today-note { color: var(--ink-muted); font-size: 0.9rem; }
+/* --- Day detail ------------------------------------------------------------ */
 
-.game-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem;
-  display: grid;
-  gap: 0.65rem;
-}
-.game-row {
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--line);
-  display: grid;
-  gap: 0.25rem;
-}
-.game-row a {
-  color: inherit;
-  text-decoration: none;
-}
-.game-label {
-  display: block;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+.day-title {
+  font-size: var(--display-l);
   text-transform: uppercase;
-  color: var(--ink-muted);
+  margin-top: var(--s-4);
 }
-.game-result { font-weight: 700; }
-.game-meta { color: var(--ink-muted); font-size: 0.92rem; }
-.share-link { font-size: 0.9rem; }
-
-.secondary-stats {
-  margin-top: 1.75rem;
-  color: var(--ink-muted);
-  font-size: 0.95rem;
-}
-.secondary-stats ul {
-  padding-left: 1.1rem;
-}
-
-.history-table-wrap { overflow-x: auto; }
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-.history-table th, .history-table td {
-  text-align: left;
-  padding: 0.55rem 0.45rem;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
-}
-.history-table tr.status-pending { background: rgba(240, 180, 41, 0.05); }
-.history-table tr.status-official { background: transparent; }
-.history-table tr.status-void { opacity: 0.75; }
-
-.day-values {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 1rem 0;
-}
+.day-values { padding: var(--s-4) 0; border-bottom: 1px solid var(--line); }
 .day-headline {
   font-family: var(--font-display);
-  font-size: 2rem;
-  margin: 0.5rem 0 1rem;
+  font-stretch: var(--stretch-wide);
+  font-weight: 780;
+  font-size: var(--display-s);
+  text-transform: uppercase;
+  margin: var(--s-4) 0 var(--s-2);
+}
+.day-headline .t-num { font-variant-numeric: tabular-nums; }
+.day-headline-note {
+  font-size: var(--text-s);
+  font-family: var(--font-ui);
+  font-weight: 450;
+  text-transform: none;
+  color: var(--ink-3);
+}
+.day-headline.is-void { color: var(--void); }
+.day-headline.is-open { color: var(--ink-2); }
+.day-series { margin-top: var(--s-5); }
+
+/* --- History --------------------------------------------------------------- */
+
+.history-scoreline { font-size: var(--text-l); color: var(--ink-2); }
+.history-scoreline strong {
+  font-family: var(--font-display);
+  font-stretch: var(--stretch-wide);
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 1.35em;
+  padding: 0 0.15em;
+}
+
+.fixture--future { opacity: 0.55; }
+
+.history-table-wrap { display: none; }
+
+@media (min-width: 760px) {
+  .history-rows { display: none; }
+  .history-table-wrap { display: block; overflow-x: auto; }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-s);
+  }
+  .history-table th {
+    font-family: var(--font-display);
+    font-stretch: var(--stretch-cond);
+    font-weight: 660;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .history-table th, .history-table td {
+    text-align: left;
+    padding: 0.65rem 0.6rem;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .history-table .col-num { text-align: right; }
+  .history-table td.is-winner { font-weight: 700; }
+  .history-table tr.status-row-scheduled td { color: var(--ink-3); }
+  .history-table tr.status-row-live { background: var(--signal-dim); }
+  .history-table tr.status-row-pending { background: var(--pending-dim); }
 }

@@ -1,3 +1,89 @@
-.dash-header { margin-bottom: 1.5rem; }
-.dash-section { margin: 1.75rem 0; }
-.dash-section h2 { margin-bottom: 0.75rem; }
+/* ==========================================================================
+   Matchday dashboard
+   ========================================================================== */
+
+.dash-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+  margin-bottom: var(--s-5);
+}
+.dash-header h1 { margin: 0; text-transform: uppercase; }
+.dash-header .t-label { margin: 0 0 0.2rem; display: block; }
+
+/* --- Featured match ------------------------------------------------------- */
+
+.feature {
+  display: block;
+  background: var(--surface-1);
+  border-top: 2px solid var(--line-strong);
+  border-radius: 0 0 var(--r-m) var(--r-m);
+  padding: var(--s-4);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--dur-fast) ease;
+}
+.feature--live { border-top-color: var(--signal); }
+.feature:hover { background: var(--surface-2); }
+
+.feature-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.65rem;
+  margin-bottom: var(--s-3);
+}
+
+.feature-score {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-2) 0 var(--s-4);
+}
+.feature-name {
+  font-family: var(--font-display);
+  font-stretch: var(--stretch-wide);
+  font-weight: 790;
+  font-size: clamp(1.15rem, 4.5vw, 1.7rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.feature-name--b { text-align: right; }
+.feature-name.is-trailing { color: var(--ink-2); }
+.feature-nums {
+  font-family: var(--font-display);
+  font-stretch: var(--stretch-wide);
+  font-weight: 840;
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
+  line-height: 0.9;
+}
+.feature-sep { color: var(--ink-3); font-weight: 400; padding: 0 0.08em; }
+
+.feature-today {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  margin: var(--s-3) 0 0;
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+.feature-today-vals { font-weight: 650; font-size: var(--text-l); }
+.feature-today-vals span { color: var(--ink-3); }
+.feature-today-lead { color: var(--ink-2); font-size: var(--text-s); }
+
+/* --- Supporting sections ---------------------------------------------------- */
+
+.dash-section { margin-top: var(--s-2); }
+.dash-columns { display: grid; gap: 0 var(--s-6); }
+
+/* --- Desktop ------------------------------------------------------------------ */
+
+@media (min-width: 900px) {
+  .feature { padding: var(--s-5) var(--s-6); }
+  .dash-columns { grid-template-columns: 1fr 1fr; align-items: start; }
+}
