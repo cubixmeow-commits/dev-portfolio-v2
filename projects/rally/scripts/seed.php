@@ -325,222 +325,377 @@ function seed_match(
     return $matchId;
 }
 
-echo "Seeding demo matches...\n";
-$tzLA = 'America/Los_Angeles';
+echo "Seeding demo matches (every player vs every other player × every metric)...\n";
 
-// ---- STEPS ----
-$showcaseValues = [
-    1 => [12450, 9800],
-    2 => [10200, 9100],
-    3 => [8700, 11200],
-    4 => [11800, 10500],
-    5 => [9400, 10100],
-    6 => [15200, 11000],
-    7 => [9900, 12100],
-    8 => [11248, 9731],
-    9 => [8421, 7984],
+$playerOrder = ['iain', 'mike', 'sarah', 'jordan', 'elena', 'marcus'];
+$playerTz = [
+    'iain' => 'America/Los_Angeles',
+    'mike' => 'America/Los_Angeles',
+    'sarah' => 'America/New_York',
+    'jordan' => 'America/Chicago',
+    'elena' => 'Europe/London',
+    'marcus' => 'America/Denver',
 ];
-$forceOfficial = [];
-for ($d = 1; $d <= 8; $d++) {
-    $forceOfficial[$d] = 'official';
-}
-$forceOfficial[9] = 'live';
-$showcaseId = seed_match(
-    $metricIds['steps'], $userIds['iain'], $userIds['mike'],
-    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
-    '2026-07-13', $tzLA, 100, 'accepted', 'active', $showcaseValues, 14, $forceOfficial, 'steps'
-);
-Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9", [$showcaseId]);
-Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$showcaseId]);
+$playerSource = [
+    'iain' => 'apple_watch',
+    'mike' => 'apple_watch',
+    'sarah' => 'fitbit',
+    'jordan' => 'garmin',
+    'elena' => 'apple_watch',
+    'marcus' => 'android_phone',
+];
 
-// Completed close steps
-$closeSteps = [];
-for ($d = 1; $d <= 14; $d++) {
-    if ($d === 14) {
-        $closeSteps[$d] = [10050, 10020];
-    } elseif (in_array($d, [1, 2, 4, 5, 7, 9, 11, 13], true)) {
-        $closeSteps[$d] = [11000 + $d * 50, 9000 + $d * 40];
-    } else {
-        $closeSteps[$d] = [8500 + $d * 30, 10500 + $d * 45];
+/** Stable deterministic int from string key. */
+function seed_hash(string $key): int
+{
+    return (int) sprintf('%u', crc32($key));
+}
+
+/**
+ * Generate believable daily values for a metric series.
+ *
+ * @return array<int, array{0:int,1:int}>
+ */
+function seed_day_values(string $metricSlug, int $lengthDays, string $pairKey, string $pattern): array
+{
+    $h = seed_hash($metricSlug . '|' . $pairKey . '|' . $pattern);
+    $out = [];
+
+    for ($d = 1; $d <= $lengthDays; $d++) {
+        $wave = (($h + $d * 17) % 100) / 100.0;
+        $swing = (($h + $d * 31) % 7) - 3;
+
+        switch ($metricSlug) {
+            case 'steps':
+                $baseA = 9000 + (($h + $d * 97) % 5000);
+                $baseB = 8800 + (($h + $d * 53) % 4800);
+                if ($pattern === 'showcase') {
+                    $showcase = [
+                        1 => [12450, 9800], 2 => [10200, 9100], 3 => [8700, 11200], 4 => [11800, 10500],
+                        5 => [9400, 10100], 6 => [15200, 11000], 7 => [9900, 12100], 8 => [11248, 9731],
+                        9 => [8421, 7984], 10 => [10100, 9800], 11 => [9200, 11000], 12 => [12500, 10000],
+                        13 => [8800, 9500], 14 => [11300, 10200],
+                    ];
+                    $out[$d] = $showcase[$d] ?? [$baseA, $baseB];
+                    break;
+                }
+                if ($pattern === 'a_dominant' && $d <= (int) ceil($lengthDays * 0.65)) {
+                    $baseA = max($baseA, $baseB + 400 + $d * 20);
+                } elseif ($pattern === 'b_dominant' && $d <= (int) ceil($lengthDays * 0.65)) {
+                    $baseB = max($baseB, $baseA + 400 + $d * 20);
+                } elseif ($pattern === 'close' && $d === $lengthDays) {
+                    $baseA = 10050;
+                    $baseB = 10020;
+                }
+                $out[$d] = [$baseA, $baseB];
+                break;
+
+            case 'active_minutes':
+                $a = 25 + (($h + $d * 11) % 140);
+                $b = 20 + (($h + $d * 19) % 145);
+                if ($pattern === 'a_dominant') {
+                    $a = max($a, $b + 8);
+                } elseif ($pattern === 'b_dominant') {
+                    $b = max($b, $a + 8);
+                }
+                $out[$d] = [$a, $b];
+                break;
+
+            case 'resting_heart_rate':
+                // Realistic RHR ~48–72
+                $a = 52 + (($h + $d * 3) % 14) + (int) round($swing * 0.4);
+                $b = 54 + (($h + $d * 5) % 13) + (int) round((3 - $swing) * 0.4);
+                if ($pattern === 'draw') {
+                    $a = 60 + ($d % 2);
+                    $b = 61 - ($d % 2);
+                    if ($d >= 5) {
+                        $a = $b = 60;
+                    }
+                } elseif ($pattern === 'a_dominant') {
+                    $a = min($a, $b - 2); // lower wins
+                } elseif ($pattern === 'b_dominant') {
+                    $b = min($b, $a - 2);
+                }
+                $out[$d] = [max(45, min(75, $a)), max(45, min(75, $b))];
+                break;
+
+            case 'hrv':
+                // Realistic HRV ~35–85 ms
+                $a = 45 + (($h + $d * 7) % 28) + $swing;
+                $b = 42 + (($h + $d * 13) % 30) + (int) round($wave * 4);
+                if ($pattern === 'a_dominant') {
+                    $a = max($a, $b + 4);
+                } elseif ($pattern === 'b_dominant') {
+                    $b = max($b, $a + 4);
+                }
+                $out[$d] = [max(30, min(90, $a)), max(30, min(90, $b))];
+                break;
+
+            case 'sleep_duration':
+                // 5h30–8h30 in minutes
+                $a = 360 + (($h + $d * 23) % 140);
+                $b = 350 + (($h + $d * 29) % 150);
+                if ($pattern === 'a_dominant') {
+                    $a = max($a, $b + 25);
+                } elseif ($pattern === 'b_dominant') {
+                    $b = max($b, $a + 25);
+                } elseif ($pattern === 'close' && $d === 5) {
+                    $a = 420;
+                    $b = 418;
+                }
+                $out[$d] = [max(300, min(540, $a)), max(300, min(540, $b))];
+                break;
+
+            default:
+                $out[$d] = [100, 90];
+        }
+    }
+
+    return $out;
+}
+
+/**
+ * @return array{start:string,status:string,force:array<int,string>,values:?array<int,array{0:?int,1:?int}>,invitation:string}
+ */
+function seed_lifecycle(
+    string $metricSlug,
+    int $lengthDays,
+    int $pairIndex,
+    int $metricIndex,
+    string $pairKey
+): array {
+    $mode = ($pairIndex + $metricIndex * 2) % 5;
+    // 0 active, 1 completed, 2 completed close/draw-ish, 3 scheduled, 4 settling/void-flavored active
+
+    if ($pairKey === 'iain|mike' && $metricSlug === 'steps') {
+        $force = array_replace(array_fill(1, 8, 'official'), [9 => 'live']);
+        return [
+            'start' => '2026-07-13',
+            'status' => 'active',
+            'force' => $force,
+            'values' => seed_day_values('steps', 14, $pairKey, 'showcase'),
+            'invitation' => 'accepted',
+            'pattern' => 'showcase',
+        ];
+    }
+
+    if ($lengthDays === 14) {
+        return match ($mode) {
+            0 => [
+                'start' => '2026-07-13',
+                'status' => 'active',
+                'force' => array_replace(array_fill(1, 8, 'official'), [9 => 'live']),
+                'values' => null,
+                'invitation' => 'accepted',
+                'pattern' => ($pairIndex % 2 === 0) ? 'a_dominant' : 'b_dominant',
+            ],
+            1 => [
+                'start' => '2026-06-' . str_pad((string) (1 + ($pairIndex % 20)), 2, '0', STR_PAD_LEFT),
+                'status' => 'completed',
+                'force' => array_fill(1, 14, 'official'),
+                'values' => null,
+                'invitation' => 'accepted',
+                'pattern' => 'a_dominant',
+            ],
+            2 => [
+                'start' => '2026-06-' . str_pad((string) (5 + ($metricIndex * 3) % 20), 2, '0', STR_PAD_LEFT),
+                'status' => 'completed',
+                'force' => array_fill(1, 14, 'official'),
+                'values' => null,
+                'invitation' => 'accepted',
+                'pattern' => 'close',
+            ],
+            3 => [
+                'start' => '2026-07-22',
+                'status' => 'scheduled',
+                'force' => [],
+                'values' => [],
+                'invitation' => 'accepted',
+                'pattern' => 'neutral',
+            ],
+            default => [
+                'start' => '2026-07-07',
+                'status' => 'settling',
+                'force' => array_replace(array_fill(1, 12, 'official'), [5 => 'void', 13 => 'pending', 14 => 'pending']),
+                'values' => null,
+                'invitation' => 'accepted',
+                'pattern' => ($pairIndex % 2 === 0) ? 'a_dominant' : 'b_dominant',
+            ],
+        };
+    }
+
+    // 7-day series-average metrics
+    return match ($mode) {
+        0 => [
+            'start' => '2026-07-15',
+            'status' => 'active',
+            'force' => array_replace(array_fill(1, 5, 'official'), [6 => 'pending', 7 => 'live']),
+            'values' => null,
+            'invitation' => 'accepted',
+            'pattern' => ($pairIndex % 2 === 0) ? 'a_dominant' : 'b_dominant',
+        ],
+        1 => [
+            'start' => '2026-06-' . str_pad((string) (1 + ($pairIndex % 18)), 2, '0', STR_PAD_LEFT),
+            'status' => 'completed',
+            'force' => array_fill(1, 7, 'official'),
+            'values' => null,
+            'invitation' => 'accepted',
+            'pattern' => 'a_dominant',
+        ],
+        2 => [
+            'start' => '2026-06-' . str_pad((string) (8 + ($metricIndex * 2) % 15), 2, '0', STR_PAD_LEFT),
+            'status' => 'completed',
+            'force' => array_fill(1, 7, 'official'),
+            'values' => null,
+            'invitation' => 'accepted',
+            'pattern' => $metricSlug === 'resting_heart_rate' ? 'draw' : 'close',
+        ],
+        3 => [
+            'start' => '2026-07-22',
+            'status' => 'scheduled',
+            'force' => [],
+            'values' => [],
+            'invitation' => 'accepted',
+            'pattern' => 'neutral',
+        ],
+        default => [
+            'start' => '2026-07-15',
+            'status' => 'active',
+            'force' => array_replace(array_fill(1, 4, 'official'), [5 => 'void', 6 => 'pending', 7 => 'live']),
+            'values' => null,
+            'invitation' => 'accepted',
+            'pattern' => ($pairIndex % 2 === 0) ? 'a_dominant' : 'b_dominant',
+        ],
+    };
+}
+
+$pairs = [];
+for ($i = 0; $i < count($playerOrder); $i++) {
+    for ($j = $i + 1; $j < count($playerOrder); $j++) {
+        $pairs[] = [$playerOrder[$i], $playerOrder[$j]];
     }
 }
-seed_match(
-    $metricIds['steps'], $userIds['sarah'], $userIds['mike'],
-    $sourceIds['fitbit'], $sourceIds['fitbit'],
-    '2026-06-20', 'America/New_York', 100, 'accepted', 'completed', $closeSteps, 14, array_fill(1, 14, 'official'), 'steps'
-);
 
-// Completed decisive steps
-$decisive = [];
-for ($d = 1; $d <= 14; $d++) {
-    if ($d <= 9) {
-        $decisive[$d] = [12500 + $d * 20, 9000 + $d * 15];
-    } else {
-        $decisive[$d] = [8800 + $d, 11000 + $d * 10];
+$metricList = array_values(array_keys($metricIds));
+$matchCount = 0;
+$showcaseId = null;
+$byMetric = array_fill_keys($metricList, 0);
+
+foreach ($metricList as $metricIndex => $metricSlug) {
+    $metricId = $metricIds[$metricSlug];
+    $meta = Database::fetch('SELECT * FROM rly_metric_types WHERE id = ?', [$metricId]);
+    $lengthDays = (int) ($meta['default_length_days'] ?? 14);
+    $tieThreshold = (int) ($meta['default_tie_threshold'] ?? 100);
+
+    foreach ($pairs as $pairIndex => [$userA, $userB]) {
+        $pairKey = $userA . '|' . $userB;
+        $life = seed_lifecycle($metricSlug, $lengthDays, $pairIndex, $metricIndex, $pairKey);
+        $pattern = (string) $life['pattern'];
+        $values = $life['values'];
+        if ($values === null) {
+            $values = seed_day_values($metricSlug, $lengthDays, $pairKey, $pattern);
+            // Settling/void sample: omit B on void day
+            if (($life['force'][5] ?? null) === 'void' && isset($values[5])) {
+                $values[5] = [$values[5][0], null];
+            }
+        }
+
+        // Occasional source mismatch for variety (watch vs phone / different wearables)
+        $srcA = $playerSource[$userA];
+        $srcB = $playerSource[$userB];
+        if (($pairIndex + $metricIndex) % 7 === 3) {
+            $srcB = $srcB === 'apple_watch' ? 'iphone' : ($srcB === 'fitbit' ? 'garmin' : 'iphone');
+        }
+
+        $matchId = seed_match(
+            $metricId,
+            $userIds[$userA],
+            $userIds[$userB],
+            $sourceIds[$srcA],
+            $sourceIds[$srcB],
+            $life['start'],
+            $playerTz[$userA],
+            $tieThreshold,
+            $life['invitation'],
+            $life['status'],
+            $values,
+            $lengthDays,
+            $life['force'],
+            $metricSlug
+        );
+
+        if ($life['status'] === 'completed') {
+            Database::run(
+                "UPDATE rly_matches SET status = 'completed', completed_at = ?, updated_at = ? WHERE id = ?",
+                ['2026-06-20 18:00:00', Clock::nowUtcString(), $matchId]
+            );
+        } elseif ($life['status'] === 'active') {
+            Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$matchId]);
+        } elseif ($life['status'] === 'settling') {
+            Database::run("UPDATE rly_matches SET status = 'settling', completed_at = NULL WHERE id = ?", [$matchId]);
+        } elseif ($life['status'] === 'scheduled') {
+            Database::run("UPDATE rly_matches SET status = 'scheduled', completed_at = NULL WHERE id = ?", [$matchId]);
+        }
+
+        if ($pairKey === 'iain|mike' && $metricSlug === 'steps') {
+            $showcaseId = $matchId;
+        }
+
+        $matchCount++;
+        $byMetric[$metricSlug]++;
+        echo "  #{$matchCount} {$metricSlug}: {$userA} vs {$userB} ({$life['status']})\n";
     }
 }
-seed_match(
-    $metricIds['steps'], $userIds['jordan'], $userIds['elena'],
-    $sourceIds['garmin'], $sourceIds['garmin'],
-    '2026-06-01', 'America/Chicago', 100, 'accepted', 'completed', $decisive, 14, array_fill(1, 14, 'official'), 'steps'
-);
 
-// Source mismatch steps
-$mmValues = [
-    1 => [14000, 12500], 2 => [9000, 11000], 3 => [10500, 10200], 4 => [8000, 8700],
-    5 => [11500, 9800], 6 => [10000, 10050], 7 => [12200, 10100], 8 => [9500, 9900], 9 => [5000, 4800],
-];
-$mmForce = array_replace(array_fill(1, 7, 'official'), [8 => 'pending', 9 => 'live']);
+// Preserve one pending invitation outside the complete matrix (Mike → Jordan steps)
 seed_match(
-    $metricIds['steps'], $userIds['iain'], $userIds['sarah'],
-    $sourceIds['apple_watch'], $sourceIds['iphone'],
-    '2026-07-14', $tzLA, 100, 'accepted', 'active', $mmValues, 14, $mmForce, 'steps'
+    $metricIds['steps'],
+    $userIds['mike'],
+    $userIds['jordan'],
+    $sourceIds['apple_watch'],
+    null,
+    '2026-07-25',
+    'America/Los_Angeles',
+    100,
+    'pending',
+    'invited',
+    [],
+    14,
+    [],
+    'steps'
 );
+$matchCount++;
+echo "  #{$matchCount} steps: mike vs jordan (invited)\n";
 
-// Void / settling steps
-$voidValues = [];
-for ($d = 1; $d <= 12; $d++) {
-    if ($d === 5) {
-        $voidValues[$d] = [9000, null];
-    } elseif ($d % 2 === 0) {
-        $voidValues[$d] = [10000, 12000];
-    } else {
-        $voidValues[$d] = [13000, 11000];
+if ($showcaseId !== null) {
+    SettlementService::refreshMatch($showcaseId);
+    for ($d = 1; $d <= 8; $d++) {
+        Database::run(
+            "UPDATE rly_match_days SET status = 'official', official_at = COALESCE(official_at, ?), updated_at = ? WHERE match_id = ? AND day_number = ?",
+            [Clock::nowUtcString(), Clock::nowUtcString(), $showcaseId, $d]
+        );
     }
+    Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9", [$showcaseId]);
+    Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$showcaseId]);
 }
-$voidForce = array_fill(1, 12, 'official');
-$voidForce[5] = 'void';
-$voidForce[13] = 'pending';
-$voidForce[14] = 'pending';
-seed_match(
-    $metricIds['steps'], $userIds['marcus'], $userIds['mike'],
-    $sourceIds['android_phone'], $sourceIds['android_phone'],
-    '2026-07-07', 'America/Denver', 100, 'accepted', 'settling', $voidValues, 14, $voidForce, 'steps'
-);
 
-seed_match(
-    $metricIds['steps'], $userIds['mike'], $userIds['jordan'],
-    $sourceIds['apple_watch'], null,
-    '2026-07-25', $tzLA, 100, 'pending', 'invited', [], 14, [], 'steps'
-);
+$pairCount = count($pairs);
+$metricCount = count($metricList);
+$expectedPairs = $pairCount * $metricCount;
 
-// ---- ACTIVE MINUTES ----
-$amActive = [
-    1 => [62, 55], 2 => [48, 71], 3 => [90, 84], 4 => [40, 38],
-    5 => [105, 92], 6 => [55, 60], 7 => [72, 68], 8 => [88, 95], 9 => [33, 29],
-];
-$amForce = array_replace(array_fill(1, 8, 'official'), [9 => 'live']);
-seed_match(
-    $metricIds['active_minutes'], $userIds['elena'], $userIds['marcus'],
-    $sourceIds['apple_watch'], $sourceIds['garmin'],
-    '2026-07-13', 'Europe/London', 2, 'accepted', 'active', $amActive, 14, $amForce, 'active_minutes'
-);
-
-$amDone = [];
-for ($d = 1; $d <= 14; $d++) {
-    $amDone[$d] = $d % 3 === 0 ? [45, 70] : [80 + $d, 55 + $d];
-}
-seed_match(
-    $metricIds['active_minutes'], $userIds['sarah'], $userIds['jordan'],
-    $sourceIds['fitbit'], $sourceIds['fitbit'],
-    '2026-06-10', 'America/New_York', 2, 'accepted', 'completed', $amDone, 14, array_fill(1, 14, 'official'), 'active_minutes'
-);
-
-// ---- RHR (series average, 7 days) ----
-// Start 2026-07-15 → day 7 = Jul 21 live
-$rhr = [
-    1 => [58, 61], 2 => [57, 60], 3 => [59, 59], // daily tie / within
-    4 => [56, 62], 5 => [58, 60], 6 => [57, 58], 7 => [55, 59],
-];
-$rhrForce = array_replace(array_fill(1, 6, 'official'), [7 => 'live']);
-seed_match(
-    $metricIds['resting_heart_rate'], $userIds['iain'], $userIds['elena'],
-    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
-    '2026-07-15', $tzLA, 1, 'accepted', 'active', $rhr, 7, $rhrForce, 'resting_heart_rate'
-);
-
-// Completed near-draw RHR (avg differ by < 1 → draw) — values designed for avg tie
-$rhrDraw = [
-    1 => [60, 61], 2 => [61, 60], 3 => [59, 60], 4 => [60, 59], 5 => [60, 60], 6 => [61, 61], 7 => [60, 60],
-];
-seed_match(
-    $metricIds['resting_heart_rate'], $userIds['mike'], $userIds['marcus'],
-    $sourceIds['garmin'], $sourceIds['garmin'],
-    '2026-06-01', 'America/Denver', 1, 'accepted', 'completed', $rhrDraw, 7, array_fill(1, 7, 'official'), 'resting_heart_rate'
-);
-
-// ---- HRV ----
-$hrv = [
-    1 => [58, 52], 2 => [61, 55], 3 => [54, 57], 4 => [63, 50],
-    5 => [59, 58], 6 => [62, 53], 7 => [60, 56],
-];
-$hrvForce = array_replace(array_fill(1, 5, 'official'), [6 => 'pending', 7 => 'live']);
-seed_match(
-    $metricIds['hrv'], $userIds['sarah'], $userIds['elena'],
-    $sourceIds['apple_watch'], $sourceIds['fitbit'],
-    '2026-07-15', 'America/New_York', 2, 'accepted', 'active', $hrv, 7, $hrvForce, 'hrv'
-);
-
-$hrvDone = [
-    1 => [48, 55], 2 => [52, 51], 3 => [60, 47], 4 => [55, 58], 5 => [50, 49], 6 => [57, 53], 7 => [54, 56],
-];
-seed_match(
-    $metricIds['hrv'], $userIds['jordan'], $userIds['mike'],
-    $sourceIds['garmin'], $sourceIds['apple_watch'],
-    '2026-06-05', 'America/Chicago', 2, 'accepted', 'completed', $hrvDone, 7, array_fill(1, 7, 'official'), 'hrv'
-);
-
-// ---- SLEEP DURATION (minutes) ----
-$sleep = [
-    1 => [430, 401], // 7h10 / 6h41
-    2 => [455, 470],
-    3 => [390, 405],
-    4 => [480, 445],
-    5 => [420, 418], // within 15 threshold daily
-    6 => [440, 460],
-    7 => [410, 395],
-];
-$sleepForce = array_replace(array_fill(1, 5, 'official'), [6 => 'pending', 7 => 'live']);
-seed_match(
-    $metricIds['sleep_duration'], $userIds['marcus'], $userIds['jordan'],
-    $sourceIds['fitbit'], $sourceIds['garmin'],
-    '2026-07-15', 'America/Denver', 15, 'accepted', 'active', $sleep, 7, $sleepForce, 'sleep_duration'
-);
-
-$sleepDone = [
-    1 => [400, 420], 2 => [450, 430], 3 => [380, 410], 4 => [470, 440],
-    5 => [425, 425], 6 => [460, 405], 7 => [415, 450],
-];
-seed_match(
-    $metricIds['sleep_duration'], $userIds['iain'], $userIds['sarah'],
-    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
-    '2026-06-08', $tzLA, 15, 'accepted', 'completed', $sleepDone, 7, array_fill(1, 7, 'official'), 'sleep_duration'
-);
-
-// Upcoming scheduled steps
-seed_match(
-    $metricIds['steps'], $userIds['sarah'], $userIds['jordan'],
-    $sourceIds['fitbit'], $sourceIds['garmin'],
-    '2026-07-22', 'America/New_York', 100, 'accepted', 'scheduled', [], 14, [], 'steps'
-);
-
-SettlementService::refreshMatch($showcaseId);
-for ($d = 1; $d <= 8; $d++) {
-    Database::run(
-        "UPDATE rly_match_days SET status = 'official', official_at = COALESCE(official_at, ?), updated_at = ? WHERE match_id = ? AND day_number = ?",
-        [Clock::nowUtcString(), Clock::nowUtcString(), $showcaseId, $d]
-    );
-}
-Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9", [$showcaseId]);
-Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$showcaseId]);
-
-echo "\nRally multi-metric seed complete.\n";
+echo "\nRally full-pairing seed complete.\n";
 echo "Demo password for all seeded players: {$demoPassword}\n";
 echo "Accounts:\n";
 foreach ($players as [$name, $username, $email]) {
     echo "  {$name} <{$email}> (@{$username})\n";
 }
-echo "Metrics: " . implode(', ', array_keys($metricIds)) . "\n";
+echo "Players: {$pairCount} unique pairs × {$metricCount} metrics = {$expectedPairs} accepted matches";
+echo " (+ 1 invited) → {$matchCount} total\n";
+foreach ($byMetric as $slug => $n) {
+    echo "  {$slug}: {$n} pairings\n";
+}
 echo "Simulated clock override: 2026-07-21T19:00:00Z (noon PDT)\n";
-echo "Showcase steps match id: {$showcaseId} (Iain vs Mike)\n";
+if ($showcaseId !== null) {
+    echo "Showcase steps match id: {$showcaseId} (Iain vs Mike)\n";
+}
 echo "Run: php -S localhost:8091 -t public public/index.php\n";
