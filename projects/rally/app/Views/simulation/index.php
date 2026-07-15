@@ -1,18 +1,26 @@
 <?php
+
+use Rally\Services\ActivityFeedService;
+use Rally\Services\MetricCompetitionService;
+use Rally\Services\MetricFormatter;
+
 /** @var list<array> $matches */
 /** @var array|null $pack */
 /** @var int $selectedId */
 /** @var list<array> $sources */
 /** @var DateTimeImmutable $clock */
 /** @var bool $hasOverride */
+/** @var list<array> $previewEvents */
+$previewEvents = $previewEvents ?? [];
 ?>
 <section class="sim-page">
   <header class="page-header">
     <p class="t-label">Development</p>
     <h1>Simulation controls</h1>
-    <p class="lede">Development only. Mutates results through the ingestion service and advances the application clock.</p>
+    <p class="lede">Development only. Mutates results through the ingestion service and advances the application clock. Works for every metric strategy.</p>
     <p class="hint">Application clock: <strong><?= e($clock->format('Y-m-d H:i:s')) ?> UTC</strong>
       <?= $hasOverride ? '(override active)' : '(real time)' ?></p>
+    <p class="hint">Reset seeded data: <code>php scripts/seed.php</code> from the Rally project root.</p>
   </header>
 
   <form method="get" action="<?= e(url('/simulation')) ?>" class="stack-form inline-form">
@@ -21,7 +29,7 @@
       <select name="match_id" onchange="this.form.submit()">
         <?php foreach ($matches as $m): ?>
           <option value="<?= (int) $m['id'] ?>" <?= $selectedId === (int) $m['id'] ? 'selected' : '' ?>>
-            #<?= (int) $m['id'] ?> <?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?> (<?= e($m['status']) ?>)
+            #<?= (int) $m['id'] ?> <?= e($m['metric_name'] ?? '') ?> · <?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?> (<?= e($m['status']) ?>)
           </option>
         <?php endforeach; ?>
       </select>
@@ -61,23 +69,44 @@
   <?php if ($pack):
     $m = $pack['match'];
     $s = $pack['summary'];
+    $metric = MetricCompetitionService::metricPayload($m);
+    $isAvg = MetricCompetitionService::isSeriesAverage($m);
+    $score = MetricCompetitionService::scoreline($m, $s);
+    $unit = MetricFormatter::unitLabel($metric);
   ?>
   <section class="sim-block">
     <h2>Derived score</h2>
-    <p class="sim-score"><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></p>
+    <p class="sim-score"><?= e($score['primary']) ?></p>
     <ul class="hint">
-      <li>Ties: <?= (int) $s['ties'] ?> · Voids: <?= (int) $s['voids'] ?></li>
+      <li>Metric: <?= e($m['metric_name']) ?> · Strategy: <?= e(MetricFormatter::strategyLabel((string) ($m['scoring_strategy'] ?? 'daily_wins'))) ?> · Unit: <?= e($unit !== '' ? $unit : 'formatted') ?></li>
+      <?php if ($isAvg): ?>
+        <li>Averages: <?= e(MetricFormatter::format($s['player_a_average'] ?? null, $metric)) ?> vs <?= e(MetricFormatter::format($s['player_b_average'] ?? null, $metric)) ?></li>
+        <li>Daily comparisons: <?= (int) ($s['daily_comparison_a_leads'] ?? 0) ?>–<?= (int) ($s['daily_comparison_b_leads'] ?? 0) ?> (ties <?= (int) ($s['daily_comparison_ties'] ?? 0) ?>)</li>
+      <?php else: ?>
+        <li>Wins: <?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?> · Ties: <?= (int) $s['ties'] ?> · Voids: <?= (int) $s['voids'] ?></li>
+      <?php endif; ?>
       <li>Official: <?= (int) $s['official_days'] ?> · Pending: <?= (int) $s['pending_days'] ?> · Remaining: <?= (int) $s['remaining_days'] ?></li>
-      <li>Match status: <?= e($m['status']) ?> · Complete: <?= $s['is_complete'] ? 'yes' : 'no' ?> · Draw: <?= $s['is_draw'] ? 'yes' : 'no' ?></li>
+      <li>Match status: <?= e($m['status']) ?> · Complete: <?= $s['is_complete'] ? 'yes' : 'no' ?> · Draw: <?= $s['is_draw'] ? 'yes' : 'no' ?> · Provisional: <?= $s['is_provisional'] ? 'yes' : 'no' ?></li>
     </ul>
     <p><a href="<?= e(url('/matches/' . (int) $m['id'])) ?>">Open match screen</a></p>
     <form method="post" action="<?= e(url('/simulation')) ?>">
       <?= \Rally\Core\Csrf::field() ?>
       <input type="hidden" name="match_id" value="<?= (int) $m['id'] ?>">
       <input type="hidden" name="action" value="refresh_match">
-      <button type="submit" class="button button-ghost">Refresh lifecycle</button>
+      <button type="submit" class="button button-ghost">Recalculate lifecycle</button>
     </form>
   </section>
+
+  <?php if ($previewEvents !== []): ?>
+  <section class="sim-block">
+    <h2>Feed event preview</h2>
+    <ul class="hint">
+      <?php foreach (array_slice($previewEvents, 0, 8) as $ev): ?>
+        <li><strong><?= e((string) ($ev['headline'] ?? '')) ?></strong> — <?= e((string) ($ev['body'] ?? '')) ?></li>
+      <?php endforeach; ?>
+    </ul>
+  </section>
+  <?php endif; ?>
 
   <section class="sim-block">
     <h2>Match days</h2>
@@ -92,6 +121,8 @@
               $valB = (string) $r['metric_value'];
           }
       }
+      $fmtA = $valA !== '' ? MetricFormatter::format((int) $valA, $metric) : '—';
+      $fmtB = $valB !== '' ? MetricFormatter::format((int) $valB, $metric) : '—';
     ?>
       <form method="post" action="<?= e(url('/simulation')) ?>" class="sim-day-form">
         <?= \Rally\Core\Csrf::field() ?>
@@ -100,11 +131,12 @@
         <input type="hidden" name="action" value="update_day">
         <fieldset>
           <legend>Day <?= (int) $day['day_number'] ?> · <?= e($day['competition_date']) ?> · <?= e($day['status']) ?></legend>
-          <label><?= e($m['player_a_name']) ?>
-            <input type="number" name="value_a" min="0" max="100000" value="<?= e($valA) ?>" placeholder="steps">
+          <p class="hint">Display: <?= e($fmtA) ?> vs <?= e($fmtB) ?></p>
+          <label><?= e($m['player_a_name']) ?> (<?= e($unit !== '' ? $unit : (string) ($m['metric_unit'] ?? 'value')) ?>)
+            <input type="number" name="value_a" min="0" max="100000" value="<?= e($valA) ?>" placeholder="<?= e((string) ($m['metric_unit'] ?? 'value')) ?>">
           </label>
-          <label><?= e($m['player_b_name']) ?>
-            <input type="number" name="value_b" min="0" max="100000" value="<?= e($valB) ?>" placeholder="steps">
+          <label><?= e($m['player_b_name']) ?> (<?= e($unit !== '' ? $unit : (string) ($m['metric_unit'] ?? 'value')) ?>)
+            <input type="number" name="value_b" min="0" max="100000" value="<?= e($valB) ?>" placeholder="<?= e((string) ($m['metric_unit'] ?? 'value')) ?>">
           </label>
           <label>Source A
             <select name="source_a">

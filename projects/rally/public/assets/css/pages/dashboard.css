@@ -60,6 +60,13 @@
   font-weight: 840;
   font-size: clamp(2.2rem, 9vw, 3.2rem);
   line-height: 0.9;
+  text-align: center;
+  min-width: 4.5rem;
+}
+.feature-avg-label {
+  text-align: center;
+  margin: 0.35rem 0 var(--s-2);
+  color: var(--ink-3);
 }
 .feature-sep { color: var(--ink-3); font-weight: 400; padding: 0 0.08em; }
 

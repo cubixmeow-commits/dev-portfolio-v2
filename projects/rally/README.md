@@ -2,17 +2,19 @@
 
 **Health Stats Competition**
 
-Rally is a competitive platform where real-world activity becomes a sport. Players compete head-to-head using wearable health statistics in daily games that form multi-day series. Every day is a new game. Every series tells a story. Rally is not a fitness tracker. It is a competition engine for wearable data.
+Rally is a competitive platform where wearable health and activity statistics become a head-to-head sport. Players contest multi-day series on a single metric. Every day is a comparable observation. Rally is not a fitness tracker or medical tool — it is a competition engine for recorded values.
 
-## Pushability Rule
+## Competition Suitability Rule
 
-A metric should only become a Rally competition category when a player can safely and intentionally influence it during the competition period.
+A metric may become a Rally category when it can be measured consistently enough for the intended match format, compared honestly, and presented without implying medical diagnosis or guaranteed health superiority.
 
-This **Pushability Rule** exists to prevent casually adding categories such as sleep score, recovery score, heart-rate variability, or resting heart rate without considering whether competing on them is safe, intentional, fair, and enjoyable.
+- **Performance metrics** measure intentional activity.
+- **Health comparison metrics** compare physiological outcomes.
+- Winning a health-stat match does **not** mean someone is healthier overall.
 
 ## One-Court Principle
 
-Each match uses exactly one metric type. V1 contests **Daily Steps** only. Do not combine steps, calories, distance, sleep, or heart rate into one overall match score.
+Each match uses exactly one metric type and one scoring strategy. Do not combine steps, calories, distance, sleep, and heart metrics into one overall match score.
 
 ## Try it in two minutes
 
@@ -33,24 +35,28 @@ Open http://localhost:8091 and sign in:
 | Elena | `elena@rally.demo` | `rally-demo-2026` |
 | Marcus | `marcus@rally.demo` | `rally-demo-2026` |
 
-Seed installs a simulated application clock at **2026-07-21 noon PDT** so the Iain vs Mike showcase is mid-series (5–3, Game 9 live).
+Seed installs a simulated application clock at **2026-07-21 noon PDT** so the Iain vs Mike showcase is mid-series (steps 5–3, Game 9 live), with additional active/completed series for every enabled metric.
 
-## V1 scope
+## Playable beta scope
 
 - User accounts, login / logout / register
-- Fourteen-day head-to-head matches on Daily Steps
+- Five seeded metrics: Daily Steps, Active Minutes, Resting Heart Rate, HRV, Sleep Duration
+- Two scoring strategies: **daily wins** and **series average**
+- Match creation with metric cards, default length/threshold, 7- or 14-day series
 - Invitations with accept / decline
 - Live → pending → official settlement
-- Tie threshold (default 100; difference **<** threshold = tie)
+- Tie threshold (difference **<** threshold = tie; equal = decisive)
 - Source mismatch warnings (honest, non-blocking)
 - Derived series scores (never stored)
-- Shareable daily result cards
-- Development simulation controls
-- Seeded demo matches (active, upcoming, completed, draw, void, tied day, source mismatch)
+- Activity feed of structured competition events (`/activity`)
+- Derived personal records on player profiles
+- Shareable daily result cards for both strategies
+- Development simulation controls for every metric
+- Seeded demo matches (active, upcoming, completed, draw, void, pending, source mismatch)
 
 ## Explicit non-goals
 
-Native apps, HealthKit / Health Connect / Fitbit / Garmin ingestion, tournaments, brackets, Elo, seasons, payments, notifications, chat, teams, career-stats tables, multi-metric courts, sleep/recovery competitions.
+Native apps, HealthKit / Health Connect / Fitbit / Garmin ingestion, tournaments, brackets, Elo, seasons, payments, push notifications, chat, followers, comments, likes, teams, medical interpretation, multi-metric courts inside one match.
 
 ## Technical stack
 
@@ -97,6 +103,10 @@ MySQL (production): set `db.driver` to `mysql` and credentials in `config.php`, 
 | `db.*` | sqlite (default) or mysql |
 | `session.*` | Cookie name `rally_session`, idle TTL, secure flag |
 
+## Authenticated navigation
+
+Dashboard · Matches · Activity · Create · Profile (plus Simulation in development)
+
 ## Match lifecycle
 
 `invited` → `scheduled` → `active` → `settling` → `completed` (or `cancelled`)
@@ -111,11 +121,11 @@ Statuses: `scheduled` → `live` → `pending` → `official` | `void`
 
 ## Tie-threshold rules
 
-`absolute_difference < tie_threshold` → tie. Difference **equal to** the threshold is a decisive win for the metric direction (`higher_wins`). Tied days award no series point.
+`absolute_difference < tie_threshold` → tie / within threshold. Difference **equal to** the threshold is decisive for the metric direction (`higher_wins`). For series averages the threshold applies to the final official average difference.
 
 ## Missing-data policy
 
-Before settlement: show “Awaiting sync.” Never treat missing as zero. At settlement with one or both players missing: mark the day **void**. Voids award no wins and are counted separately from ties.
+Before settlement: show “Awaiting sync.” Never treat missing as zero. At settlement with one or both players missing: mark the day **void**. Voids award no wins and are excluded from official averages.
 
 ## Source mismatch policy
 
@@ -123,11 +133,11 @@ Each player declares a data source. Matching source classes show a comparable no
 
 ## Derived-score architecture
 
-Series score, streaks, margins, averages, voids, and ties are computed by `MatchScoringService` from official days. Nothing is stored in statistics tables.
+Series score, averages, streaks, margins, voids, and ties are computed by `MatchScoringService` from official days. Activity events and personal records are also derived. Nothing is stored in statistics or social tables.
 
 ## Simulation workflow
 
-Visit `/simulation` in development (or as admin). Advance the application clock, edit day values through `ResultIngestionService`, settle days, and recalculate derived scores. Clock override is stored in `storage/clock_override.txt`.
+Visit `/simulation` in development (or as admin). Select any metric match, advance the application clock, edit day values through `ResultIngestionService`, settle days, recalculate strategy summaries, and preview feed events. Reset demo data with `php scripts/seed.php`. Clock override is stored in `storage/clock_override.txt`.
 
 ## Security notes
 
@@ -156,14 +166,19 @@ php tests/run.php
 
 | Doc | Contents |
 | --- | --- |
-| `docs/GAME_RULES.md` | Scoring, settlement, voids, ties |
+| `docs/GAME_RULES.md` | Strategies, settlement, voids, ties, suitability |
 | `docs/ARCHITECTURE.md` | Services, clock, schema |
 | `docs/HEALTH_INGEST_FUTURE.md` | Connector boundary |
 | `docs/DEPLOYMENT.md` | Hostinger checklist |
+| `docs/DESIGN.md` | Visual system notes |
+
+## Disclaimer
+
+Rally presents health and activity data for friendly comparison and entertainment. It does not provide medical advice or determine overall health.
 
 ## Known limitations
 
-- V1 data is seeded/simulated only
+- Beta data is seeded/simulated only
 - No email verification or password-reset emails
 - No real wearable sync
 - Shared hosting: CLI seed required (no web installer)

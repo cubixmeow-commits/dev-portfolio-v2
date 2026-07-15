@@ -28,13 +28,20 @@ CREATE TABLE IF NOT EXISTS rly_rate_events (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS rly_metric_types (
-    id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    slug        VARCHAR(60) NOT NULL,
-    name        VARCHAR(120) NOT NULL,
-    unit        VARCHAR(40) NOT NULL,
-    higher_wins TINYINT(1) NOT NULL DEFAULT 1,
-    is_active   TINYINT(1) NOT NULL DEFAULT 1,
-    created_at  DATETIME NOT NULL,
+    id                     INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug                   VARCHAR(60) NOT NULL,
+    name                   VARCHAR(120) NOT NULL,
+    unit                   VARCHAR(40) NOT NULL,
+    display_unit           VARCHAR(40) NULL,
+    classification         VARCHAR(40) NOT NULL DEFAULT 'performance',
+    scoring_strategy       VARCHAR(40) NOT NULL DEFAULT 'daily_wins',
+    higher_wins            TINYINT(1) NOT NULL DEFAULT 1,
+    default_length_days    INT UNSIGNED NOT NULL DEFAULT 14,
+    default_tie_threshold  INT UNSIGNED NOT NULL DEFAULT 100,
+    description            TEXT NOT NULL,
+    context_note           TEXT NULL,
+    is_active              TINYINT(1) NOT NULL DEFAULT 1,
+    created_at             DATETIME NOT NULL,
     UNIQUE KEY uq_rly_metric_types_slug (slug)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

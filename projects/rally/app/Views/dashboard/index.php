@@ -2,6 +2,8 @@
 
 use Rally\Core\View;
 use Rally\Services\MatchScoringService;
+use Rally\Services\MetricCompetitionService;
+use Rally\Services\MetricFormatter;
 
 /** @var list<array<string,mixed>> $invitations */
 /** @var list<array<string,mixed>> $todayLive */
@@ -13,8 +15,7 @@ use Rally\Services\MatchScoringService;
 
 $userId = (int) ($auth['id'] ?? 0);
 
-// Featured match: the user's live game if one exists, otherwise the first active series.
-$featured = null;       // ['match' =>, 'summary' =>, 'days' =>, 'day' => ?live day]
+$featured = null;
 $featuredId = null;
 if ($todayLive !== []) {
     $live = $todayLive[0];
@@ -30,14 +31,6 @@ if ($todayLive !== []) {
 if ($featured !== null) {
     $featuredId = (int) $featured['match']['id'];
 }
-
-$scoreFor = static function (array $m, array $s) use ($userId): array {
-    // Orient scores around the signed-in player: [yours, theirs, opponent name]
-    if ((int) $m['player_a_user_id'] === $userId) {
-        return [(int) $s['player_a_wins'], (int) $s['player_b_wins'], (string) $m['player_b_name']];
-    }
-    return [(int) $s['player_b_wins'], (int) $s['player_a_wins'], (string) $m['player_a_name']];
-};
 ?>
 <section class="wrap dash">
   <header class="dash-header">
@@ -52,7 +45,7 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
     <div class="empty-state" role="status">
       <div class="empty-rail" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <h2>No series yet</h2>
-      <p>Challenge an opponent to a 14-game Daily Steps series and the scoreboard starts here.</p>
+      <p>Challenge an opponent on steps, active minutes, HRV, resting heart rate, or sleep duration.</p>
       <p><a class="button button-primary" href="<?= e(url('/matches/create')) ?>">Start a series</a></p>
     </div>
   <?php endif; ?>
@@ -60,9 +53,11 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
   <?php if ($featured !== null):
     $m = $featured['match'];
     $s = $featured['summary'];
+    $metric = MetricCompetitionService::metricPayload($m);
+    $isAvg = MetricCompetitionService::isSeriesAverage($m);
+    $score = MetricCompetitionService::scoreline($m, $s);
+    $leaderSide = MetricCompetitionService::leaderSide($m, $s);
     $fDay = $featured['day'];
-    [$aWins, $bWins] = [(int) $s['player_a_wins'], (int) $s['player_b_wins']];
-    $leaderSide = $aWins > $bWins ? 'a' : ($bWins > $aWins ? 'b' : null);
     $isLive = $fDay !== null;
     $fOutcome = $isLive ? MatchScoringService::dayOutcome($m, $fDay) : null;
     $gameNum = null;
@@ -78,7 +73,7 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
         <span class="t-label"><?= e($m['metric_name']) ?></span>
         <?php if ($gameNum !== null): ?>
           <span class="t-label" aria-hidden="true">·</span>
-          <span class="t-label">Game <?= $gameNum ?> of <?= (int) $m['length_days'] ?></span>
+          <span class="t-label"><?= $isAvg ? 'Day' : 'Game' ?> <?= $gameNum ?> of <?= (int) $m['length_days'] ?></span>
         <?php endif; ?>
         <span class="board-meta-spacer"></span>
         <?php if ($isLive): ?>
@@ -88,12 +83,14 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
         <?php endif; ?>
       </div>
 
-      <div class="feature-score" role="img"
-           aria-label="Series score: <?= e($m['player_a_name']) ?> <?= $aWins ?>, <?= e($m['player_b_name']) ?> <?= $bWins ?>">
+      <div class="feature-score" role="img" aria-label="<?= e($score['aria']) ?>">
         <span class="feature-name feature-name--a<?= $leaderSide === 'b' ? ' is-trailing' : '' ?>"><?= e($m['player_a_name']) ?></span>
-        <span class="feature-nums t-num"><?= $aWins ?><span class="feature-sep">–</span><?= $bWins ?></span>
+        <span class="feature-nums t-num"><?= e($score['primary']) ?></span>
         <span class="feature-name feature-name--b<?= $leaderSide === 'a' ? ' is-trailing' : '' ?>"><?= e($m['player_b_name']) ?></span>
       </div>
+      <?php if ($isAvg): ?>
+        <p class="feature-avg-label t-label">Current average</p>
+      <?php endif; ?>
 
       <?php View::partial('partials/rail', ['match' => $m, 'days' => $featured['days'], 'mini' => true]); ?>
 
@@ -101,19 +98,15 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
         <p class="feature-today">
           <span class="t-label t-label--signal">Today</span>
           <span class="t-num feature-today-vals">
-            <?= $fOutcome['value_a'] !== null ? e(number_format((int) $fOutcome['value_a'])) : '—' ?>
+            <?= $fOutcome['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $fOutcome['value_a'], $metric)) : '—' ?>
             <span aria-hidden="true">·</span>
-            <?= $fOutcome['value_b'] !== null ? e(number_format((int) $fOutcome['value_b'])) : '—' ?>
+            <?= $fOutcome['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $fOutcome['value_b'], $metric)) : '—' ?>
           </span>
-          <?php if ($fOutcome['value_a'] !== null && $fOutcome['value_b'] !== null):
-            $margin = abs((int) $fOutcome['value_a'] - (int) $fOutcome['value_b']);
-            if ($margin >= (int) $m['tie_threshold']):
-              $dayLeader = ((int) $fOutcome['value_a'] > (int) $fOutcome['value_b']) ? $m['player_a_name'] : $m['player_b_name'];
-          ?>
-            <span class="feature-today-lead"><?= e($dayLeader) ?> leads by <span class="t-num"><?= e(number_format($margin)) ?></span></span>
-          <?php else: ?>
+          <?php if (($fOutcome['winner_side'] ?? null) !== null): ?>
+            <span class="feature-today-lead"><?= e(($fOutcome['winner_side'] === 'a' ? $m['player_a_name'] : $m['player_b_name'])) ?> leads by <span class="t-num"><?= e(MetricFormatter::formatCompact((int) $fOutcome['margin'], $metric)) ?></span></span>
+          <?php elseif (($fOutcome['kind'] ?? '') === 'tie'): ?>
             <span class="feature-today-lead">Level — within tie threshold</span>
-          <?php endif; endif; ?>
+          <?php endif; ?>
         </p>
       <?php endif; ?>
     </a>
@@ -129,7 +122,7 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
           <li class="invite-row">
             <div class="invite-main">
               <p class="invite-line"><strong><?= e($inv['player_a_name']) ?></strong> challenged you</p>
-              <p class="invite-meta"><?= e($inv['metric_name'] ?? 'Daily Steps') ?> · <?= (int) $inv['length_days'] ?>-game series · starts <span class="t-num"><?= e((new DateTimeImmutable((string) $inv['start_date']))->format('M j, Y')) ?></span></p>
+              <p class="invite-meta"><?= e($inv['metric_name'] ?? 'Metric') ?> · <?= (int) $inv['length_days'] ?>-day series · starts <span class="t-num"><?= e((new DateTimeImmutable((string) $inv['start_date']))->format('M j, Y')) ?></span></p>
             </div>
             <a class="button button-primary button-small" href="<?= e(url('/matches/' . (int) $inv['id'] . '/accept')) ?>">Respond</a>
           </li>
@@ -148,7 +141,7 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
         ?>
           <li class="pending-row">
             <a href="<?= e(url('/matches/' . (int) $m['id'])) ?>">
-              <span class="pending-row-line"><?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?> — Game <?= (int) $d['day_number'] ?></span>
+              <span class="pending-row-line"><?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?> — Day <?= (int) $d['day_number'] ?></span>
               <span class="pending-row-meta">Awaiting final device sync</span>
             </a>
             <span class="status-pill status-pending">Pending</span>
@@ -172,14 +165,14 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
       <?php foreach ($otherActive as $pack):
         $m = $pack['match'];
         $s = $pack['summary'];
-        [$mine, $theirs, $opponent] = $scoreFor($m, $s);
+        $score = MetricCompetitionService::scoreline($m, $s);
       ?>
         <li class="series-row">
           <a href="<?= e(url('/matches/' . (int) $m['id'])) ?>">
             <span class="series-row-vs"><?= e($m['player_a_name']) ?> vs <?= e($m['player_b_name']) ?></span>
             <span class="series-row-meta"><?= e(ucfirst((string) $m['status'])) ?> · <?= e($m['metric_name']) ?></span>
           </a>
-          <span class="series-row-score t-num" aria-label="Series score <?= (int) $s['player_a_wins'] ?> to <?= (int) $s['player_b_wins'] ?>"><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></span>
+          <span class="series-row-score t-num" aria-label="<?= e($score['aria']) ?>"><?= e($score['primary']) ?></span>
         </li>
       <?php endforeach; ?>
     </ul>
@@ -196,10 +189,11 @@ $scoreFor = static function (array $m, array $s) use ($userId): array {
       <?php foreach ($recentCompleted as $pack):
         $m = $pack['match'];
         $s = $pack['summary'];
+        $score = MetricCompetitionService::scoreline($m, $s);
       ?>
         <li class="series-row series-row--done">
           <a href="<?= e(url('/matches/' . (int) $m['id'])) ?>">
-            <span class="series-row-vs"><?= e($m['player_a_name']) ?> <span class="t-num"><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></span> <?= e($m['player_b_name']) ?></span>
+            <span class="series-row-vs"><?= e($m['player_a_name']) ?> <span class="t-num"><?= e($score['primary']) ?></span> <?= e($m['player_b_name']) ?></span>
             <span class="series-row-meta"><?= e($m['metric_name']) ?></span>
           </a>
           <span class="status-pill status-<?= !empty($s['is_draw']) ? 'void' : 'official' ?>"><?= !empty($s['is_draw']) ? 'Draw' : 'Final' ?></span>

@@ -38,3 +38,53 @@
   line-height: 1;
 }
 .record-note { font-size: var(--text-xs); color: var(--ink-3); }
+
+.metric-records {
+  list-style: none;
+  margin: 0 0 var(--s-5);
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.metric-records li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-s);
+}
+.metric-records-label { color: var(--ink-2); }
+.metric-records-value { font-weight: 650; }
+
+.opponent-list {
+  list-style: none;
+  margin: 0 0 var(--s-5);
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+.opponent-list a { color: var(--signal); text-decoration: none; }
+.opponent-list a:hover { text-decoration: underline; }
+
+.player-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+.player-feed li {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line);
+}
+.player-feed-head {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+.player-feed-body { font-size: 0.85rem; }

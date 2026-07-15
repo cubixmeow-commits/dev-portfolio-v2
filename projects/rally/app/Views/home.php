@@ -1,6 +1,6 @@
 <section class="wrap home-hero">
   <h1 class="home-title">Every day is a new game.</h1>
-  <p class="home-lede">Compete head-to-head using wearable health statistics. Win more days. Win the series.</p>
+  <p class="home-lede">Compete head-to-head on steps, active minutes, HRV, resting heart rate, or sleep duration. One metric per match. Win the series.</p>
   <div class="home-cta">
     <a class="button button-primary" href="<?= e(url('/register')) ?>">Start a series</a>
     <a class="button button-ghost" href="<?= e(url('/login')) ?>">Sign in</a>

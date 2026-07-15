@@ -22,6 +22,32 @@
 .note-list dt { color: var(--ink-2); }
 .note-list dd { margin: 0; font-weight: 650; }
 
+.board--average .board-score-num {
+  font-size: clamp(1.8rem, 6vw, 3.2rem);
+}
+.board-avg-unit {
+  margin: 0.15rem 0 0;
+  color: var(--ink-3);
+}
+.board-diff {
+  display: block;
+  text-align: center;
+  margin-top: 0.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.metric-context {
+  margin-top: var(--s-4);
+  max-width: 28rem;
+}
+.rail-legend-title {
+  margin: var(--s-3) 0 var(--s-1);
+}
+.rail-note {
+  margin: var(--s-2) 0 0;
+  max-width: 40rem;
+}
+
 /* --- Desktop composition -------------------------------------------------- */
 
 .match-columns { display: grid; gap: var(--s-4); }
