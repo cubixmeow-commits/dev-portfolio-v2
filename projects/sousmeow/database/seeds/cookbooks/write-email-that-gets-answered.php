@@ -101,7 +101,7 @@ MD;
 return [
     'slug'                => 'write-email-that-gets-answered',
     'title'               => 'Write an Email That Gets Answered',
-    'tagline'             => 'Turn a muddy draft into one clear ask a busy reader can act on.',
+    'tagline'             => 'Write a short email with one clear ask that gets answered.',
     'description'         => "Busy people delete vague emails. This Cookbook helps you name the reader, lock one ask, lead with the point, and revise until the message is short enough to answer. Enter only facts you know about the person, the ask, and the deadline. Every step is told to invent nothing about their calendar or motives. You leave with a send-ready email and a simple checklist.",
     'primary_category'    => 'writing-publishing',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

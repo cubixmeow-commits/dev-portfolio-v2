@@ -277,7 +277,7 @@ MD;
 return [
     'slug'                => 'plan-youtube-video',
     'title'               => 'Plan a YouTube Video',
-    'tagline'             => 'From a rough idea to a publish-ready plan, one small step at a time.',
+    'tagline'             => 'Turn a rough video idea into a publish-ready plan.',
     'description'         => "Most YouTube videos fail before anyone presses record: the idea is vague, the hook is borrowed, and the outline is a list of things to say instead of reasons to keep watching. This Cookbook moves fast through ten small outputs, so you leave with research, a hook, a retention map, B-roll shots, titles, thumbnail direction, and a publish checklist. Enter your topic and channel context once; every step builds on the last. Beginner-friendly — no pretending you need a studio.",
     'primary_category'    => 'content-audience',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

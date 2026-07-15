@@ -159,40 +159,24 @@
 .disc-section-head { margin-bottom: var(--space-4); }
 .disc-section-head h2 { margin: 0 0 var(--space-1); font-size: 1.3rem; }
 
-.disc-grid {
-  display: grid; gap: var(--space-4);
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-}
-
 .disc-rail {
   display: grid; grid-auto-flow: column;
-  grid-auto-columns: minmax(17rem, 18rem);
-  gap: var(--space-4);
+  grid-auto-columns: minmax(16rem, 18rem);
+  gap: 0.75rem;
   overflow-x: auto; scroll-snap-type: x proximity;
   padding-bottom: var(--space-3); margin-inline: calc(-1 * var(--space-1)); padding-inline: var(--space-1);
   scrollbar-width: thin;
 }
-.disc-rail .disc-card { scroll-snap-align: start; }
+.disc-rail .cookbook-card { scroll-snap-align: start; }
+
+.disc-grid {
+  display: grid; gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
 
 /* ---------- Discovery card ---------- */
 
-.disc-card {
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-m);
-  box-shadow: var(--shadow-soft);
-  text-decoration: none; color: inherit;
-  transition: box-shadow var(--dur-med) var(--ease-out), transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
-}
-.disc-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); border-color: var(--line-strong); }
-.disc-band { height: 4px; background: linear-gradient(90deg, var(--accent, var(--terracotta)), var(--accent-wash, var(--terracotta-wash))); }
-.disc-body { display: flex; flex-direction: column; gap: 0.4rem; padding: var(--space-4); }
-.disc-top { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-1); }
-.disc-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
-.disc-tagline { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.5; flex: 1; }
-.disc-meta { font-size: 0.76rem; color: var(--ink-faint); margin-top: var(--space-1); }
+/* Listing chrome lives in components.css (.cookbook-card). */
 
 /* ---------- Category detail ---------- */
 

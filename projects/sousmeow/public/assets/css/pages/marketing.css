@@ -538,7 +538,7 @@
    LEARN / SAID / RECOVER / CONFIDENCE / OUTCOMES
    ------------------------------------------------------------------ */
 
-.learn-grid, .recover-grid, .said-grid, .outcome-grid {
+.learn-grid, .recover-grid, .said-grid {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -549,9 +549,8 @@
 .learn-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .recover-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .said-grid { grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
-.outcome-grid { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 
-.learn-item, .recover-card, .said-card, .outcome-card {
+.learn-item, .recover-card, .said-card {
   background: var(--tw-bg1);
   border: 1px solid var(--tw-line);
   border-radius: var(--radius-l);
@@ -658,57 +657,6 @@
   color: var(--tw-blue);
 }
 .shelf-all:hover { text-decoration: underline; }
-
-.outcome-card { position: relative; overflow: hidden; }
-.outcome-card::before {
-  content: "";
-  display: block;
-  height: 4px;
-  background: var(--sb-accent, var(--terracotta));
-  margin: -1.25rem -1.2rem 1rem;
-}
-.tw .accent-terracotta { --sb-accent: var(--terracotta); }
-.tw .accent-teal { --sb-accent: var(--teal); }
-.tw .accent-amber { --sb-accent: var(--amber); }
-.tw .accent-sage { --sb-accent: var(--sage); }
-.tw .accent-lilac { --sb-accent: var(--lilac); }
-.tw .accent-indigo { --sb-accent: var(--indigo); }
-.tw .accent-slate { --sb-accent: var(--slate); }
-.tw .accent-pine { --sb-accent: var(--pine); }
-.tw .accent-ochre { --sb-accent: var(--ochre); }
-.tw .accent-plum { --sb-accent: var(--plum); }
-.tw .accent-moss { --sb-accent: var(--moss); }
-
-.oc-status {
-  margin: 0 0 0.45rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tw-ink-faint);
-}
-
-.outcome-card h3 {
-  margin: 0 0 0.55rem;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
-}
-.outcome-card h3 a {
-  color: inherit;
-  text-decoration: none;
-}
-.outcome-card h3 a:hover { color: var(--tw-blue); }
-
-.oc-result {
-  margin: 0 0 0.75rem;
-  color: var(--tw-ink-soft);
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
-.oc-meta {
-  margin: 0;
-  font-size: 0.72rem;
-  color: var(--tw-ink-faint);
-}
 
 .outcomes-note {
   margin: 1.35rem 0 0;

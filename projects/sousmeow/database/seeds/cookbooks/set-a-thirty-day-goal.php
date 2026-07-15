@@ -119,7 +119,7 @@ MD;
 return [
     'slug'                => 'set-a-thirty-day-goal',
     'title'               => 'Set a Thirty-Day Goal',
-    'tagline'             => 'Pick one personal finish line for the next thirty days and the weekly rhythm to reach it.',
+    'tagline'             => 'Set one thirty-day finish line and the weekly rhythm to hit it.',
     'description'         => "Thirty days is long enough to see progress and short enough to stay honest. This Cookbook helps you choose one goal, define done, split the month into four weeks, place small actions on available days, prepare if-then obstacle moves, and pack a compact goal card. Enter only the goal, reason, available days, obstacles, and support you truly have. Every prompt tells the assistant to invent nothing about your calendar, motivation, tools, or helpers. You leave with a thirty-day card you can reread each week.",
     'primary_category'    => 'personal-projects',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

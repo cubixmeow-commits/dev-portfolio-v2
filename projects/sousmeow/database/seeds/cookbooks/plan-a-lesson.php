@@ -99,7 +99,7 @@ MD;
 return [
     'slug'                => 'plan-a-lesson',
     'title'               => 'Plan a Lesson',
-    'tagline'             => 'Build one lesson with a clear objective, activities, and a way to check learning.',
+    'tagline'             => 'Plan a lesson with an objective, activities, and a learning check.',
     'description'         => "A lesson works best when the objective, activities, and check all point at the same skill. This Cookbook helps you write a learning objective, name prerequisites, sequence activities, design a fair check, and pack a lesson card. Enter only facts you know about the learners, time, materials, and topic. Every prompt is told not to invent supplies, learner background, or standards you did not provide.",
     'primary_category'    => 'learning-teaching',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

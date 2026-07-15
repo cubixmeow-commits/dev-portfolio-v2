@@ -33,7 +33,7 @@ MD;
 return [
     'slug'                => 'plan-a-novel',
     'title'               => 'Plan a Novel',
-    'tagline'             => 'From a spark of an idea to a chapter roadmap you can actually write from.',
+    'tagline'             => 'Shape a novel idea into a chapter roadmap you can write from.',
     'description'         => "Most novels stall long before the blank page because the writer is holding premise, people, world, and structure in their head at once. This Cookbook separates those jobs into eighteen steps across seven stages. Enter the decisions you already know once: genre, theme, protagonist, rules of the world, and what you refuse to compromise. Each step asks you to approve one layer before the next, so you can explore without losing the thread. Checks along the way are decision-heavy: you are confirming the plan still matches the book you meant to write.",
     'primary_category'    => 'creative-worlds',
     'collections'         => [],

@@ -100,7 +100,7 @@ MD;
 return [
     'slug'                => 'write-a-campaign-brief',
     'title'               => 'Write a Campaign Brief',
-    'tagline'             => 'Lock audience, promise, channels, and one success measure before you make ads.',
+    'tagline'             => 'Lock audience, promise, channels, and one success measure.',
     'description'         => "Campaign work gets expensive when the audience, promise, offer, and measure are still fuzzy. This Cookbook turns one real campaign into a brief that can guide copy, channel choices, and review. Enter only campaign facts you already know. Every step is told to invent nothing about audience psychology, benchmarks, budgets, or performance. You leave with a campaign brief that names who it is for, what it promises, where it will run, what the offer says, and how success will be counted.",
     'primary_category'    => 'marketing-growth',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

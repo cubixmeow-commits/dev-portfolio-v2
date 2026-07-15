@@ -122,7 +122,7 @@ MD;
 return [
     'slug'                => 'critique-a-screen',
     'title'               => 'Critique a Screen',
-    'tagline'             => 'Review one real screen with plain findings and next fixes — invent no user data.',
+    'tagline'             => 'Critique one screen with clear findings and next fixes.',
     'description'         => "A useful screen critique stays close to what is actually visible. This Cookbook helps you frame the user goal, describe the screen, list clarity and friction findings, prioritize fixes, write fix notes, and package a plain critique memo. Prompts separate observations from assumptions so the critique does not invent user data.",
     'primary_category'    => 'design-brand',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

@@ -163,7 +163,7 @@ MD;
 return [
     'slug'                => 'prep-for-an-interview',
     'title'               => 'Prep for an Interview',
-    'tagline'             => 'Turn your real stories into clear answers you can rehearse out loud.',
+    'tagline'             => 'Turn real stories into interview answers you can rehearse.',
     'description'         => "Interviews get easier when your real examples are already sorted. This Cookbook helps you map what the role needs, choose honest stories, turn them into clear answers, prepare hard-question replies, and rehearse out loud. Enter only facts you know about the role, company or client, your background, and the format. Every prompt is told not to invent company facts, achievements, or interview logistics.",
     'primary_category'    => 'career-freelance',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

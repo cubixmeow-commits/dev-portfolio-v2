@@ -168,7 +168,7 @@ MD;
 return [
     'slug'                => 'document-a-simple-process',
     'title'               => 'Document a Simple Process',
-    'tagline'             => 'Write a process someone else could follow without pinging you.',
+    'tagline'             => 'Write a process someone else can follow without asking you.',
     'description'         => "Simple processes fail when the steps live in someone's head. This Cookbook helps you capture the trigger, owner, raw steps, decisions, hand-offs, checks, exceptions, and one-page handoff notes. Enter only what you know about the process, tools, and done signal. Each recipe tells the assistant to invent nothing and to mark gaps instead of filling them with guesses. You leave with a compact process one-pager someone else can follow.",
     'primary_category'    => 'planning-productivity',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

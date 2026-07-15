@@ -5,13 +5,6 @@
  * @var string                      $query
  * @var list<array<string, mixed>>  $cookbooks
  */
-$accentClass = static fn(array $c): string => 'accent-' . preg_replace('/[^a-z]/', '', (string) $c['accent']);
-$formatRuns = static function (int $n): string {
-    if ($n >= 1000) {
-        return number_format($n / 1000, 1) . 'k';
-    }
-    return (string) $n;
-};
 ?>
 <div class="page marketplace-page">
   <header class="marketplace-header">
@@ -41,45 +34,8 @@ $formatRuns = static function (int $n): string {
     </div>
   <?php else: ?>
     <div class="cookbook-grid">
-      <?php foreach ($cookbooks as $cookbook):
-        $executable = (int) $cookbook['is_executable'] === 1;
-        $runs = (int) ($cookbook['demo_completed_runs'] ?? 0);
-        $rating = $cookbook['demo_avg_rating'] ?? null;
-      ?>
-        <a class="cookbook-card card card-hover <?= e($accentClass($cookbook)) ?>" href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>">
-          <div class="cookbook-band" aria-hidden="true"></div>
-          <div class="cookbook-body">
-            <div class="cookbook-top">
-              <span class="badge badge-outline"><?= e($cookbook['category_name'] ?? '') ?></span>
-              <span class="badge badge-neutral cookbook-difficulty"><?= e($cookbook['difficulty'] ?? 'Intermediate') ?></span>
-              <?php if ($executable): ?>
-                <span class="badge badge-sage badge-dot">Available now</span>
-              <?php else: ?>
-                <span class="badge badge-neutral">Preview</span>
-              <?php endif; ?>
-            </div>
-            <h2 class="cookbook-title"><?= e($cookbook['title']) ?></h2>
-            <p class="cookbook-tagline"><?= e($cookbook['tagline']) ?></p>
-            <p class="cookbook-outcome"><?= e($cookbook['outcome']) ?></p>
-            <div class="cookbook-meta">
-              <span><?= (int) $cookbook['recipe_count'] ?> steps</span>
-              <span>&middot;</span>
-              <span>about <?= (int) $cookbook['est_minutes'] ?> min</span>
-              <?php if ($runs > 0): ?>
-                <span>&middot;</span>
-                <span><?= e($formatRuns($runs)) ?> runs</span>
-              <?php endif; ?>
-              <?php if ($rating !== null): ?>
-                <span class="cookbook-rating" aria-label="Average rating <?= e((string) $rating) ?> out of 5">
-                  <?= e(number_format((float) $rating, 1)) ?> &#9733;
-                </span>
-              <?php endif; ?>
-              <span class="cookbook-price">
-                <?= $cookbook['price_cents'] === null ? 'Free' : '$' . number_format(((int) $cookbook['price_cents']) / 100, 0) ?>
-              </span>
-            </div>
-          </div>
-        </a>
+      <?php foreach ($cookbooks as $cookbook): ?>
+        <?php \SousMeow\Core\View::partial('partials/cookbook-card', ['c' => $cookbook]); ?>
       <?php endforeach; ?>
     </div>
     <p class="marketplace-honesty">

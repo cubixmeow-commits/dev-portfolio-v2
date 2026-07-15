@@ -153,7 +153,7 @@ MD;
 return [
     'slug'                => 'design-a-game-loop',
     'title'               => 'Design a Game Loop',
-    'tagline'             => 'Define what the player does, why it feels good, and how one session ends.',
+    'tagline'             => 'Define a game loop that makes one session feel complete.',
     'description'         => "A game idea becomes easier to design when the fantasy, core verb, reward rhythm, and session end are named. This Cookbook helps you describe what the player wants to feel, what they do again and again, why the loop rewards them, and how one session closes. Enter only concept facts and feel references. Every prompt tells the assistant not to copy features or invent engine, platform, budget, or technology claims. You leave with a compact loop sheet for a small playable idea.",
     'primary_category'    => 'creative-worlds',
     'collections'         => ['start-here', 'selected-by-sousmeow'],
