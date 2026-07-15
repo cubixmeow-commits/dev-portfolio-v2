@@ -848,6 +848,13 @@ function expected_seed_files(): array
         'professional-portfolio.php',
         'plan-youtube-video.php',
         'plan-a-novel.php',
+        'build-a-study-plan.php',
+        'write-email-that-gets-answered.php',
+        'write-a-feature-spec.php',
+        'name-your-brand-voice.php',
+        'compare-three-competitors.php',
+        'make-a-criteria-decision.php',
+        'finish-a-personal-project.php',
     ];
 }
 

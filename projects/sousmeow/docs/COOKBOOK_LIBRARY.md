@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of seven first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
+Curated library of twelve first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform.
 
 ## Mandatory authoring rule
 
@@ -19,6 +19,11 @@ That document is the authoritative source for the Complexity Scorecard and Compl
 | Plan a Novel | Preview | 7 | 18 | 16 | Advanced | 240 min | Exploratory decisions + continuity planning | 3 checks per Recipe, decision-heavy branching | Deep Pantry with world rules and continuity control | Premise, cast, world rules, conflict engine, act outline, chapter roadmap, continuity guide |
 | Build a Study Plan | Executable | 4 | 5 | 7 | Beginner | 40 min | Success criteria + schedule + retrieval kit | 3 checks per Recipe, beginner coaching in why_it_matters | Public learning-strategy concepts turned into SousMeow steps; invent-nothing schedule honesty | Success criteria, topic map, weekly rhythm, retrieval kit, final-week plan |
 | Write an Email That Gets Answered | Executable | 3 | 3 | 7 | Beginner | 28 min | Reader brief → full draft → revise | 3 checks per Recipe, plain-language coaching | Federal plain-language ideas adapted to one-ask emails | Reader brief, subject + short email, revised email + checklist |
+| Write a Feature Spec | Executable | 3 | 6 | 8 | Intermediate | 50 min | Problem → scope locks → acceptance | 3 checks per Recipe, invent-nothing eng claims | Public agile/PRD ideas turned into pre-build decisions | Problem, users, must-haves, non-goals, acceptance, ship checklist |
+| Name Your Brand Voice | Executable | 3 | 7 | 6 | Beginner | 30 min | Audience → voice traits → one-pager | 3 checks per Recipe, plain brand coaching | Public brand-voice teaching adapted to solopreneur facts | Audience, promise, traits, do/don't, samples, visual cues, brief |
+| Compare Three Competitors | Executable | 3 | 8 | 8 | Intermediate | 55 min | Field → side-by-side → memo | 3 checks per Recipe, honesty on unknown facts | University competitive-analysis teaching without invented metrics | Frame, cards, offers, audiences, pricing, gaps, opportunity, memo |
+| Make a Criteria Decision | Executable | 2 | 2 | 6 | Beginner | 20 min | Frame → score and choose | 3 checks per Recipe, thin decision surface | Structured decision worksheets as two approve-able steps | Options/criteria frame, scored choice + next step |
+| Finish a Personal Project | Executable | 3 | 9 | 7 | Beginner | 70 min | Aim → plan → first week | 3 checks per Recipe, calendar honesty | SMART/WBS ideas turned into personal finish-line coaching | Done, why, constraints, chunks, weeks, risks, check-in, week one, finish list |
 
 No two Cookbooks share the same stage shape, recipe count, or review rhythm.
 
@@ -329,6 +334,190 @@ Three numbered Markdown files plus README.
 
 ---
 
+## 8. Write a Feature Spec
+
+**Slug:** `write-a-feature-spec`  
+**Availability:** Executable (Available now)  
+**Category:** Software & Product | **Accent:** Indigo | **Price:** Free  
+**Demo metrics:** 214 completed runs, 4.7 average rating
+
+### Metadata
+
+- **Subtitle:** Turn a fuzzy feature idea into a one-page spec your team could build from.
+- **Intended user:** Solo makers and small product teams writing down a feature before building
+- **Expected outcome:** Problem brief, users, must-haves, non-goals, acceptance checks, ship checklist
+- **Prerequisites:** A named feature, the product it sits in, and the user problem you actually know
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+Public agile user-story / INVEST teaching and lightweight PRD patterns. All SousMeow copy is original. See `docs/COOKBOOK_SOURCE_TRANSFORM_EMPTY_CATEGORIES.md`.
+
+### Pantry (8 ingredients)
+
+feature_name, product_context, user_type, problem_today, must_haves, constraints, success_signal, launch_window
+
+### Stages and Recipes (6)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Scope | Name the problem; Name who benefits |
+| 2. Spec | Write must-haves; Write non-goals |
+| 3. Ready | Write acceptance checks; Pack ship checklist |
+
+### Project Kit
+
+Six numbered Markdown files plus README.
+
+---
+
+## 9. Name Your Brand Voice
+
+**Slug:** `name-your-brand-voice`  
+**Availability:** Executable (Available now)  
+**Category:** Design & Brand | **Accent:** Plum | **Price:** Free  
+**Demo metrics:** 267 completed runs, 4.8 average rating
+
+### Metadata
+
+- **Subtitle:** Decide how you sound so every sentence stops sounding like someone else.
+- **Intended user:** Solopreneurs and small teams who need a clear voice before designing visuals
+- **Expected outcome:** Audience notes, promise, voice traits, do/don't examples, sample lines, visual cues, one-page brief
+- **Prerequisites:** A brand or project name, who you serve, and words you already like or avoid
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+Public brand-voice teaching and plain-language brand guidance. See `docs/COOKBOOK_SOURCE_TRANSFORM_EMPTY_CATEGORIES.md`.
+
+### Pantry (6 ingredients)
+
+brand_name, what_you_offer, who_you_serve, three_words_you_want, three_words_you_avoid, where_voice_shows_up
+
+### Stages and Recipes (7)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Audience | Name who you serve; Name what you stand for |
+| 2. Voice | Pick voice traits; Write do and don't; Write sample lines |
+| 3. Brief | Note visual cues; Pack voice one-pager |
+
+### Project Kit
+
+Seven numbered Markdown files plus README.
+
+---
+
+## 10. Compare Three Competitors
+
+**Slug:** `compare-three-competitors`  
+**Availability:** Executable (Available now)  
+**Category:** Research & Insights | **Accent:** Slate | **Price:** Free  
+**Demo metrics:** 198 completed runs, 4.6 average rating
+
+### Metadata
+
+- **Subtitle:** Put three real alternatives side by side and leave with a clear opportunity note.
+- **Intended user:** Founders and PMs who need a fast, honest competitor read before positioning
+- **Expected outcome:** Research frame, competitor cards, offer/audience/pricing comparison, gaps, decision memo
+- **Prerequisites:** Your offer, three named alternatives, and only facts you actually know
+- **Supported AI tools:** Any external research or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+University entrepreneurship competitive-analysis teaching. Invent no funding, revenue, or feature claims. See `docs/COOKBOOK_SOURCE_TRANSFORM_EMPTY_CATEGORIES.md`.
+
+### Pantry (8 ingredients)
+
+research_goal, your_offer, competitor_a, competitor_b, competitor_c, known_facts, target_audience, decision_deadline
+
+### Stages and Recipes (8)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Field | Frame the question; Name three competitors |
+| 2. Compare | Compare offers; Compare audiences; Compare pricing signals; Map gaps |
+| 3. Conclude | Write opportunity notes; Pack decision memo |
+
+### Project Kit
+
+Eight numbered Markdown files plus README.
+
+---
+
+## 11. Make a Criteria Decision
+
+**Slug:** `make-a-criteria-decision`  
+**Availability:** Executable (Available now)  
+**Category:** Planning & Productivity | **Accent:** Ochre | **Price:** Free  
+**Demo metrics:** 441 completed runs, 4.9 average rating
+
+### Metadata
+
+- **Subtitle:** Choose between real options using criteria you already trust.
+- **Intended user:** Anyone stuck between two or three real options and delaying a call
+- **Expected outcome:** Framed options and criteria, scored table, choice, and first next step
+- **Prerequisites:** A real decision, real options, and criteria you can name without research
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+University advising / structured decision-making worksheets (options, criteria, weigh, choose). See `docs/COOKBOOK_SOURCE_TRANSFORM_EMPTY_CATEGORIES.md`.
+
+### Pantry (6 ingredients)
+
+decision_title, option_a, option_b, option_c, criteria_list, non_negotiables
+
+### Stages and Recipes (2)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Frame | Frame options and criteria |
+| 2. Decide | Score and choose |
+
+### Project Kit
+
+Two numbered Markdown files plus README.
+
+---
+
+## 12. Finish a Personal Project
+
+**Slug:** `finish-a-personal-project`  
+**Availability:** Executable (Available now)  
+**Category:** Personal Projects | **Accent:** Moss | **Price:** Free  
+**Demo metrics:** 312 completed runs, 4.7 average rating
+
+### Metadata
+
+- **Subtitle:** Give a personal project a finish line, a calendar, and a first week of real moves.
+- **Intended user:** People with a meaningful personal project that keeps slipping
+- **Expected outcome:** Done definition, why-now, constraints, chunks, week sequence, risks, check-in template, first-week actions, finish checklist
+- **Prerequisites:** A project name, a done definition, hours you can give, and a real deadline
+- **Supported AI tools:** Any external chat or writing assistant (copy/paste workflow)
+
+### Public source inspiration (ideas only)
+
+Public SMART-goal advising and simple work-breakdown / project planning teaching. See `docs/COOKBOOK_SOURCE_TRANSFORM_EMPTY_CATEGORIES.md`.
+
+### Pantry (7 ingredients)
+
+project_name, done_definition, why_now, hours_per_week, deadline, materials_ready, known_blockers
+
+### Stages and Recipes (9)
+
+| Stage | Recipes |
+|-------|---------|
+| 1. Aim | Define done; Name why now; Name constraints |
+| 2. Plan | Break into chunks; Sequence the weeks; List risks |
+| 3. Finish | Write check-in template; Plan first week; Pack finish checklist |
+
+### Project Kit
+
+Nine numbered Markdown files plus README.
+
+---
+
 ## Seed source of truth
 
 Full prompts, checks, and sample outputs live in:
@@ -340,5 +529,10 @@ Full prompts, checks, and sample outputs live in:
 - `database/seeds/cookbooks/plan-a-novel.php`
 - `database/seeds/cookbooks/build-a-study-plan.php`
 - `database/seeds/cookbooks/write-email-that-gets-answered.php`
+- `database/seeds/cookbooks/write-a-feature-spec.php`
+- `database/seeds/cookbooks/name-your-brand-voice.php`
+- `database/seeds/cookbooks/compare-three-competitors.php`
+- `database/seeds/cookbooks/make-a-criteria-decision.php`
+- `database/seeds/cookbooks/finish-a-personal-project.php`
 
 Loaded by `database/seeds/content.php` and inserted via `scripts/seed.php`.
