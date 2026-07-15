@@ -74,13 +74,14 @@ button { font: inherit; color: inherit; }
 .brand .logo-mark { color: var(--ink); transition: transform var(--dur-med) var(--ease-out); }
 .brand:hover .logo-mark { transform: rotate(-8deg); }
 
-.site-nav { display: flex; align-items: center; }
-.nav-links { display: flex; align-items: center; gap: var(--space-4); }
+.site-nav { display: flex; align-items: center; position: relative; }
+.nav-links { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-4); }
 .nav-links > a {
   color: var(--ink-soft); text-decoration: none; font-weight: 500; font-size: 0.95rem;
   padding: var(--space-1) var(--space-1);
   border-radius: var(--radius-s);
   transition: color var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
 }
 .nav-links > a:hover { color: var(--ink); }
 .nav-user {
@@ -100,7 +101,9 @@ button { font: inherit; color: inherit; }
 
 .nav-toggle { display: none; }
 
-@media (max-width: 720px) {
+/* Guest and signed-in menus both include Browse by topic; collapse to the
+   hamburger earlier so mid-width desktops do not clip discovery links. */
+@media (max-width: 900px) {
   .nav-toggle {
     display: inline-flex; flex-direction: column; gap: 5px;
     background: none; border: 1px solid var(--line-strong); border-radius: var(--radius-s);
@@ -113,10 +116,11 @@ button { font: inherit; color: inherit; }
   .nav-links {
     display: none;
     position: absolute; top: 100%; right: var(--space-4); left: var(--space-4);
-    flex-direction: column; align-items: stretch; gap: var(--space-2);
+    flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: var(--space-2);
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m);
     box-shadow: var(--shadow-lift);
     padding: var(--space-4);
+    z-index: 40;
   }
   .nav-links.open { display: flex; }
   .nav-links > a { padding: var(--space-2); }
