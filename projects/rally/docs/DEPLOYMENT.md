@@ -13,9 +13,16 @@
 
 ```sh
 cd /path/to/rally
-php scripts/seed.php
+php scripts/migrate.php          # required when upgrading an existing DB
+php scripts/seed.php             # fresh install / demo reseed
+php scripts/migrate.php --status
 php scripts/seed.php --status
 ```
+
+If you previously seeded Rally (steps-only) and then deployed the multi-metric build,
+`php scripts/migrate.php` is required. `CREATE TABLE IF NOT EXISTS` will not add the
+new `rly_metric_types` columns on its own — that is what caused the profile
+`no such column: mt.scoring_strategy` error.
 
 7. Confirm `storage/` is writable by PHP and not publicly listable.
 8. Do not commit `config.php` or `.env`.
