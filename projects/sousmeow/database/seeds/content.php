@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Seed content loader for SousMeow first-party Cookbook library.
  *
- * Nine curated Cookbooks (seven executable, two preview):
+ * Twelve curated Cookbooks (ten executable, two preview):
  * - Launch Day Kit (executable)
  * - Validate a SaaS Idea (executable)
  * - Build a Professional Portfolio (preview)
@@ -15,6 +15,9 @@ declare(strict_types=1);
  * - Write an Email That Gets Answered (executable)
  * - Write a Feature Spec (executable)
  * - Name Your Brand Voice (executable)
+ * - Compare Three Competitors (executable)
+ * - Make a Criteria Decision (executable)
+ * - Finish a Personal Project (executable)
  *
  * Each Cookbook is defined in database/seeds/cookbooks/{slug}.php.
  * Prompt templates use {{field_key}} for Pantry values and
@@ -31,6 +34,9 @@ $cookbookFiles = [
     'write-email-that-gets-answered.php',
     'write-a-feature-spec.php',
     'name-your-brand-voice.php',
+    'compare-three-competitors.php',
+    'make-a-criteria-decision.php',
+    'finish-a-personal-project.php',
 ];
 
 $cookbooks = [];
@@ -46,7 +52,7 @@ $categories = require __DIR__ . '/categories.php';
 $collections = require __DIR__ . '/collections.php';
 
 return [
+    'cookbooks'   => $cookbooks,
     'categories'  => $categories,
     'collections' => $collections,
-    'cookbooks'   => $cookbooks,
 ];

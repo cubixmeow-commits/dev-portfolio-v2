@@ -70,7 +70,7 @@ export, works without any AI at all; sample content is always labeled.
 
 ## Deliberate limits (v1 scope)
 
-Five executable Cookbooks and two marketplace previews with honest
+Ten executable Cookbooks and two marketplace previews with honest
 "coming soon" states and no checkout. No SMTP, no
 payment SDK, no Node build step, no Docker, no background workers.
 Password resets are an admin CLI action
