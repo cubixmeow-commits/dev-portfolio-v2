@@ -32,7 +32,7 @@ MD;
 return [
     'slug'                => 'price-your-offer',
     'title'               => 'Price Your Offer',
-    'tagline'             => 'Set a price you can say out loud using costs and value you already know.',
+    'tagline'             => 'Set a price you can say out loud from costs and value you know.',
     'description'         => "Pricing gets noisy when guessed buyer reactions replace known facts. This Cookbook turns one real offer into a short price decision memo: cost floor, target price, and the words you can use to say it. Enter only costs, value proof, and constraints you know. Every prompt is told to invent nothing about demand, competitors, or willingness to pay. You leave with a price you can explain without pretending the market has spoken.",
     'primary_category'    => 'start-grow-business',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

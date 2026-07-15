@@ -118,7 +118,7 @@ MD;
 return [
     'slug'                => 'synthesize-interview-notes',
     'title'               => 'Synthesize Interview Notes',
-    'tagline'             => 'Turn raw notes from real conversations into themes you can act on — invent no quotes.',
+    'tagline'             => 'Turn interview notes into themes you can act on.',
     'description'         => "Raw interview notes can turn into confident-sounding fiction if you summarize too quickly. This Cookbook helps you frame the synthesis, extract only supported facts, cluster themes, separate fact from inference, and package a short memo. Enter the real notes and repeated observations you already have. Every prompt forbids invented quotes, demographics, and findings not present in the notes or approved artifacts.",
     'primary_category'    => 'research-insights',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

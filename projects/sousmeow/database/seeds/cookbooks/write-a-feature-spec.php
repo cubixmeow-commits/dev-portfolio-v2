@@ -135,7 +135,7 @@ MD;
 return [
     'slug'                => 'write-a-feature-spec',
     'title'               => 'Write a Feature Spec',
-    'tagline'             => 'Turn a fuzzy feature idea into a one-page spec your team could build from.',
+    'tagline'             => 'Capture a feature in a one-page spec before anyone builds.',
     'description'         => "A fuzzy feature can turn into weeks of guessing once code starts. This Cookbook helps you lock the problem, the user, must-haves, non-goals, acceptance checks, and a ship-ready checklist before implementation. Enter only facts your team already knows; every prompt is told not to invent engineering hours, legal requirements, or product history.",
     'primary_category'    => 'software-product',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

@@ -94,7 +94,7 @@ MD;
 return [
     'slug'                => 'pack-a-release-checklist',
     'title'               => 'Pack a Release Checklist',
-    'tagline'             => 'Turn a ship date into a calm checklist of known work, owners, and go/no-go signals.',
+    'tagline'             => 'Turn a ship date into owners, work, and go/no-go checks.',
     'description'         => "Release stress grows when scope, owners, and go/no-go signals live in separate threads. This Cookbook turns one planned release into a compact checklist grounded in known work. Enter only the release facts, owners, risks, and go signal you already have. Every step is told to invent nothing about engineering hours, ticket status, systems, or readiness. You leave with a release packet your team can review before saying go.",
     'primary_category'    => 'software-product',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

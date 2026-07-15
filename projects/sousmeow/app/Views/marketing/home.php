@@ -15,18 +15,6 @@
 $marketplaceUrl = url('/marketplace');
 $productLawUrl = url('/docs/product-law-002');
 $startUrl = $marketplaceUrl;
-
-$outcomes = [];
-foreach ($cookbooks as $c) {
-    $outcomes[] = [
-        'title'   => (string) $c['title'],
-        'result'  => (string) $c['outcome'],
-        'slug'    => (string) $c['slug'],
-        'ready'   => (int) $c['is_executable'] === 1,
-        'minutes' => (int) $c['est_minutes'],
-        'accent'  => preg_replace('/[^a-z]/', '', (string) $c['accent']),
-    ];
-}
 ?>
 <div class="tw" id="top">
 
@@ -358,20 +346,15 @@ Include: a specific audience, their main problem, and the outcome they want.</pr
         <a class="shelf-all mono" href="<?= e($marketplaceUrl) ?>">see guided projects →</a>
       </header>
 
-      <?php if ($outcomes === []): ?>
+      <?php if ($cookbooks === []): ?>
         <p class="sec-sub-tw" data-reveal>Guides are being added.
           <a href="<?= e($marketplaceUrl) ?>">Browse what is ready</a>.</p>
       <?php else: ?>
-        <ul class="outcome-grid" data-reveal>
-          <?php foreach ($outcomes as $i => $o): ?>
-            <li class="outcome-card accent-<?= e((string) $o['accent']) ?>" style="--i:<?= (int) $i ?>">
-              <p class="oc-status mono"><?= $o['ready'] ? 'available now' : 'preview' ?></p>
-              <h3><a href="<?= e(url('/cookbooks/' . $o['slug'])) ?>"><?= e($o['title']) ?></a></h3>
-              <p class="oc-result">You leave with: <?= e($o['result']) ?></p>
-              <p class="oc-meta mono">~<?= (int) $o['minutes'] ?> min</p>
-            </li>
+        <div class="cookbook-grid" data-reveal>
+          <?php foreach ($cookbooks as $c): ?>
+            <?php \SousMeow\Core\View::partial('partials/cookbook-card', ['c' => $c]); ?>
           <?php endforeach; ?>
-        </ul>
+        </div>
         <p class="outcomes-note mono" data-reveal>We call these reusable guides <strong>Cookbooks</strong>
           once you are ready to start one.</p>
       <?php endif; ?>

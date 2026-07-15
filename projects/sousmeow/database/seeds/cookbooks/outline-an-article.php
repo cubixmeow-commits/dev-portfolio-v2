@@ -100,7 +100,7 @@ MD;
 return [
     'slug'                => 'outline-an-article',
     'title'               => 'Outline an Article',
-    'tagline'             => 'Move from a topic to a sharp outline a busy reader can scan.',
+    'tagline'             => 'Move from a topic to a sharp, scannable article outline.',
     'description'         => "A useful article outline protects the reader's time. This Cookbook helps you lock the angle, order the points, write scan-friendly section heads, note evidence gaps, and package a draft-ready outline. Every prompt uses only the topic, reader, takeaway, and points you provide.",
     'primary_category'    => 'writing-publishing',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

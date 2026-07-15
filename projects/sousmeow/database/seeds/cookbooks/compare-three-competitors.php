@@ -150,7 +150,7 @@ MD;
 return [
     'slug'                => 'compare-three-competitors',
     'title'               => 'Compare Three Competitors',
-    'tagline'             => 'Put three real alternatives side by side and leave with a clear opportunity note.',
+    'tagline'             => 'Compare three competitors and leave with a clear next move.',
     'description'         => "Competitive research gets sloppy when teams fill gaps with guesses. This Cookbook frames one positioning question, compares three named alternatives against your offer, and forces every unknown to stay visible. Enter only facts you already know or can verify from public sources. Every step is told to invent nothing about funding, revenue, feature depth, or market share. You leave with a research frame, competitor cards, comparison tables, gaps, opportunity notes, and a short decision memo.",
     'primary_category'    => 'research-insights',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

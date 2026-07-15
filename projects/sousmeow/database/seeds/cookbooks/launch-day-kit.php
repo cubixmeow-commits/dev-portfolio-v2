@@ -129,7 +129,7 @@ MD;
 return [
     'slug'                => 'launch-day-kit',
     'title'               => 'Launch Day Kit',
-    'tagline'             => 'Turn plain product notes into everything you publish on launch day.',
+    'tagline'             => 'Create launch-ready marketing assets from one product brief.',
     'description'         => "Launch day is a writing day: the positioning that explains you, the landing page that sells you, the announcements that bring people in, and honest answers for the questions that follow. This Cookbook walks you through all four steps. Enter the plain facts about your product once; every prompt uses those facts and invents nothing. What you approve is what you ship: ready-to-publish files that sound like you on your best day.",
     'primary_category'    => 'marketing-growth',
     'collections'         => ['start-here', 'selected-by-sousmeow', 'launch-something'],

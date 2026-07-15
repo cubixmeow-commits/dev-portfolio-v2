@@ -178,7 +178,7 @@ MD;
 return [
     'slug'                => 'finish-a-personal-project',
     'title'               => 'Finish a Personal Project',
-    'tagline'             => 'Give a personal project a finish line, a calendar, and a first week of real moves.',
+    'tagline'             => 'Give a personal project a finish line and a first week of work.',
     'description'         => "Personal projects slip when they stay vague, too big, or always almost ready. This Cookbook helps you name what done means, why now matters, what constraints are real, and which chunks belong in the first finished version. Enter only pantry facts about the project, deadline, hours, materials, and blockers. Every prompt tells the assistant to invent nothing about your schedule, budget, tools, or motivation beyond those facts. You leave with a first week of real moves and a finish checklist.",
     'primary_category'    => 'personal-projects',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

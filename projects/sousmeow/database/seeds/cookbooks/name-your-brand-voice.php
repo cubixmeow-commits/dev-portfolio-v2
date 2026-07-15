@@ -160,7 +160,7 @@ MD;
 return [
     'slug'                => 'name-your-brand-voice',
     'title'               => 'Name Your Brand Voice',
-    'tagline'             => 'Decide how you sound so every sentence stops sounding like someone else.',
+    'tagline'             => 'Define a brand voice you can reuse in every sentence.',
     'description'         => "A brand voice gives your words a job before you pick visuals. This Cookbook helps you name who you serve, what you stand for, how you sound, what to avoid, and how that voice shows up in sample lines. Enter only facts you already know about the offer and audience; every step is told not to invent logos, services, prices, or customer research.",
     'primary_category'    => 'design-brand',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

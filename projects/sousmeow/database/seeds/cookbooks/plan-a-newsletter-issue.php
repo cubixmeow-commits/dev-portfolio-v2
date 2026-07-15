@@ -137,7 +137,7 @@ MD;
 return [
     'slug'                => 'plan-a-newsletter-issue',
     'title'               => 'Plan a Newsletter Issue',
-    'tagline'             => 'Build one issue from a clear reader promise to a send-ready outline.',
+    'tagline'             => 'Plan one newsletter from reader promise to send-ready outline.',
     'description'         => "A strong newsletter issue starts with one useful promise. This Cookbook helps you name the reader, choose an angle, outline sections, package the subject and preview text, and finish with a send checklist. Every step works only from the facts you enter and the artifacts you approve.",
     'primary_category'    => 'content-audience',
     'collections'         => ['start-here', 'selected-by-sousmeow'],

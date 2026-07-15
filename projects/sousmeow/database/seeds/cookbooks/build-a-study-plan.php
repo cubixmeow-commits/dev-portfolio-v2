@@ -115,7 +115,7 @@ MD;
 return [
     'slug'                => 'build-a-study-plan',
     'title'               => 'Build a Study Plan',
-    'tagline'             => 'Turn a looming exam or skill goal into a calm, realistic practice schedule.',
+    'tagline'             => 'Build a calm practice schedule for an exam or skill goal.',
     'description'         => "Most people restudy notes and hope it sticks. This Cookbook helps you set a clear finish line, break the subject into chunks, place real practice on real days, and build simple self-tests so you know what still needs work. Enter only facts you already know about your subject, deadline, and available time. Every step is told to invent nothing about your schedule or score. You leave with a plan you can follow this week.",
     'primary_category'    => 'learning-teaching',
     'collections'         => ['start-here', 'selected-by-sousmeow'],
