@@ -655,6 +655,14 @@ function sync_pantry_fields(int $cookbookId, array $fields): void
 /** @param list<array<string, mixed>> $recipes */
 function sync_recipes(int $cookbookId, array $recipes, bool $executable): void
 {
+    // Clear the unique (cookbook_id, position) collision window before
+    // upserting. Renames and shrinks otherwise fail when an INSERT claims a
+    // position still held by a soon-to-be-orphaned slug.
+    Database::run(
+        'UPDATE recipes SET position = position + 1000 WHERE cookbook_id = ?',
+        [$cookbookId]
+    );
+
     $keepSlugs = [];
     foreach ($recipes as $position => $recipe) {
         $slug = (string) $recipe['slug'];
