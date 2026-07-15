@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS sousmeow_categories (
     short_name    TEXT NULL,
     tagline       TEXT NOT NULL,
     description   TEXT NOT NULL,
+    audience      TEXT NOT NULL DEFAULT '',
+    reassure      TEXT NOT NULL DEFAULT '',
     outcomes_json TEXT NOT NULL,                    -- JSON array of exactly three outcomes
     accent        TEXT NOT NULL DEFAULT 'terracotta', -- allowlisted key, never a hex
     icon_key      TEXT NULL,

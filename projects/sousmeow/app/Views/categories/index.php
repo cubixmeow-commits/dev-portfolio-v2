@@ -2,6 +2,7 @@
 
 use SousMeow\Core\View;
 use SousMeow\Services\Accent;
+use SousMeow\Services\CategoryIcon;
 
 /**
  * Shared category index: compact directory cards for fast scanning, then a
@@ -11,7 +12,6 @@ use SousMeow\Services\Accent;
  * @var array{collection: array<string, mixed>, cookbooks: list<array<string, mixed>>}|null $startHere
  * @var list<array{collection: array<string, mixed>, cookbooks: list<array<string, mixed>>}> $strips
  */
-$mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 ?>
 <div class="page categories-index">
 
@@ -33,6 +33,7 @@ $mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="
           $countLabel = $count > 0 ? plural($count, 'Cookbook') : 'No Cookbooks yet';
           $href = url('/categories/' . $cat['slug']);
           $label = (string) $cat['name'] . ' — ' . $countLabel;
+          $mark = CategoryIcon::svg($cat['icon_key'] ?? null);
           ?>
         <li>
           <a class="category-card category-card-dir <?= e(Accent::cssClass((string) $cat['accent'])) ?>"

@@ -10,11 +10,13 @@
  * @var list<array<string, mixed>>      $featuredStages
  * @var list<array<string, mixed>>      $featuredRecipes
  * @var list<array<string, mixed>>      $cookbooks
+ * @var array{collection: array<string, mixed>, cookbooks: list<array<string, mixed>>}|null $moneyShelf
  */
 
 $marketplaceUrl = url('/marketplace');
 $productLawUrl = url('/docs/product-law-002');
 $startUrl = $marketplaceUrl;
+$moneyShelf = $moneyShelf ?? null;
 ?>
 <div class="tw" id="top">
 
@@ -345,6 +347,24 @@ Include: a specific audience, their main problem, and the outcome they want.</pr
         </div>
         <a class="shelf-all mono" href="<?= e($marketplaceUrl) ?>">see guided projects →</a>
       </header>
+
+      <?php if ($moneyShelf !== null): ?>
+        <section class="home-money-shelf" aria-labelledby="money-shelf-h" data-reveal>
+          <header class="sec-head shelf-head home-money-head">
+            <div>
+              <p class="tw-kicker mono">featured collection</p>
+              <h3 id="money-shelf-h"><?= e($moneyShelf['collection']['name']) ?></h3>
+              <p class="sec-sub-tw"><?= e($moneyShelf['collection']['tagline']) ?></p>
+            </div>
+            <a class="shelf-all mono" href="<?= e(url('/categories/money-major-decisions')) ?>">browse the topic →</a>
+          </header>
+          <div class="cookbook-grid">
+            <?php foreach ($moneyShelf['cookbooks'] as $c): ?>
+              <?php \SousMeow\Core\View::partial('partials/cookbook-card', ['c' => $c]); ?>
+            <?php endforeach; ?>
+          </div>
+        </section>
+      <?php endif; ?>
 
       <?php if ($cookbooks === []): ?>
         <p class="sec-sub-tw" data-reveal>Guides are being added.

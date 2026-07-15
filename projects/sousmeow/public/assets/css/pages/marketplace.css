@@ -106,3 +106,5 @@
   .detail-stage-head { flex-wrap: wrap; }
   .detail-stage-count { margin-left: 0; }
 }
+
+.accent-harbor { --accent: var(--harbor); --accent-wash: var(--harbor-wash); }

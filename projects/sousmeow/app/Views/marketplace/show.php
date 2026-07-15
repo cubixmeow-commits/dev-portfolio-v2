@@ -245,14 +245,28 @@ foreach ($stages as $stage) {
   <?php if ($relatedCookbooks !== []): ?>
     <section class="detail-related" aria-labelledby="related-heading">
       <div class="section-heading">
-        <h2 id="related-heading"><?= in_array((string) $cookbook['slug'], [
-            'tailor-resume-to-a-job',
-            'prep-for-an-interview',
-            'write-a-strong-cover-letter',
-            'improve-your-linkedin-profile',
-            'plan-a-career-change',
-            'prepare-for-salary-negotiation',
-        ], true) ? 'Continue your job search' : 'Related Cookbooks' ?></h2>
+        <h2 id="related-heading"><?php
+          $relatedTitleSlug = (string) $cookbook['slug'];
+          if (in_array($relatedTitleSlug, [
+              'build-budget-and-debt-plan',
+              'prepare-bill-dispute',
+              'audit-medical-bill',
+              'navigate-first-home-purchase',
+          ], true)) {
+              echo 'Continue with Money &amp; Major Decisions';
+          } elseif (in_array($relatedTitleSlug, [
+              'tailor-resume-to-a-job',
+              'prep-for-an-interview',
+              'write-a-strong-cover-letter',
+              'improve-your-linkedin-profile',
+              'plan-a-career-change',
+              'prepare-for-salary-negotiation',
+          ], true)) {
+              echo 'Continue your job search';
+          } else {
+              echo 'Related Cookbooks';
+          }
+        ?></h2>
         <span class="section-sub">Nearby guided projects you can start next</span>
       </div>
       <div class="cookbook-grid detail-related-grid">

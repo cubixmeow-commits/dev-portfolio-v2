@@ -3,9 +3,10 @@
 use SousMeow\Core\View;
 use SousMeow\Models\Category;
 use SousMeow\Services\Accent;
+use SousMeow\Services\CategoryIcon;
 
 /**
- * Shared category detail: one template for all twelve categories. Shows the
+ * Shared category detail: one template for all visible categories. Shows the
  * category's Cookbooks (with filtering) plus the Collections those Cookbooks
  * appear in.
  *
@@ -21,7 +22,9 @@ use SousMeow\Services\Accent;
  */
 $slug = (string) $category['slug'];
 $accent = Accent::cssClass((string) $category['accent']);
-$mark = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+$mark = CategoryIcon::svg($category['icon_key'] ?? null);
+$audience = trim((string) ($category['audience'] ?? ''));
+$reassure = trim((string) ($category['reassure'] ?? ''));
 
 /** Build a filter URL, keeping only the parts that are set. */
 $filterUrl = static function (?string $level, ?string $show) use ($slug): string {
@@ -53,6 +56,32 @@ $noFilter = $filterLevel === '' && $filterShow === '';
     <p class="cat-detail-count mono"><?= $totalInCategory > 0 ? e(plural($totalInCategory, 'Cookbook')) : 'No Cookbooks yet' ?></p>
   </header>
 
+  <?php if ($audience !== '' || $reassure !== ''): ?>
+    <section class="cat-landing-notes" aria-label="About this topic">
+      <?php if ($audience !== ''): ?>
+        <div class="cat-landing-card well">
+          <h2 class="cat-landing-h">Who this is for</h2>
+          <p><?= e($audience) ?></p>
+        </div>
+      <?php endif; ?>
+      <?php if ($reassure !== ''): ?>
+        <div class="cat-landing-card well">
+          <h2 class="cat-landing-h">A calm place to start</h2>
+          <p><?= e($reassure) ?></p>
+        </div>
+      <?php endif; ?>
+      <div class="cat-landing-card well">
+        <h2 class="cat-landing-h">What you can expect</h2>
+        <ul class="cat-expect-list">
+          <?php foreach (Category::outcomes($category) as $outcome): ?>
+            <li><?= e($outcome) ?></li>
+          <?php endforeach; ?>
+        </ul>
+        <p class="cat-expect-note">Each Cookbook ends with finished files you can download or copy — not financial promises.</p>
+      </div>
+    </section>
+  <?php endif; ?>
+
   <?php if ($totalInCategory > 1): ?>
     <div class="cat-filters" role="group" aria-label="Filter Cookbooks">
       <span class="cat-filter-label mono">Filter</span>
@@ -81,11 +110,17 @@ $noFilter = $filterLevel === '' && $filterShow === '';
       <?php endif; ?>
     </div>
   <?php else: ?>
-    <div class="disc-grid cat-detail-grid">
-      <?php foreach ($cookbooks as $c): ?>
-        <?php View::partial('partials/discovery-card', ['c' => $c]); ?>
-      <?php endforeach; ?>
-    </div>
+    <section class="cat-featured-books" aria-labelledby="cat-books-h">
+      <div class="section-heading">
+        <h2 id="cat-books-h">Featured Cookbooks</h2>
+        <span class="section-sub"><?= e(plural(count($cookbooks), 'guided project')) ?></span>
+      </div>
+      <div class="disc-grid cat-detail-grid">
+        <?php foreach ($cookbooks as $c): ?>
+          <?php View::partial('partials/discovery-card', ['c' => $c]); ?>
+        <?php endforeach; ?>
+      </div>
+    </section>
   <?php endif; ?>
 
   <?php if ($featuredIn !== []): ?>

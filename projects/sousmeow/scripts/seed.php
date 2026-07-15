@@ -145,6 +145,8 @@ function column_definition(string $driver, string $column): string
             'ai_experience_level'      => 'VARCHAR(20) NULL',
             'timezone'                 => 'VARCHAR(64) NULL',
             'theme_preference'         => "VARCHAR(10) NULL DEFAULT 'system'",
+            'audience'                 => 'TEXT NULL',
+            'reassure'                 => 'TEXT NULL',
             default                    => throw new \InvalidArgumentException("Unknown column: {$column}"),
         };
     }
@@ -156,12 +158,12 @@ function column_definition(string $driver, string $column): string
         'demo_avg_rating'          => 'REAL',
         'stage_position'           => 'INTEGER',
         'simulation'               => 'INTEGER NOT NULL DEFAULT 0',
-            'output_contract'          => 'TEXT',
-            'evidence_keys'            => 'TEXT',
-            'before_you_begin'         => "TEXT NOT NULL DEFAULT ''",
-            'common_problems'          => "TEXT NOT NULL DEFAULT ''",
-            'recovery_guidance'        => "TEXT NOT NULL DEFAULT ''",
-            'email_verified_at'        => 'TEXT NULL',
+        'output_contract'          => 'TEXT',
+        'evidence_keys'            => 'TEXT',
+        'before_you_begin'         => "TEXT NOT NULL DEFAULT ''",
+        'common_problems'          => "TEXT NOT NULL DEFAULT ''",
+        'recovery_guidance'        => "TEXT NOT NULL DEFAULT ''",
+        'email_verified_at'        => 'TEXT NULL',
         'verification_token_hash'  => 'TEXT NULL',
         'verification_expires_at'  => 'TEXT NULL',
         'verification_sent_at'     => 'TEXT NULL',
@@ -177,6 +179,8 @@ function column_definition(string $driver, string $column): string
         'ai_experience_level'      => 'TEXT NULL',
         'timezone'                 => 'TEXT NULL',
         'theme_preference'         => "TEXT NULL DEFAULT 'system'",
+        'audience'                 => "TEXT NOT NULL DEFAULT ''",
+        'reassure'                 => "TEXT NOT NULL DEFAULT ''",
         default                    => throw new \InvalidArgumentException("Unknown column: {$column}"),
     };
 }
@@ -249,6 +253,8 @@ function migrate_schema(PDO $pdo, string $driver): void
     ensure_column($pdo, $driver, 'recipes', 'before_you_begin', column_definition($driver, 'before_you_begin'));
     ensure_column($pdo, $driver, 'recipes', 'common_problems', column_definition($driver, 'common_problems'));
     ensure_column($pdo, $driver, 'recipes', 'recovery_guidance', column_definition($driver, 'recovery_guidance'));
+    ensure_column($pdo, $driver, 'sousmeow_categories', 'audience', column_definition($driver, 'audience'));
+    ensure_column($pdo, $driver, 'sousmeow_categories', 'reassure', column_definition($driver, 'reassure'));
 
     $userAccountColumns = [
         'email_verified_at', 'verification_token_hash', 'verification_expires_at', 'verification_sent_at',
@@ -397,19 +403,21 @@ function sync_taxonomy(array $content): array
             $existing = Database::fetch('SELECT id FROM sousmeow_categories WHERE slug = ?', [$slug]);
             if ($existing !== null) {
                 Database::run(
-                    'UPDATE sousmeow_categories SET name = ?, short_name = ?, tagline = ?, description = ?, outcomes_json = ?,
-                                           accent = ?, icon_key = ?, sort_order = ?, is_visible = ?, updated_at = ?
+                    'UPDATE sousmeow_categories SET name = ?, short_name = ?, tagline = ?, description = ?, audience = ?, reassure = ?,
+                                           outcomes_json = ?, accent = ?, icon_key = ?, sort_order = ?, is_visible = ?, updated_at = ?
                      WHERE id = ?',
-                    [$cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
+                    [$cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'],
+                     (string) ($cat['audience'] ?? ''), (string) ($cat['reassure'] ?? ''), $outcomes,
                      $cat['accent'], $cat['icon_key'] ?? null, $sortOrder, (int) ($cat['is_visible'] ?? 1), $now, $existing['id']]
                 );
                 $id = (int) $existing['id'];
             } else {
                 Database::run(
-                    'INSERT INTO sousmeow_categories (slug, name, short_name, tagline, description, outcomes_json, accent,
+                    'INSERT INTO sousmeow_categories (slug, name, short_name, tagline, description, audience, reassure, outcomes_json, accent,
                                              icon_key, sort_order, is_visible, created_at, updated_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [$slug, $cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'], $outcomes,
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [$slug, $cat['name'], $cat['short_name'] ?? null, $cat['tagline'], $cat['description'],
+                     (string) ($cat['audience'] ?? ''), (string) ($cat['reassure'] ?? ''), $outcomes,
                      $cat['accent'], $cat['icon_key'] ?? null, $sortOrder, (int) ($cat['is_visible'] ?? 1), $now, $now]
                 );
                 $id = Database::lastInsertId();
@@ -891,6 +899,10 @@ function expected_seed_files(): array
         'improve-your-linkedin-profile.php',
         'plan-a-career-change.php',
         'prepare-for-salary-negotiation.php',
+        'build-budget-and-debt-plan.php',
+        'prepare-bill-dispute.php',
+        'audit-medical-bill.php',
+        'navigate-first-home-purchase.php',
         'synthesize-interview-notes.php',
         'plan-a-lesson.php',
         'document-a-simple-process.php',

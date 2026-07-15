@@ -39,6 +39,15 @@ return [
         'min_display_count' => 3,
     ],
     [
+        'slug'              => 'money-major-decisions',
+        'name'              => 'Money & Major Decisions',
+        'tagline'           => 'Navigate important financial choices with confidence.',
+        'description'       => 'Calm, practical Cookbooks for budgets, bills, medical paperwork, and first-time homebuying. Organize the facts, prepare questions, and leave with clearer next steps — never promises or fabricated figures.',
+        'accent'            => 'harbor',
+        'collection_type'   => 'editorial',
+        'min_display_count' => 4,
+    ],
+    [
         'slug'              => 'recently-added',
         'name'              => 'Recently Added',
         'tagline'           => 'The newest additions to the library.',
