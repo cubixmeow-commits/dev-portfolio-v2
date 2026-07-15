@@ -9,6 +9,9 @@ declare(strict_types=1);
  *   php scripts/seed.php              Apply schema + seed demo data
  *   php scripts/seed.php --fresh      Drop tables first (destructive)
  *   php scripts/seed.php --status     Print health checks (read-only)
+ *
+ * Existing installs missing multi-metric columns should run:
+ *   php scripts/migrate.php
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -130,6 +133,11 @@ $schemaFile = $driver === 'mysql'
 
 echo "Applying schema ({$driver})...\n";
 exec_schema($pdo, $schemaFile);
+
+// Existing DBs keep old rly_metric_types shape under CREATE TABLE IF NOT EXISTS.
+// Ensure multi-metric columns exist before seeding into them.
+require __DIR__ . '/migrate_columns.php';
+migrate_rly_metric_types_columns($pdo, $driver);
 
 $demoPassword = Config::string('demo.password', 'rally-demo-2026');
 $passwordHash = password_hash($demoPassword, PASSWORD_DEFAULT);

@@ -91,6 +91,17 @@ php -S localhost:8091 -t public public/index.php
 
 MySQL (production): set `db.driver` to `mysql` and credentials in `config.php`, then run `php scripts/seed.php`.
 
+### Upgrading an existing install
+
+If you deployed the multi-metric code onto a database created before these columns existed, `CREATE TABLE IF NOT EXISTS` will not alter `rly_metric_types`. Run:
+
+```sh
+php scripts/migrate.php
+php scripts/migrate.php --status
+```
+
+That adds the missing columns and upserts the five metric definitions without dropping matches. For a full demo reset afterward, run `php scripts/seed.php`.
+
 ## Environment configuration
 
 | Key | Purpose |
@@ -147,8 +158,9 @@ Prepared statements only (`Database`), CSRF on every POST, password hashing (`PA
 
 1. Upload `projects/rally` and set the site document root to `.../rally/public`
 2. Copy `config.example.php` → `config.php`: `env=production`, HTTPS URL, `session.secure=true`, MySQL credentials
-3. `php scripts/seed.php` then `php scripts/seed.php --status`
-4. Ensure `storage/` is writable and not web-accessible
+3. Upgrade schema if this is an existing install: `php scripts/migrate.php`
+4. `php scripts/seed.php` (demo reseed) then `php scripts/migrate.php --status`
+5. Ensure `storage/` is writable and not web-accessible
 
 See also `docs/DEPLOYMENT.md`.
 
