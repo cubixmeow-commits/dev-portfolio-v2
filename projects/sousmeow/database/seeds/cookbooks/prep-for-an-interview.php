@@ -3,671 +3,656 @@
 declare(strict_types=1);
 
 /**
- * Prep for an Interview — executable Cookbook for career-freelance.
- *
- * Inspired by public STAR and career-center interview prep teaching. Ideas
- * only. All copy, examples, and prompts are original SousMeow work. No source
- * wording is copied.
+ * Prepare for an Interview - executable Cookbook for career-freelance.
  */
 
-$roleNeedsExample = <<<'MD'
-## Role snapshot
-Junior Product Designer at Northbeam Studio: an early-career design role where the candidate needs to show clear thinking, curiosity, and follow-through on small product problems.
+require_once __DIR__ . '/../career_helpers.php';
 
-## Likely signals
-- Can explain design choices in plain language.
-- Can work from messy input without pretending everything was obvious.
-- Can collaborate with non-design teammates and accept critique.
-- Can show basic product judgment, not only visual polish.
-
-## Evidence to prepare
-Use the student transit app redesign, the campus food-pantry sign-up flow, and the volunteer flyer project because they show research, iteration, and communication.
-
-## Unknowns to avoid
-Do not assume Northbeam Studio uses a specific design tool, has a certain client type, or wants portfolio depth beyond what the posting and your facts say.
-MD;
-
-$storyBankExample = <<<'MD'
-## Story bank
-1. Transit app redesign: interviewed classmates, found confusing route labels, changed the trip-planning flow, and tested the new labels with five students.
-2. Food-pantry sign-up flow: simplified an intake form after volunteers said people abandoned it.
-3. Volunteer flyer project: made three versions, heard critique from the organizer, and revised the hierarchy.
-4. Capstone handoff: organized Figma frames and wrote notes so a developer could understand states.
-
-## Best raw details
-- Five student test sessions for the transit app.
-- Abandoned form problem on the pantry project.
-- Critique led to a clearer flyer hierarchy.
-- Handoff notes made the capstone easier to review.
-
-## Gaps to fill
-Add exact dates, your role on any team project, and one measurable outcome if you have it. If you do not have a metric, say what changed without numbers.
-
-## Keep off limits
-Do not claim paid client work, conversion lift, or senior leadership responsibility unless those facts are true.
-MD;
-
-$skillTagsExample = <<<'MD'
-## Skill map
-- User research: transit app interviews; food-pantry volunteer feedback.
-- Interaction design: transit trip-planning flow; pantry sign-up flow.
-- Visual hierarchy: volunteer flyer revisions.
-- Collaboration: capstone handoff notes and critique response.
-- Product judgment: choosing simpler labels and fewer form fields.
-
-## Best evidence stories
-Lead with the transit app for research plus design reasoning. Use the food-pantry flow when asked about simplifying a user journey. Use the flyer when asked about feedback.
-
-## Claims to avoid
-Avoid saying "I owned product strategy," "I increased sign-ups," or "I led a team" unless you can prove those details.
-
-## Next draft inputs
-Turn the transit app, pantry flow, and flyer stories into 60- to 90-second answers. Keep the capstone handoff as a shorter support example.
-MD;
-
-$starAnswersExample = <<<'MD'
-## STAR answer drafts
-1. Tell me about a design problem you solved.
-Situation: In a class project, the student transit app made route choices hard to scan. Task: I needed to make trip planning clearer for students. Action: I interviewed classmates, noticed route labels caused hesitation, redesigned the flow, and tested new labels with five students. Result: The revised flow was easier to explain, and I learned to test wording before polishing screens.
-
-2. Tell me about feedback you used.
-Situation: A volunteer organizer said my first flyer version buried the event details. Task: I needed to make the flyer easier to act on. Action: I made three versions, asked what was still hard to find, and revised the hierarchy. Result: The final version put date, place, and sign-up action first.
-
-## Strongest proof
-The transit story shows research, interaction design, and product judgment in one answer.
-
-## Shorten for speaking
-Keep each answer under 90 seconds by naming the problem, one action, and one result. Leave side details for follow-up questions.
-
-## Follow-up details
-Be ready to explain what changed in the route labels, what you asked in interviews, and what you would test next.
-MD;
-
-$hardRepliesExample = <<<'MD'
-## Hard question replies
-1. Why are you ready for this role if you are junior?
-I am early in my career, and my strongest pattern is learning quickly from real users and critique. In the transit app and food-pantry projects, I used feedback to make flows clearer instead of defending my first draft.
-
-2. What is a weakness in your portfolio?
-I have fewer shipped examples than an experienced designer. I can be clear about what was class, volunteer, or capstone work, and I can show how I made decisions inside those constraints.
-
-3. Tell me about a time you disagreed with feedback.
-On the flyer project, I first thought the visual style was the issue, but the organizer's feedback showed the action details were buried. I changed the hierarchy and learned to separate taste from usability.
-
-## Bridge back to evidence
-When a question feels broad, return to one real project, the choice you made, and what you learned.
-
-## Lines not to use
-Do not say you have no weaknesses, that you work best alone, or that Northbeam Studio is your dream company unless you have a real reason ready.
-
-## Calm practice note
-Pause before answering. It is fine to say, "Let me use the transit app project as the example."
-MD;
-
-$questionsAskExample = <<<'MD'
-## Questions to ask
-1. What kinds of design problems would a junior designer handle in the first three months?
-2. How does the team give feedback on early design work?
-3. What makes a junior designer successful at Northbeam Studio?
-4. How do designers learn about users or clients before a project starts?
-
-## Why these work
-They focus on the role, feedback, learning, and work process without pretending you know how Northbeam Studio operates.
-
-## Questions to skip
-Skip questions about salary, promotion timelines, or remote rules until the right stage unless the interviewer opens that topic.
-MD;
-
-$rehearsalPlanExample = <<<'MD'
-## Rehearsal schedule
-- Round 1: Read the three main stories out loud once without timing.
-- Round 2: Answer five likely questions, aiming for 60 to 90 seconds each.
-- Round 3: Practice the hard-question replies with one pause before each answer.
-- Final pass: Ask your four questions out loud so they sound natural.
-
-## Out-loud drills
-1. Start each story with one sentence of context.
-2. Say the action in active voice: "I interviewed," "I revised," "I tested."
-3. End with what changed or what you learned.
-
-## Feedback checklist
-- [ ] Answer names a real project.
-- [ ] Action is clear.
-- [ ] Result or learning is honest.
-- [ ] No invented company facts.
-
-## If I freeze
-Say, "I can answer that with the transit app project," then use Situation, Task, Action, Result in order.
-MD;
-
-$dayChecklistExample = <<<'MD'
-## Day-of checklist
-- [ ] Portfolio link opens.
-- [ ] Three story titles are written on one note card.
-- [ ] Interview time, format, and link or address are confirmed.
-- [ ] Questions to ask are copied somewhere easy to find.
-- [ ] Water, charger, and quiet space are ready if remote.
-
-## Story cheat sheet
-- Transit app: research, labels, tested flow.
-- Food-pantry flow: simplified form after volunteer feedback.
-- Flyer project: critique, hierarchy, clearer action.
-
-## Opening note
-"I am excited to talk about the junior product designer role and how my class and volunteer projects have helped me practice research, iteration, and clear handoff."
-
-## After-interview follow-up
-Send a brief thank-you that names one real topic from the conversation and restates interest without adding new claims.
-MD;
+$factRule = SM_CAREER_FACT_RULE;
+$sections = static fn(array $rows): array => array_map(
+    static fn(array $row): array => ['key' => $row[0], 'heading' => $row[1], 'required' => true],
+    $rows
+);
 
 return [
     'slug'                => 'prep-for-an-interview',
-    'title'               => 'Prep for an Interview',
-    'tagline'             => 'Turn real stories into interview answers you can rehearse.',
-    'description'         => "Interviews get easier when your real examples are already sorted. This Cookbook helps you map what the role needs, choose honest stories, turn them into clear answers, prepare hard-question replies, and rehearse out loud. Enter only facts you know about the role, company or client, your background, and the format. Every prompt is told not to invent company facts, achievements, or interview logistics.",
+    'title'               => 'Prepare for an Interview',
+    'tagline'             => 'Build STAR stories and run a one-question mock interview.',
+    'description'         => 'Interview prep works best when it is grounded in the role, your real evidence, and short spoken practice. This Cookbook turns a job description and truthful achievements into criteria, STAR stories, predicted questions, answer frameworks, a one-question mock interview protocol, improvement notes, employer questions, and follow-up messages. ' . sm_career_beginner_footer('an interview criteria brief, STAR story bank, mock interview prompt, answer improvement notes, employer question list, and thank-you email', 7, 'about 75 minutes'),
     'primary_category'    => 'career-freelance',
     'collections'         => ['start-here', 'selected-by-sousmeow'],
-    'audience'            => 'Job seekers, freelancers, and students preparing for an interview with real stories instead of memorized scripts',
-    'outcome'             => 'role-needs map, story bank, skill tags, STAR answers, hard-question replies, questions to ask, rehearsal plan, and day-of checklist',
+    'audience'            => 'Job seekers, freelancers, students, and career changers preparing for a real interview without inventing experience',
+    'outcome'             => 'interview criteria brief, STAR story bank, predicted question set, answer preparation sheet, mock interview prompt, answer improvement notes, employer question list, and thank-you email',
     'price_cents'         => null,
     'is_executable'       => true,
     'accent'              => 'indigo',
     'difficulty'          => 'Beginner',
-    'est_minutes'         => 35,
-    'demo_completed_runs' => 356,
-    'demo_avg_rating'     => 4.8,
+    'est_minutes'         => 75,
+    'demo_completed_runs' => 0,
+    'demo_avg_rating'     => null,
     'sort_order'          => 19,
     'stages' => [
-        ['title' => 'Stories', 'summary' => 'Find role needs and choose honest examples before drafting answers.'],
-        ['title' => 'Answers', 'summary' => 'Turn selected stories into clear replies for likely and hard questions.'],
-        ['title' => 'Rehearse', 'summary' => 'Prepare questions, practice out loud, and pack the day-of checklist.'],
+        ['title' => 'Read the role', 'summary' => 'Translate the job facts into honest evaluation criteria.'],
+        ['title' => 'Choose evidence', 'summary' => 'Build STAR stories and predict likely interview questions.'],
+        ['title' => 'Practice aloud', 'summary' => 'Prepare answer frameworks and run a one-question mock interview protocol.'],
+        ['title' => 'Pack the follow-up', 'summary' => 'Review answer quality and finish final-day notes.'],
     ],
     'fields' => [
         [
-            'field_key'    => 'role_title',
-            'label'        => 'Role title',
+            'field_key'    => 'target_role',
+            'label'        => 'Target role',
             'type'         => 'text',
-            'help'         => 'Use the exact role or opportunity name if you have it.',
-            'placeholder'  => 'e.g. Junior product designer',
-            'sample_value' => 'Junior product designer',
+            'help'         => 'Use the exact title if you have it.',
+            'placeholder'  => 'e.g. Customer success manager',
+            'sample_value' => 'Customer success manager',
         ],
         [
-            'field_key'    => 'company_or_client',
-            'label'        => 'Company or client',
+            'field_key'    => 'target_industry',
+            'label'        => 'Target industry',
             'type'         => 'text',
-            'help'         => 'Name the organization or person interviewing you. If unknown, say unknown.',
-            'placeholder'  => 'e.g. Northbeam Studio',
-            'sample_value' => 'Northbeam Studio',
+            'help'         => 'Name the industry, customer type, or context if known. If unknown, say unknown.',
+            'placeholder'  => 'e.g. B2B education software',
+            'sample_value' => 'B2B education software',
         ],
         [
-            'field_key'    => 'your_background',
-            'label'        => 'Your background',
+            'field_key'    => 'job_description',
+            'label'        => 'Job description or interview brief',
             'type'         => 'textarea',
-            'help'         => 'A short honest summary of your experience, training, and constraints.',
-            'placeholder'  => 'e.g. Recent bootcamp graduate with two class projects...',
-            'sample_value' => 'Recent design certificate graduate with class projects in mobile flows, volunteer design work, and a capstone handoff. No full-time product design role yet.',
+            'help'         => sm_career_privacy_pantry_help('Paste only the role details needed for interview prep.'),
+            'placeholder'  => "Responsibilities, requirements, interview format, and employer notes you actually have.",
+            'sample_value' => "Own onboarding for school district accounts\nExplain product workflows to non-technical users\nTrack customer health and escalate risks\nInterview is a 45-minute video call with the hiring manager",
         ],
         [
-            'field_key'    => 'stories_you_have',
-            'label'        => 'Stories you can tell',
+            'field_key'    => 'current_role',
+            'label'        => 'Current or most recent role',
+            'type'         => 'text',
+            'help'         => 'Use your real role, student status, freelance focus, or volunteer role.',
+            'placeholder'  => 'e.g. Support specialist',
+            'sample_value' => 'Support specialist',
+        ],
+        [
+            'field_key'    => 'years_experience',
+            'label'        => 'Years of relevant experience',
+            'type'         => 'text',
+            'help'         => 'Use a truthful range or short explanation. Do not round up if it changes the meaning.',
+            'placeholder'  => 'e.g. 3 years in support, 1 year onboarding users',
+            'sample_value' => '3 years in support, including 1 year onboarding small business customers',
+        ],
+        [
+            'field_key'    => 'strongest_achievements',
+            'label'        => 'Strongest achievements and stories',
             'type'         => 'textarea',
-            'help'         => 'Projects, jobs, volunteer work, class work, conflicts, saves, or lessons. One per line if possible.',
-            'placeholder'  => "Project, what happened, what you did\nAnother story...",
-            'sample_value' => "Student transit app redesign: interviewed classmates, changed confusing route labels, tested with five students\nFood-pantry sign-up flow: simplified intake after volunteers said people abandoned it\nVolunteer flyer project: used organizer critique to revise visual hierarchy\nCapstone handoff: organized Figma states and notes for developer review",
+            'help'         => 'List real projects, saves, improvements, feedback, or responsibilities. Metrics are optional; only include numbers you can verify.',
+            'placeholder'  => "Resolved recurring billing confusion by writing a help guide\nTrained new support teammate...",
+            'sample_value' => "Created a new onboarding checklist after customers missed setup steps\nHandled escalations for a regional nonprofit account and kept renewal conversation on track\nTrained two new support teammates on ticket triage\nBuilt a simple spreadsheet to spot accounts with repeated setup questions",
         ],
         [
-            'field_key'    => 'skills_to_show',
-            'label'        => 'Skills you want to show',
+            'field_key'    => 'existing_resume',
+            'label'        => 'Resume or profile notes (optional)',
             'type'         => 'textarea',
-            'help'         => 'Skills from the posting or your goal. Do not add skills you cannot support with a story.',
-            'placeholder'  => "User research\nCollaboration\nClear communication",
-            'sample_value' => "User research\nInteraction design\nVisual hierarchy\nCollaboration\nProduct judgment\nClear handoff",
+            'help'         => sm_career_privacy_pantry_help('Use this only for career facts that help interview prep; redact contact details before pasting.'),
+            'placeholder'  => 'Paste selected bullets or profile notes, not your full contact block.',
+            'sample_value' => "Support Specialist, LumaDesk, 2021-present\nCustomer Success Certificate, 2024\nVolunteer tech help desk for neighborhood library, 2022-2023",
+            'required'     => 0,
         ],
         [
-            'field_key'    => 'questions_you_fear',
-            'label'        => 'Questions you are worried about',
-            'type'         => 'textarea',
-            'help'         => 'List the questions that make you freeze, including gaps or weaknesses.',
-            'placeholder'  => "Why should we hire you?\nTell me about a weakness...",
-            'sample_value' => "Why are you ready for this role if you are junior?\nWhat is a weakness in your portfolio?\nTell me about a time you disagreed with feedback",
-        ],
-        [
-            'field_key'    => 'interview_format',
-            'label'        => 'Interview format',
+            'field_key'    => 'preferred_tone',
+            'label'        => 'Preferred answer tone',
             'type'         => 'select',
-            'help'         => 'Pick the closest known format. If details are unknown, use the closest fit and do not invent logistics.',
-            'options'      => [
-                'Phone screen',
-                'Video interview',
-                'In-person interview',
-                'Panel interview',
-                'Portfolio review',
-                'Unknown',
-            ],
-            'sample_value' => 'Video interview',
+            'help'         => 'Choose the speaking style you want the interview answers to practice.',
+            'options'      => ['Warm and clear', 'Calm and concise', 'Confident but modest', 'Formal and careful'],
+            'sample_value' => 'Calm and concise',
+        ],
+        [
+            'field_key'    => 'constraints_or_concerns',
+            'label'        => 'Constraints or concerns',
+            'type'         => 'textarea',
+            'help'         => 'Name gaps, nerves, schedule constraints, or questions you fear. The prompts will not hide real gaps.',
+            'placeholder'  => 'e.g. Concerned about not having the exact industry background.',
+            'sample_value' => 'I have not worked directly in education software. I tend to ramble when asked about conflict.',
         ],
     ],
     'recipes' => [
-        [
-            'stage_position'   => 1,
-            'slug'             => 'map-role-needs',
-            'title'            => 'Map what the role needs',
-            'summary'          => 'Translate the role, company or client, and your target skills into interview signals to prepare for.',
-            'why_it_matters'   => 'Good answers start with what the role needs to hear, not with memorized slogans. This step separates known role facts from guesses. Common mistakes: inventing company values, assuming interviewer priorities, or trying to prove every possible skill. Need help if the output sounds too certain? Paste again and require "unknown" where evidence is missing. You are ready when the role needs are specific but honest.',
-            'unlocks_text'     => 'Approving unlocks the story bank.',
-            'est_minutes'      => 5,
-            'prompt_template'  => <<<'TXT'
-You are an interview prep coach. Use ONLY the pantry facts. Do not invent company values, interviewer names, hiring criteria, pay, or team structure.
+        sm_career_recipe([
+            'stage_position'    => 1,
+            'slug'              => 'analyze-evaluation-criteria',
+            'title'             => 'Analyze evaluation criteria',
+            'summary'           => 'Turn the job description into a brief of likely skills, proof needs, and unknowns to avoid.',
+            'why_it_matters'    => 'Interview answers land better when they answer the role instead of reciting a generic pitch. This step separates supplied facts from reasonable preparation targets. It also makes missing information visible before the story work begins.',
+            'unlocks_text'      => 'Approving unlocks the STAR story bank and predicted question set.',
+            'before_you_begin'  => 'Have the job description, interview invitation, and any recruiter notes nearby. Remove private contact information before pasting. If the role details are thin, say what is unknown instead of filling it in.',
+            'common_problems'   => 'The AI may sound too certain about employer culture or hidden hiring criteria. It may also over-weight keywords that appear once. Keep only criteria supported by the role facts.',
+            'recovery_guidance' => 'If the brief invents employer facts, rerun the prompt and ask it to move unsupported ideas to Unknowns. If the criteria feel too broad, add more posting details or ask for the top five signals only.',
+            'est_minutes'       => 10,
+            'prompt_template'   => <<<TXT
+You are an interview preparation coach. Fact rule: {$factRule}
 
-Role: {{role_title}}
-Company/client: {{company_or_client}}
-Background:
-{{your_background}}
-Skills to show:
-{{skills_to_show}}
-Interview format: {{interview_format}}
+Target role: {{target_role}}
+Target industry: {{target_industry}}
+Job description or interview brief:
+{{job_description}}
+Current role: {{current_role}}
+Years of relevant experience: {{years_experience}}
+Concerns:
+{{constraints_or_concerns}}
 
 Produce Markdown with these exact headings:
 
 ## Role snapshot
-Two sentences naming the opportunity and what the candidate must show from the facts.
+Two or three sentences describing the opportunity using only supplied facts.
 
-## Likely signals
-Four to six bullets of skills or behaviors to demonstrate. Mark uncertainty if inferred.
+## Likely evaluation criteria
+Five to seven bullets naming skills, behaviors, or evidence areas the interviewer may evaluate. Mark inferred items as inferred.
 
 ## Evidence to prepare
-One short paragraph naming which pantry stories or background facts can support those signals.
+Three to five evidence types the candidate should be ready to discuss.
 
-## Unknowns to avoid
-Three to five things not to claim because they were not supplied.
+## Unknowns and boundaries
+Facts not supplied that should not be claimed or guessed.
 
-Keep headings in order. Under 260 words. Invent nothing.
+## Preparation focus
+One short paragraph naming the highest-leverage prep focus for this interview.
+
+Keep the headings in order. Do not wrap the response in a code fence.
 TXT,
-            'example_response' => $roleNeedsExample,
-            'output_sections' => [
-                ['key' => 'role_snapshot', 'heading' => 'Role snapshot', 'required' => true],
-                ['key' => 'likely_signals', 'heading' => 'Likely signals', 'required' => true],
-                ['key' => 'evidence_to_prepare', 'heading' => 'Evidence to prepare', 'required' => true],
-                ['key' => 'unknowns_to_avoid', 'heading' => 'Unknowns to avoid', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Role snapshot
+The target role is Customer Success Manager in B2B education software. The supplied brief emphasizes onboarding school district accounts, explaining workflows to non-technical users, tracking account health, and escalating risks during a 45-minute video call.
+
+## Likely evaluation criteria
+- Can explain product steps clearly to non-technical customers.
+- Can organize onboarding work and prevent missed setup steps.
+- Can notice account risk and escalate calmly.
+- Can connect support experience to customer success work.
+- Inferred: can speak with school district stakeholders without pretending prior district experience.
+
+## Evidence to prepare
+- Onboarding checklist story.
+- Regional nonprofit escalation story.
+- Training two support teammates.
+- Spreadsheet for repeated setup questions.
+
+## Unknowns and boundaries
+Do not claim education software experience. Do not assume the manager's priorities beyond the brief. Do not invent customer retention metrics, renewal outcomes, or product tools.
+
+## Preparation focus
+Prepare concise stories showing customer communication, onboarding structure, and risk escalation while naming the education-software gap honestly.
+MD,
+            'output_sections'   => $sections([
+                ['role_snapshot', 'Role snapshot'],
+                ['likely_evaluation_criteria', 'Likely evaluation criteria'],
+                ['evidence_to_prepare', 'Evidence to prepare'],
+                ['unknowns_and_boundaries', 'Unknowns and boundaries'],
+                ['preparation_focus', 'Preparation focus'],
+            ]),
             'checks' => [
-                ['label' => 'Role facts stay honest', 'help' => 'The snapshot does not invent company details or interviewer priorities.',
-                 'evidence_sections' => ['role_snapshot', 'unknowns_to_avoid']],
-                ['label' => 'Signals connect to skills', 'help' => 'The likely signals reflect skills you entered, not random traits.',
-                 'evidence_sections' => ['likely_signals']],
-                ['label' => 'Evidence is prepare-able', 'help' => 'You can point to real background or story material for the signals.',
-                 'evidence_sections' => ['evidence_to_prepare']],
+                ['label' => 'Criteria are grounded', 'help' => 'Every criterion connects to the posting or is clearly marked inferred.', 'evidence_sections' => ['likely_evaluation_criteria']],
+                ['label' => 'No employer fiction', 'help' => 'The brief does not invent culture, interviewers, software stack, or hidden priorities.', 'evidence_sections' => ['role_snapshot', 'unknowns_and_boundaries']],
+                ['label' => 'Prep focus is usable', 'help' => 'The focus points to specific stories or skills to prepare next.', 'evidence_sections' => ['preparation_focus']],
             ],
-        ],
-        [
-            'stage_position'   => 1,
-            'slug'             => 'pick-story-bank',
-            'title'            => 'Pick your story bank',
-            'summary'          => 'Choose the strongest real examples and note what details are still missing.',
-            'why_it_matters'   => 'Interview answers feel steadier when you have a small bank of true stories. This step keeps weak or invented stories out. Common mistakes: turning every project into a heroic save, adding metrics you do not have, or ignoring small but useful examples. Need help if a story sounds inflated? Paste again and ask for plain one-line story summaries. You are ready when each story has a real action you took.',
-            'unlocks_text'     => 'Approving unlocks skill tagging for each story.',
-            'est_minutes'      => 5,
-            'prompt_template'  => <<<'TXT'
-You are helping choose interview stories. Use ONLY the pantry facts and approved role map. Do not invent outcomes, titles, metrics, clients, or responsibilities.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 2,
+            'slug'              => 'build-star-story-bank',
+            'title'             => 'Build STAR story bank',
+            'summary'           => 'Choose true stories and map each one into situation, task, action, result, and evidence gaps.',
+            'why_it_matters'    => 'A small bank of truthful stories is easier to remember than a pile of scripted answers. STAR structure keeps context short and action visible. This step prevents inflated metrics by naming missing proof instead of inventing it.',
+            'unlocks_text'      => 'Approving unlocks predicted interview questions.',
+            'before_you_begin'  => 'Review your achievements and resume notes. Keep only stories you can discuss honestly under your own name. If a metric is missing, leave it missing.',
+            'common_problems'   => 'Common issues include turning team work into solo ownership, adding unverified numbers, or choosing only impressive stories that do not fit the role. Another risk is making every story too long to say aloud.',
+            'recovery_guidance' => 'If a story overclaims, rewrite it with your exact action and the known result or learning. If the bank feels thin, add smaller real examples rather than asking the AI to make examples up.',
+            'est_minutes'       => 12,
+            'prompt_template'   => <<<TXT
+You are helping build an interview STAR story bank. Fact rule: {$factRule}
 
-Role: {{role_title}}
-Company/client: {{company_or_client}}
-Stories available:
-{{stories_you_have}}
-Background:
-{{your_background}}
+Strongest achievements and stories:
+{{strongest_achievements}}
+Existing resume or profile notes:
+{{existing_resume}}
+Preferred tone: {{preferred_tone}}
 
-Approved role map:
-{{artifact:map-role-needs}}
+Approved criteria brief:
+{{artifact:analyze-evaluation-criteria}}
 
 Produce Markdown with these exact headings:
 
 ## Story bank
-A numbered list of 3 to 5 real stories. For each: situation, action the candidate took, and honest result or learning.
+Four to six numbered stories. For each, include Situation, Task, Action, Result or Learning. Use only supplied facts.
 
-## Best raw details
-Bullets of concrete details worth remembering. Use only details provided.
+## Best-fit criteria
+Map each story to one or two criteria from the approved brief.
 
-## Gaps to fill
-Details the candidate should look up before rehearsing, such as dates or exact role. Do not fill them in.
-
-## Keep off limits
-Claims that should not be made without evidence.
-
-Keep headings in order. Under 320 words.
-TXT,
-            'example_response' => $storyBankExample,
-            'output_sections' => [
-                ['key' => 'story_bank', 'heading' => 'Story bank', 'required' => true],
-                ['key' => 'best_raw_details', 'heading' => 'Best raw details', 'required' => true],
-                ['key' => 'gaps_to_fill', 'heading' => 'Gaps to fill', 'required' => true],
-                ['key' => 'keep_off_limits', 'heading' => 'Keep off limits', 'required' => true],
-            ],
-            'checks' => [
-                ['label' => 'Stories are real', 'help' => 'Every story comes from your entered background or story list.',
-                 'evidence_sections' => ['story_bank']],
-                ['label' => 'Missing details stay missing', 'help' => 'The output asks you to fill gaps instead of inventing them.',
-                 'evidence_sections' => ['gaps_to_fill']],
-                ['label' => 'Inflated claims are blocked', 'help' => 'Off-limit claims protect you from overstating experience.',
-                 'evidence_sections' => ['keep_off_limits']],
-            ],
-        ],
-        [
-            'stage_position'   => 1,
-            'slug'             => 'tag-stories-to-skills',
-            'title'            => 'Tag stories to skills',
-            'summary'          => 'Match each useful story to the skills it can honestly prove.',
-            'why_it_matters'   => 'A good story can answer more than one question if you know which skill it proves. This step makes that map visible. Common mistakes: claiming a skill with no story, using one story for everything, or hiding the strongest example. Need help if the map feels thin? Add more real stories rather than letting the AI invent proof. You are ready when each target skill has at least one honest example or is marked as a gap.',
-            'unlocks_text'     => 'Approving unlocks STAR answer drafts.',
-            'est_minutes'      => 4,
-            'prompt_template'  => <<<'TXT'
-You are mapping interview stories to skills. Use ONLY the pantry facts and approved artifacts. Do not invent achievements, team size, metrics, or tools.
-
-Skills to show:
-{{skills_to_show}}
-
-Approved role map:
-{{artifact:map-role-needs}}
-
-Approved story bank:
-{{artifact:pick-story-bank}}
-
-Produce Markdown with these exact headings:
-
-## Skill map
-Bullets mapping each target skill to one or two story names.
-
-## Best evidence stories
-Name the top 2 or 3 stories to use most often and why.
+## Evidence gaps
+List missing dates, metrics, names, or details the candidate should verify. Do not fill them in.
 
 ## Claims to avoid
-Skill claims that are unsupported by the stories.
+Unsupported claims the candidate should not say.
 
-## Next draft inputs
-Which stories should become full answers in the next step.
-
-Keep headings in order. Under 260 words. Invent nothing.
+Keep the headings in order and use a spoken, practical tone.
 TXT,
-            'example_response' => $skillTagsExample,
-            'output_sections' => [
-                ['key' => 'skill_map', 'heading' => 'Skill map', 'required' => true],
-                ['key' => 'best_evidence_stories', 'heading' => 'Best evidence stories', 'required' => true],
-                ['key' => 'claims_to_avoid', 'heading' => 'Claims to avoid', 'required' => true],
-                ['key' => 'next_draft_inputs', 'heading' => 'Next draft inputs', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Story bank
+1. Onboarding checklist: Situation: customers were missing setup steps. Task: make onboarding easier to follow. Action: created a checklist from repeated support questions. Result or Learning: customers had a clearer path, and I learned to turn support patterns into proactive guidance.
+2. Nonprofit escalation: Situation: a regional nonprofit account had repeated confusion before renewal. Task: keep the conversation organized and calm. Action: summarized open issues, escalated the risk, and tracked follow-up. Result or Learning: the renewal conversation stayed on track without hiding the risk.
+3. Teammate training: Situation: two new teammates needed ticket triage support. Task: help them handle early queues. Action: walked them through examples and decision rules. Result or Learning: I practiced explaining process clearly.
+4. Setup-question spreadsheet: Situation: similar setup questions kept appearing. Task: spot patterns. Action: made a simple spreadsheet of repeated questions. Result or Learning: it helped me see which onboarding topics needed clearer guidance.
+
+## Best-fit criteria
+- Onboarding checklist: organizing onboarding work; explaining workflows.
+- Nonprofit escalation: tracking account risk; escalating calmly.
+- Teammate training: clear communication; process explanation.
+- Setup-question spreadsheet: noticing patterns; proactive customer success thinking.
+
+## Evidence gaps
+- Exact dates for the checklist and spreadsheet.
+- Whether any customer-facing guide was formally adopted.
+- Any verified renewal or satisfaction outcome.
+
+## Claims to avoid
+Do not claim district experience, retention lift, customer health ownership, or formal management responsibility unless verified.
+MD,
+            'output_sections'   => $sections([
+                ['story_bank', 'Story bank'],
+                ['best_fit_criteria', 'Best-fit criteria'],
+                ['evidence_gaps', 'Evidence gaps'],
+                ['claims_to_avoid', 'Claims to avoid'],
+            ]),
             'checks' => [
-                ['label' => 'Skills have evidence', 'help' => 'Each skill points to a named real story or clear gap.',
-                 'evidence_sections' => ['skill_map']],
-                ['label' => 'Strongest stories stand out', 'help' => 'You know which examples to practice first.',
-                 'evidence_sections' => ['best_evidence_stories']],
-                ['label' => 'Unsupported claims are visible', 'help' => 'The map says what not to overstate.',
-                 'evidence_sections' => ['claims_to_avoid']],
+                ['label' => 'Stories are real', 'help' => 'Each story comes from the supplied achievements or resume notes.', 'evidence_sections' => ['story_bank']],
+                ['label' => 'Actions are visible', 'help' => 'Every story names what the candidate personally did.', 'evidence_sections' => ['story_bank']],
+                ['label' => 'Gaps are not invented', 'help' => 'Missing details are listed as gaps, not silently filled.', 'evidence_sections' => ['evidence_gaps', 'claims_to_avoid']],
             ],
-        ],
-        [
-            'stage_position'   => 2,
-            'slug'             => 'draft-star-answers',
-            'title'            => 'Draft STAR answers',
-            'summary'          => 'Turn your best stories into spoken answers with situation, task, action, and result.',
-            'why_it_matters'   => 'STAR answers stop you from rambling when a question is broad. This step keeps answers short enough to say out loud while preserving real evidence. Common mistakes: spending too long on context, making the result sound bigger than it was, or writing like a cover letter. Need help if it sounds stiff? Paste again and ask for conversational wording under 90 seconds. You are ready when each answer has action and result, not just background.',
-            'unlocks_text'     => 'Approving unlocks replies for hard questions.',
-            'est_minutes'      => 7,
-            'prompt_template'  => <<<'TXT'
-You are drafting interview answers for speaking. Use ONLY the pantry facts and approved artifacts. Do not invent metrics, job offers, praise, or company facts.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 2,
+            'slug'              => 'predict-interview-questions',
+            'title'             => 'Predict interview questions',
+            'summary'           => 'Create a likely question set tied to the criteria and story bank.',
+            'why_it_matters'    => 'Predicted questions help you practice patterns without memorizing every possible answer. This step keeps the question list tied to evidence and role facts. It also names questions you should answer with boundaries instead of bluffing.',
+            'unlocks_text'      => 'Approving unlocks the answer preparation sheet.',
+            'before_you_begin'  => 'Review the criteria brief and story bank. Add any recruiter-provided interview format details to the job description if you have them. Keep salary or benefits questions out unless the interview stage calls for them.',
+            'common_problems'   => "Question lists often become generic or assume a panel, case study, or technical screen not in the invite. They can also dodge the candidate's real concerns. Keep the set realistic and useful for this interview.",
+            'recovery_guidance' => 'If the questions are generic, rerun with the criteria and ask for questions that each test one named signal. If it invents interview logistics, move those assumptions to a separate unknowns list.',
+            'est_minutes'       => 8,
+            'prompt_template'   => <<<TXT
+You are predicting practical interview questions for preparation. Fact rule: {$factRule}
 
-Role: {{role_title}}
-Interview format: {{interview_format}}
+Target role: {{target_role}}
+Target industry: {{target_industry}}
+Job description or interview brief:
+{{job_description}}
+Concerns:
+{{constraints_or_concerns}}
 
-Approved story bank:
-{{artifact:pick-story-bank}}
+Approved criteria brief:
+{{artifact:analyze-evaluation-criteria}}
 
-Approved skill map:
-{{artifact:tag-stories-to-skills}}
+Approved STAR story bank:
+{{artifact:build-star-story-bank}}
 
 Produce Markdown with these exact headings:
 
-## STAR answer drafts
-Draft 2 or 3 answers. For each: likely question, Situation, Task, Action, Result. Keep results honest and modest if needed.
+## Predicted question set
+Eight to ten likely questions. Include behavioral, role-fit, gap, and candidate-question prompts when supported by the facts.
 
-## Strongest proof
-Name the answer with the best evidence and why.
+## What each question tests
+Map each question to the likely criterion or concern it tests.
 
-## Shorten for speaking
-Rules to keep each answer around 60 to 90 seconds.
+## Best story to use
+Suggest the best approved story for each major question type.
 
-## Follow-up details
-Facts the candidate should be ready to explain if asked.
+## Questions to handle carefully
+Questions where the candidate should name a gap, uncertainty, or boundary instead of overclaiming.
 
-Keep headings in order. Under 420 words. Spoken, plain language.
+Keep the headings in order. Do not invent interview rounds or employer facts.
 TXT,
-            'example_response' => $starAnswersExample,
-            'output_sections' => [
-                ['key' => 'star_answer_drafts', 'heading' => 'STAR answer drafts', 'required' => true],
-                ['key' => 'strongest_proof', 'heading' => 'Strongest proof', 'required' => true],
-                ['key' => 'shorten_for_speaking', 'heading' => 'Shorten for speaking', 'required' => true],
-                ['key' => 'follow_up_details', 'heading' => 'Follow-up details', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Predicted question set
+1. Tell me about your experience onboarding customers.
+2. Describe a time you explained a workflow to someone non-technical.
+3. Tell me about a customer risk you noticed and escalated.
+4. How would you approach learning education software customers?
+5. What support habits would help you in customer success?
+6. Tell me about a time you improved a process.
+7. How do you keep track of follow-up across several accounts?
+8. What would you want to learn in your first month?
+9. Tell me about a time you trained or coached someone.
+
+## What each question tests
+Questions 1, 2, and 6 test onboarding and communication. Question 3 tests risk escalation. Questions 4 and 8 test honest learning posture. Questions 5, 7, and 9 test transfer from support to customer success.
+
+## Best story to use
+Use the onboarding checklist for questions 1 and 6. Use the nonprofit escalation for question 3. Use teammate training for question 2 or 9. Use the setup-question spreadsheet for follow-up and pattern tracking.
+
+## Questions to handle carefully
+Handle education software questions carefully: name that the direct industry background is missing, then show how you learn customer context. Do not imply ownership of renewals or district relationships unless verified.
+MD,
+            'output_sections'   => $sections([
+                ['predicted_question_set', 'Predicted question set'],
+                ['what_each_question_tests', 'What each question tests'],
+                ['best_story_to_use', 'Best story to use'],
+                ['questions_to_handle_carefully', 'Questions to handle carefully'],
+            ]),
             'checks' => [
-                ['label' => 'Each answer has action', 'help' => 'The candidate did something specific in every STAR answer.',
-                 'evidence_sections' => ['star_answer_drafts']],
-                ['label' => 'Results are honest', 'help' => 'No fake metrics or invented praise appear in the results.',
-                 'evidence_sections' => ['star_answer_drafts', 'strongest_proof']],
-                ['label' => 'Ready to say aloud', 'help' => 'The shortening advice makes the answers practiceable.',
-                 'evidence_sections' => ['shorten_for_speaking']],
+                ['label' => 'Questions fit the role', 'help' => 'The set reflects the criteria brief and supplied interview facts.', 'evidence_sections' => ['predicted_question_set', 'what_each_question_tests']],
+                ['label' => 'Stories are reusable', 'help' => 'Major question types point back to approved stories.', 'evidence_sections' => ['best_story_to_use']],
+                ['label' => 'Gaps are handled honestly', 'help' => 'Careful questions identify where to avoid bluffing.', 'evidence_sections' => ['questions_to_handle_carefully']],
             ],
-        ],
-        [
-            'stage_position'   => 2,
-            'slug'             => 'draft-hard-question-replies',
-            'title'            => 'Draft hard-question replies',
-            'summary'          => 'Prepare calm, honest replies for the questions that make you freeze.',
-            'why_it_matters'   => 'Hard questions are easier when you have a truthful bridge back to evidence. This step avoids defensiveness and fake confidence. Common mistakes: dodging the question, inventing a perfect weakness, or apologizing for every gap. Need help if an answer sounds too polished? Paste again and ask for simpler wording that names the real constraint. You are ready when each hard reply admits the issue and returns to proof.',
-            'unlocks_text'     => 'Approving unlocks questions you can ask the interviewer.',
-            'est_minutes'      => 6,
-            'prompt_template'  => <<<'TXT'
-You are preparing honest replies to hard interview questions. Use ONLY the pantry facts and approved answers. Do not invent weaknesses, excuses, achievements, or interviewer concerns.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 3,
+            'slug'              => 'prepare-answer-frameworks',
+            'title'             => 'Prepare answer frameworks',
+            'summary'           => 'Draft concise answer structures for the predicted questions without scripting every word.',
+            'why_it_matters'    => 'Frameworks give you a path to speak naturally while keeping the answer anchored. They help you avoid memorized language that collapses under follow-up questions. This step also prepares honest bridge lines for gaps.',
+            'unlocks_text'      => 'Approving unlocks the one-question mock interview prompt.',
+            'before_you_begin'  => 'Read the predicted questions out loud once. Decide which stories you are comfortable telling. Keep frameworks short enough to glance at before practice.',
+            'common_problems'   => 'Answers may become cover-letter paragraphs instead of spoken frameworks. Another common issue is hiding a real gap with vague confidence. Keep the structure simple: answer, proof, result, bridge.',
+            'recovery_guidance' => 'If a framework sounds too scripted, ask for bullet cues instead of full sentences. If it dodges a gap, add one honest sentence naming the gap and the evidence you do have.',
+            'est_minutes'       => 14,
+            'prompt_template'   => <<<TXT
+You are preparing spoken interview answer frameworks. Fact rule: {$factRule}
 
-Questions the candidate fears:
-{{questions_you_fear}}
-Background:
-{{your_background}}
+Preferred tone: {{preferred_tone}}
+Current role: {{current_role}}
+Years of relevant experience: {{years_experience}}
+Concerns:
+{{constraints_or_concerns}}
 
-Approved STAR answers:
-{{artifact:draft-star-answers}}
+Approved criteria brief:
+{{artifact:analyze-evaluation-criteria}}
 
-Approved skill map:
-{{artifact:tag-stories-to-skills}}
+Approved STAR story bank:
+{{artifact:build-star-story-bank}}
+
+Approved predicted questions:
+{{artifact:predict-interview-questions}}
 
 Produce Markdown with these exact headings:
 
-## Hard question replies
-Draft replies for up to 3 feared questions. Each reply should answer directly, name a real constraint if needed, and bridge to evidence.
+## Answer preparation sheet
+Prepare frameworks for five priority questions. For each: direct answer, story cue, action proof, result or learning, and one follow-up detail.
 
-## Bridge back to evidence
-One short method for returning to a real story when a question feels broad.
+## Gap bridge lines
+Two or three honest lines for gaps or missing direct experience.
 
-## Lines not to use
-Phrases or claims that would sound evasive, inflated, or unsupported.
+## Speaking cues
+Short reminders for pacing, length, and tone.
 
-## Calm practice note
-One or two sentences for staying steady before answering.
+## Questions for the employer
+Four questions the candidate can ask the employer, based only on supplied facts and approved criteria.
 
-Keep headings in order. Under 360 words. Invent nothing.
+Keep answers conversational. Do not write a memorized script longer than needed.
 TXT,
-            'example_response' => $hardRepliesExample,
-            'output_sections' => [
-                ['key' => 'hard_question_replies', 'heading' => 'Hard question replies', 'required' => true],
-                ['key' => 'bridge_back_to_evidence', 'heading' => 'Bridge back to evidence', 'required' => true],
-                ['key' => 'lines_not_to_use', 'heading' => 'Lines not to use', 'required' => true],
-                ['key' => 'calm_practice_note', 'heading' => 'Calm practice note', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Answer preparation sheet
+1. Customer onboarding: Direct answer: I have built practical onboarding support from repeated customer questions. Story cue: checklist. Action proof: turned missed setup steps into a clearer sequence. Result or learning: proactive guidance prevents confusion. Follow-up detail: which questions repeated most.
+2. Explaining workflows: Direct answer: I explain by using examples and decision rules. Story cue: teammate training. Action proof: walked two new teammates through triage examples. Result or learning: process is easier to follow when the rule is visible.
+3. Escalating risk: Direct answer: I document the issue, summarize the risk, and escalate without drama. Story cue: nonprofit account. Action proof: tracked open issues and follow-up. Result or learning: calm structure kept the conversation moving.
+4. Education software gap: Direct answer: I have not worked directly in education software yet. Story cue: learning customer context in support. Action proof: used repeated questions to learn user needs. Result or learning: I learn fast by listening for patterns.
+5. Process improvement: Direct answer: I look for repeated friction. Story cue: setup-question spreadsheet. Action proof: grouped recurring issues. Result or learning: patterns can become better onboarding material.
+
+## Gap bridge lines
+- I have not worked directly with school districts yet, so I would start by learning the customer language and success measures.
+- My background is support, and the transfer I can prove is clear communication, follow-through, and risk visibility.
+
+## Speaking cues
+Keep each answer near 60 to 90 seconds. Lead with the direct answer before the story. Use "I" only for actions you personally took.
+
+## Questions for the employer
+1. What does successful onboarding look like for a new district account?
+2. What customer risks should this role notice early?
+3. How does the team share customer context with new CSMs?
+4. What would you want the person in this role to learn first?
+MD,
+            'output_sections'   => $sections([
+                ['answer_preparation_sheet', 'Answer preparation sheet'],
+                ['gap_bridge_lines', 'Gap bridge lines'],
+                ['speaking_cues', 'Speaking cues'],
+                ['questions_for_the_employer', 'Questions for the employer'],
+            ]),
             'checks' => [
-                ['label' => 'Replies answer directly', 'help' => 'Each feared question gets an actual answer, not a dodge.',
-                 'evidence_sections' => ['hard_question_replies']],
-                ['label' => 'Evidence bridge is ready', 'help' => 'The candidate knows how to return to a real story.',
-                 'evidence_sections' => ['bridge_back_to_evidence']],
-                ['label' => 'Inflated lines are cut', 'help' => 'Unsupported or defensive claims are explicitly avoided.',
-                 'evidence_sections' => ['lines_not_to_use']],
+                ['label' => 'Frameworks are spoken', 'help' => 'The sheet gives cues, not overlong memorized essays.', 'evidence_sections' => ['answer_preparation_sheet', 'speaking_cues']],
+                ['label' => 'Gaps are honest', 'help' => 'Bridge lines name missing direct experience without apologizing or bluffing.', 'evidence_sections' => ['gap_bridge_lines']],
+                ['label' => 'Employer questions are useful', 'help' => 'Questions ask about work, success, risk, or learning.', 'evidence_sections' => ['questions_for_the_employer']],
             ],
-        ],
-        [
-            'stage_position'   => 3,
-            'slug'             => 'write-questions-to-ask',
-            'title'            => 'Write questions to ask',
-            'summary'          => 'Prepare thoughtful questions that fit the role without pretending you know the company inside out.',
-            'why_it_matters'   => 'Questions show how you think and help you decide whether the opportunity fits. This step keeps them grounded in the role instead of fake research. Common mistakes: asking things already answered in the posting, performing flattery, or raising late-stage negotiation too early. Need help if the questions feel generic? Add real posting details, then regenerate. You are ready when each question could teach you something useful.',
-            'unlocks_text'     => 'Approving unlocks the rehearsal plan.',
-            'est_minutes'      => 4,
-            'prompt_template'  => <<<'TXT'
-You are writing candidate questions for an interview. Use ONLY the pantry facts and approved artifacts. Do not invent company programs, interviewer roles, benefits, or culture.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 3,
+            'slug'              => 'run-mock-interview',
+            'title'             => 'Run mock interview',
+            'summary'           => 'Create a ready-to-use conductor prompt for one external-AI mock interview question.',
+            'why_it_matters'    => 'Mock practice should make you answer aloud, not watch the AI perform both sides. This step creates the protocol you paste into one external AI conversation so it asks one question, waits, gives brief feedback, and optionally asks one follow-up. SousMeow stores the conductor prompt and your later notes; it does not run live chat inside the step.',
+            'unlocks_text'      => 'Approving unlocks answer-quality review and improvement notes.',
+            'before_you_begin'  => 'Plan to use one separate external AI conversation for the mock interview. Copy the conductor prompt from this artifact, paste it into that chat, answer as yourself, and paste any useful feedback notes back into SousMeow if you want them reviewed later.',
+            'common_problems'   => 'The AI may try to answer as the candidate, ask too many questions, or create a fake transcript. The protocol must prevent that. Keep the mock to one question plus an optional follow-up so the practice stays focused.',
+            'recovery_guidance' => 'If the conductor prompt asks multiple questions at once or writes candidate answers, rerun and emphasize that the external AI must wait for the human response. If you already practiced, add your real notes below the artifact instead of inventing a transcript.',
+            'est_minutes'       => 10,
+            'prompt_template'   => <<<TXT
+You are creating a mock interview conductor prompt for the user to paste into a separate external AI chat. Fact rule: {$factRule}
 
-Role: {{role_title}}
-Company/client: {{company_or_client}}
-Interview format: {{interview_format}}
+Important: Produce the conductor prompt and how-to-run instructions only. Do not conduct the interview here. Do not answer as the candidate. Do not create a fake transcript.
 
-Approved role map:
-{{artifact:map-role-needs}}
+Target role: {{target_role}}
+Target industry: {{target_industry}}
+Preferred tone: {{preferred_tone}}
 
-Approved hard-question replies:
-{{artifact:draft-hard-question-replies}}
+Approved criteria brief:
+{{artifact:analyze-evaluation-criteria}}
+
+Approved answer preparation sheet:
+{{artifact:prepare-answer-frameworks}}
 
 Produce Markdown with these exact headings:
 
-## Questions to ask
-Four to six questions about the role, work, feedback, success, or next steps. No fake inside knowledge.
+## Mock interview conductor prompt
+A paste-ready prompt addressed to an external AI. It must instruct that AI to ask ONE interview question, wait for the user's answer, give brief structured feedback, and optionally ask one follow-up question. It must explicitly say not to answer as the candidate.
 
-## Why these work
-One short paragraph explaining what the questions help the candidate learn.
+## How to run it
+Step-by-step instructions telling the user to keep the mock interview in one external AI conversation and paste only their own notes or the AI's feedback back into SousMeow.
 
-## Questions to skip
-Questions to save for later or avoid because they rely on unknown facts.
+## What to capture afterward
+Short bullets for notes the user should save after practice.
 
-Keep headings in order. Under 240 words. Invent nothing.
+## Guardrails
+Rules that prevent fake transcripts, invented candidate facts, and multi-question dumps.
+
+Keep the headings in order.
 TXT,
-            'example_response' => $questionsAskExample,
-            'output_sections' => [
-                ['key' => 'questions_to_ask', 'heading' => 'Questions to ask', 'required' => true],
-                ['key' => 'why_these_work', 'heading' => 'Why these work', 'required' => true],
-                ['key' => 'questions_to_skip', 'heading' => 'Questions to skip', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Mock interview conductor prompt
+You are my mock interviewer for a Customer Success Manager role in B2B education software. Ask me one interview question based on customer onboarding, explaining workflows to non-technical users, risk escalation, or transferring from support into customer success. After you ask the question, stop and wait for my answer.
+
+When I answer, do not rewrite the answer as if you are me. Give brief feedback in this structure: what worked, what needs evidence, one tightening suggestion, and one optional follow-up question. If you ask a follow-up, ask only one and wait again. Do not invent my achievements, employers, metrics, customer types, or education software experience.
+
+## How to run it
+1. Open one external AI conversation and paste the conductor prompt above.
+2. Answer the single question out loud or by typing as yourself.
+3. Keep any follow-up in the same conversation so the AI has context.
+4. Copy only useful feedback notes or your own reflection back into this SousMeow artifact if you want to review them later.
+
+## What to capture afterward
+- The question asked.
+- One answer strength.
+- One evidence gap or overclaim to fix.
+- One sentence you want to shorten or clarify.
+
+## Guardrails
+- No fake transcript.
+- No AI-written candidate answer.
+- No more than one first question.
+- No invented employer facts or candidate achievements.
+MD,
+            'output_sections'   => $sections([
+                ['mock_interview_conductor_prompt', 'Mock interview conductor prompt'],
+                ['how_to_run_it', 'How to run it'],
+                ['what_to_capture_afterward', 'What to capture afterward'],
+                ['guardrails', 'Guardrails'],
+            ]),
             'checks' => [
-                ['label' => 'Questions fit the role', 'help' => 'They ask about real work, feedback, success, or next steps.',
-                 'evidence_sections' => ['questions_to_ask']],
-                ['label' => 'No fake research', 'help' => 'No question claims knowledge of programs or culture not provided.',
-                 'evidence_sections' => ['questions_to_ask', 'questions_to_skip']],
-                ['label' => 'Usefulness is clear', 'help' => 'The why section explains what the questions help you learn.',
-                 'evidence_sections' => ['why_these_work']],
+                ['label' => 'One-question protocol', 'help' => 'The conductor prompt asks one question and waits for the human answer.', 'evidence_sections' => ['mock_interview_conductor_prompt', 'guardrails']],
+                ['label' => 'AI does not answer as candidate', 'help' => 'The prompt explicitly blocks fake candidate answers and fake transcripts.', 'evidence_sections' => ['mock_interview_conductor_prompt', 'guardrails']],
+                ['label' => 'Run instructions are clear', 'help' => 'The user knows to keep the mock interview in one external AI conversation.', 'evidence_sections' => ['how_to_run_it']],
             ],
-        ],
-        [
-            'stage_position'   => 3,
-            'slug'             => 'build-rehearsal-plan',
-            'title'            => 'Build a rehearsal plan',
-            'summary'          => 'Turn answers into out-loud practice rounds with simple feedback checks.',
-            'why_it_matters'   => 'Reading answers silently is not rehearsal. This step makes practice audible, short, and repeatable. Common mistakes: memorizing every word, practicing only easy questions, or adding facts mid-rehearsal. Need help if the plan feels too big? Paste again and limit it to three rounds under 30 minutes. You are ready when you know exactly what to say out loud first.',
-            'unlocks_text'     => 'Approving unlocks the day-of checklist.',
-            'est_minutes'      => 5,
-            'prompt_template'  => <<<'TXT'
-You are building an interview rehearsal plan. Use ONLY approved artifacts and pantry format. Do not invent interview length, interviewers, or logistics.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 4,
+            'slug'              => 'review-answer-quality',
+            'title'             => 'Review answer quality',
+            'summary'           => 'Review prepared answers and any real mock feedback for clarity, evidence, and overclaim risk.',
+            'why_it_matters'    => 'Practice is useful only if you notice what changed. This step turns prepared answers and real mock notes into improvement priorities. It does not invent a transcript or pretend the mock happened if you did not paste notes.',
+            'unlocks_text'      => 'Approving unlocks final-day notes and follow-up messages.',
+            'before_you_begin'  => 'If you ran the mock interview, paste your real feedback notes into the run-mock-interview artifact before this step. If you did not, this recipe will review only the answer preparation sheet and protocol. Do not paste private interviewer contact details.',
+            'common_problems'   => 'The AI may try to infer how the mock went without notes. It may also over-polish answers into written paragraphs. Keep the review focused on evidence, clarity, length, and honest boundaries.',
+            'recovery_guidance' => 'If the review invents mock performance, rerun and tell it to say "no mock notes supplied" where needed. If advice is too vague, ask for three specific edits to answer cues.',
+            'est_minutes'       => 9,
+            'prompt_template'   => <<<TXT
+You are reviewing interview answer quality. Fact rule: {$factRule}
 
-Interview format: {{interview_format}}
+Preferred tone: {{preferred_tone}}
+Concerns:
+{{constraints_or_concerns}}
 
-Approved STAR answers:
-{{artifact:draft-star-answers}}
+Approved answer preparation sheet:
+{{artifact:prepare-answer-frameworks}}
 
-Approved hard replies:
-{{artifact:draft-hard-question-replies}}
-
-Approved questions to ask:
-{{artifact:write-questions-to-ask}}
+Mock interview prompt and any real notes the user saved:
+{{artifact:run-mock-interview}}
 
 Produce Markdown with these exact headings:
 
-## Rehearsal schedule
-Three or four practice rounds the candidate can do out loud.
+## Answer improvement notes
+Three to five concrete improvements for clarity, evidence, length, or honest boundaries. If no mock notes are supplied, say so and review the preparation sheet only.
 
-## Out-loud drills
-Three drills for clearer spoken answers.
+## Strong answers to keep
+The answer cues or stories that should stay mostly unchanged.
 
-## Feedback checklist
-Four to six checkbox lines for self-review or a practice partner.
+## Overclaim watchlist
+Claims, metrics, or assumptions to avoid in the interview.
 
-## If I freeze
-One short recovery script tied to the approved stories.
+## Next practice round
+A short plan for one more practice pass.
 
-Keep headings in order. Under 300 words. Invent nothing.
+Keep the headings in order. Do not invent a mock transcript or candidate performance.
 TXT,
-            'example_response' => $rehearsalPlanExample,
-            'output_sections' => [
-                ['key' => 'rehearsal_schedule', 'heading' => 'Rehearsal schedule', 'required' => true],
-                ['key' => 'out_loud_drills', 'heading' => 'Out-loud drills', 'required' => true],
-                ['key' => 'feedback_checklist', 'heading' => 'Feedback checklist', 'required' => true],
-                ['key' => 'if_i_freeze', 'heading' => 'If I freeze', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Answer improvement notes
+- Keep the education software gap direct, then bridge to how you learn customer context.
+- Shorten the onboarding checklist answer by cutting extra setup context.
+- Add one verified detail about what the checklist contained if you can confirm it.
+- If no renewal result is verified, describe the nonprofit escalation as keeping the conversation organized, not saving the renewal.
+
+## Strong answers to keep
+The onboarding checklist and nonprofit escalation stories are the strongest fit for this role. The teammate training story is useful for explaining workflows but should stay shorter.
+
+## Overclaim watchlist
+Do not claim district experience, customer retention ownership, renewal results, formal team leadership, or a quantified improvement unless verified.
+
+## Next practice round
+Run one more single-question mock focused on risk escalation. Aim for a 75-second answer with one situation sentence, two action sentences, and one honest result or learning.
+MD,
+            'output_sections'   => $sections([
+                ['answer_improvement_notes', 'Answer improvement notes'],
+                ['strong_answers_to_keep', 'Strong answers to keep'],
+                ['overclaim_watchlist', 'Overclaim watchlist'],
+                ['next_practice_round', 'Next practice round'],
+            ]),
             'checks' => [
-                ['label' => 'Practice is out loud', 'help' => 'The schedule requires speaking, not only reading.',
-                 'evidence_sections' => ['rehearsal_schedule', 'out_loud_drills']],
-                ['label' => 'Feedback is concrete', 'help' => 'The checklist gives observable things to improve.',
-                 'evidence_sections' => ['feedback_checklist']],
-                ['label' => 'Freeze plan uses real stories', 'help' => 'The recovery script points back to approved evidence.',
-                 'evidence_sections' => ['if_i_freeze']],
+                ['label' => 'No fake mock transcript', 'help' => 'The review does not invent performance or dialogue.', 'evidence_sections' => ['answer_improvement_notes']],
+                ['label' => 'Improvements are specific', 'help' => 'Notes name exactly what to shorten, clarify, or verify.', 'evidence_sections' => ['answer_improvement_notes', 'next_practice_round']],
+                ['label' => 'Overclaims are blocked', 'help' => 'The watchlist catches unsupported claims before the interview.', 'evidence_sections' => ['overclaim_watchlist']],
             ],
-        ],
-        [
-            'stage_position'   => 3,
-            'slug'             => 'pack-day-of-checklist',
-            'title'            => 'Pack the day-of checklist',
-            'summary'          => 'Finish with a practical checklist, story cheat sheet, opening note, and follow-up reminder.',
-            'why_it_matters'   => 'The day of an interview is for execution, not rewriting your whole prep. This step packs only what you can use. Common mistakes: adding new claims, inventing logistics, or making the checklist too long to scan. Need help if it becomes a script? Paste again and ask for a one-card version. You are ready when the checklist fits the actual format and your stories are easy to recall.',
-            'unlocks_text'     => 'Approving completes the Cookbook and opens your finished interview prep export.',
-            'est_minutes'      => 4,
-            'prompt_template'  => <<<'TXT'
-You are packing a day-of interview checklist. Use ONLY pantry facts and approved artifacts. Do not invent addresses, links, interviewer names, dress codes, or follow-up details.
+        ]),
+        sm_career_recipe([
+            'stage_position'    => 4,
+            'slug'              => 'pack-final-day-notes',
+            'title'             => 'Pack final-day notes',
+            'summary'           => 'Finish with a one-page prep card, employer questions, and thank-you message templates.',
+            'why_it_matters'    => 'The final day is for calm execution, not rewriting the whole interview plan. This step packs the strongest stories, careful boundaries, questions to ask, and follow-up drafts into one place. It keeps thank-you messages truthful by leaving conversation details blank until after the interview.',
+            'unlocks_text'      => 'Approving completes the Cookbook and opens your interview prep kit.',
+            'before_you_begin'  => 'Confirm the interview time, format, and link or address outside SousMeow. Keep any personal contact details out of the prompt unless needed. Use the thank-you draft only after replacing placeholders with real conversation details.',
+            'common_problems'   => 'Final notes can become too long to scan or include invented logistics. Thank-you emails may also invent topics before the conversation happens. Keep this artifact short and fill conversation details later.',
+            'recovery_guidance' => 'If the prep card is too long, ask for a one-screen version. If the follow-up invents a topic, replace it with a bracketed reminder to insert a real topic after the interview.',
+            'est_minutes'       => 12,
+            'prompt_template'   => <<<TXT
+You are packing final interview notes and follow-up drafts. Fact rule: {$factRule}
 
-Role: {{role_title}}
-Company/client: {{company_or_client}}
-Interview format: {{interview_format}}
+Target role: {{target_role}}
+Target industry: {{target_industry}}
+Preferred tone: {{preferred_tone}}
+Job description or interview brief:
+{{job_description}}
 
-Approved story map:
-{{artifact:tag-stories-to-skills}}
+Approved answer preparation sheet:
+{{artifact:prepare-answer-frameworks}}
 
-Approved questions:
-{{artifact:write-questions-to-ask}}
-
-Approved rehearsal plan:
-{{artifact:build-rehearsal-plan}}
+Approved answer review:
+{{artifact:review-answer-quality}}
 
 Produce Markdown with these exact headings:
 
-## Day-of checklist
-Five to seven checkbox items practical for the stated format. Use "confirm" for unknown logistics.
+## Final prep card
+A compact one-page card with top criteria, top stories, bridge lines, and reminders.
 
-## Story cheat sheet
-Three to five short story reminders, each under one line.
+## Employer question list
+Four to six questions to ask the employer.
 
-## Opening note
-One natural opening sentence the candidate can adapt.
+## Thank-you email
+A short thank-you email template that leaves a bracketed space for one real topic from the interview. Do not invent the topic.
 
-## After-interview follow-up
-One or two sentences on a brief thank-you that invents no conversation details.
+## Final checklist
+Five to seven day-of checks. Use "confirm" for logistics not supplied.
 
-Keep headings in order. Under 260 words.
+Keep the headings in order and make the notes easy to scan.
 TXT,
-            'example_response' => $dayChecklistExample,
-            'output_sections' => [
-                ['key' => 'day_of_checklist', 'heading' => 'Day-of checklist', 'required' => true],
-                ['key' => 'story_cheat_sheet', 'heading' => 'Story cheat sheet', 'required' => true],
-                ['key' => 'opening_note', 'heading' => 'Opening note', 'required' => true],
-                ['key' => 'after_interview_follow_up', 'heading' => 'After-interview follow-up', 'required' => true],
-            ],
+            'example_response'  => <<<'MD'
+## Final prep card
+Top criteria: onboarding, clear workflow explanation, risk escalation, transfer from support to customer success.
+
+Top stories: onboarding checklist, nonprofit escalation, teammate training, setup-question spreadsheet.
+
+Bridge line: I have not worked directly in education software yet, so I would start by learning the customer language and success measures.
+
+Reminder: answer first, then story, then result or learning. Do not claim unverified renewal or retention outcomes.
+
+## Employer question list
+1. What does successful onboarding look like for a new district account?
+2. What customer risks should this role notice early?
+3. How does the team share customer context with new CSMs?
+4. What would you want the person in this role to learn first?
+5. What are the next steps after this conversation?
+
+## Thank-you email
+Subject: Thank you for the Customer Success Manager conversation
+
+Hi [Name],
+
+Thank you for speaking with me about the Customer Success Manager role. I appreciated learning more about [real topic from the interview].
+
+Our conversation reinforced my interest in helping customers onboard clearly and spot risks early. Please let me know if I can share anything else.
+
+Thank you,
+[Your name]
+
+## Final checklist
+- [ ] Confirm interview time, format, and link or address.
+- [ ] Open resume or notes without private extras showing.
+- [ ] Read top three story cues once.
+- [ ] Practice the gap bridge line once.
+- [ ] Prepare water, charger, and quiet space if video.
+- [ ] Save the thank-you template for after the conversation.
+MD,
+            'output_sections'   => $sections([
+                ['final_prep_card', 'Final prep card'],
+                ['employer_question_list', 'Employer question list'],
+                ['thank_you_email', 'Thank-you email'],
+                ['final_checklist', 'Final checklist'],
+            ]),
             'checks' => [
-                ['label' => 'Checklist fits the format', 'help' => 'Items match phone, video, in-person, panel, portfolio, or unknown format honestly.',
-                 'evidence_sections' => ['day_of_checklist']],
-                ['label' => 'Stories are easy to recall', 'help' => 'The cheat sheet is short enough to scan before speaking.',
-                 'evidence_sections' => ['story_cheat_sheet']],
-                ['label' => 'Follow-up invents nothing', 'help' => 'The follow-up guidance does not create conversation details before they happen.',
-                 'evidence_sections' => ['after_interview_follow_up']],
+                ['label' => 'Prep card is scannable', 'help' => 'The card fits on one page and highlights only the most useful cues.', 'evidence_sections' => ['final_prep_card']],
+                ['label' => 'Thank-you stays truthful', 'help' => 'The email leaves real interview details blank until after the conversation.', 'evidence_sections' => ['thank_you_email']],
+                ['label' => 'Checklist is practical', 'help' => 'Every item can be completed or confirmed before or after the interview.', 'evidence_sections' => ['final_checklist']],
             ],
-        ],
+        ]),
     ],
 ];
