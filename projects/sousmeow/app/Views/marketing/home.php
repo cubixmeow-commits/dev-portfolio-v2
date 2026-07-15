@@ -1,10 +1,10 @@
 <?php
 /**
- * Marketing homepage — editorial simplification pass (Product Law 002).
+ * Marketing homepage — guided companion positioning.
  *
- * Emotional arc: problem → relief → how it works → proof → explore.
- * Class-1 terms (Pantry, Runner, Artifact, Project Kit) stay out of
- * public copy. Cookbook is introduced only in the explore section.
+ * First half uses plain English only. Brand terms (Cookbook) appear
+ * only after the experience is explained. Quality Checks are framed as
+ * clear human criteria, matching the real Runner (not automated AI grading).
  *
  * @var array<string, mixed>|null       $featured
  * @var list<array<string, mixed>>      $featuredStages
@@ -14,32 +14,23 @@
 
 $marketplaceUrl = url('/marketplace');
 $productLawUrl = url('/docs/product-law-002');
+$startUrl = $marketplaceUrl;
 
-$recipesByStage = [];
-foreach ($featuredRecipes as $recipe) {
-    $recipesByStage[(int) $recipe['stage_position']][] = $recipe;
+$outcomes = [];
+foreach ($cookbooks as $c) {
+    $outcomes[] = [
+        'title'   => (string) $c['title'],
+        'result'  => (string) $c['outcome'],
+        'slug'    => (string) $c['slug'],
+        'ready'   => (int) $c['is_executable'] === 1,
+        'minutes' => (int) $c['est_minutes'],
+        'accent'  => preg_replace('/[^a-z]/', '', (string) $c['accent']),
+    ];
 }
-
-$shelfLabel = static fn(array $c): string => match ((string) $c['slug']) {
-    'launch-day-kit'               => 'Creator pick',
-    'validate-saas-idea'           => 'Most cooked',
-    'plan-youtube-video'           => 'Recently updated',
-    'build-professional-portfolio' => 'New',
-    'plan-a-novel'                 => 'Preview',
-    default                        => (string) ($c['category_name'] ?? 'Guide'),
-};
-
-$supportedAi = [
-    'ChatGPT', 'Claude', 'Gemini', 'Cursor', 'Claude Code', 'Codex',
-    'GitHub Copilot', 'Grok', 'Perplexity', 'Microsoft Copilot', 'DeepSeek',
-    'Qwen', 'Kimi', 'Mistral', 'Le Chat', 'Amazon Q', 'Windsurf', 'Cline',
-    'Continue.dev', 'Roo Code', 'OpenHands', 'Bolt.new', 'Lovable',
-    'Firebase Studio', 'Replit AI', 'Zed AI', 'Phind',
-];
 ?>
 <div class="tw" id="top">
 
-  <!-- 1. PROBLEM + RELIEF -->
+  <!-- 1. HERO -->
   <section class="tw-hero" aria-labelledby="hero-h">
     <div class="tw-wrap">
       <div class="hero-grid">
@@ -48,11 +39,14 @@ $supportedAi = [
             <?php \SousMeow\Core\View::partial('partials/mascot', ['pose' => 'plain']); ?>
           </div>
           <p class="tw-kicker mono">sousmeow</p>
-          <h1 id="hero-h">You know what you want.<br>AI keeps missing&nbsp;it.</h1>
-          <p class="hero-lede">SousMeow walks you through proven steps until you finish.
-            You use the AI you already have. You never need to become a prompt expert.</p>
+          <h1 id="hero-h">Stop guessing what to ask&nbsp;AI.</h1>
+          <p class="hero-lede">SousMeow walks you through complete projects one step at a time.
+            It prepares the prompts, explains what matters, checks your progress, and helps you
+            get better results from ChatGPT, Claude, Gemini, or the AI tools you already use.</p>
+          <p class="hero-philosophy">Not a prompt library. More like sitting next to someone
+            who's good at&nbsp;AI.</p>
           <div class="hero-actions">
-            <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Find something to finish</a>
+            <a class="button button-primary button-large" href="<?= e($startUrl) ?>">Start a guided project</a>
             <a class="button button-ghost button-large" href="#how-it-works">See how it works</a>
           </div>
           <p class="hero-law">
@@ -60,411 +54,312 @@ $supportedAi = [
           </p>
         </div>
 
-        <figure class="hero-visual" data-hero>
-          <figcaption class="visually-hidden">Four guided steps, each producing a file that
-            collects into a finished zip of results.</figcaption>
-          <div class="hv-grid" aria-hidden="true">
-            <div class="hv-col-head mono">steps</div>
-            <div class="hv-col-head hv-gap"></div>
-            <div class="hv-col-head mono">finished files</div>
-
-            <div class="hv-recipe" style="--i:0"><span class="hv-dot"></span><span class="hv-name">Define your positioning</span></div>
-            <div class="hv-arrow" style="--i:0"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-            <div class="hv-file mono" style="--i:0">positioning.md</div>
-
-            <div class="hv-recipe" style="--i:1"><span class="hv-dot"></span><span class="hv-name">Write landing page copy</span></div>
-            <div class="hv-arrow" style="--i:1"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-            <div class="hv-file mono" style="--i:1">landing-page.md</div>
-
-            <div class="hv-recipe" style="--i:2"><span class="hv-dot"></span><span class="hv-name">Write launch posts</span></div>
-            <div class="hv-arrow" style="--i:2"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-            <div class="hv-file mono" style="--i:2">announcements.md</div>
-
-            <div class="hv-recipe" style="--i:3"><span class="hv-dot"></span><span class="hv-name">Prepare your FAQ</span></div>
-            <div class="hv-arrow" style="--i:3"><svg viewBox="0 0 40 12"><path d="M2 6 H32 M32 6 l-6 -4 M32 6 l-6 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-            <div class="hv-file mono" style="--i:3">faq.md</div>
-
-            <div class="hv-zip mono" style="--i:4"><span class="hv-zip-mark"></span>launch-day-kit.zip · 4 files</div>
-          </div>
-          <p class="hero-annot mono" aria-hidden="true">you bring the goal · <br>SousMeow brings the steps</p>
+        <figure class="hero-visual hero-loop" data-hero aria-hidden="true">
+          <figcaption class="visually-hidden">A simple loop: goal, prepared prompt, your AI, check, finished files.</figcaption>
+          <ol class="hl-steps">
+            <li class="hl-step" style="--i:0"><span class="hl-no mono">1</span><span>Your goal</span></li>
+            <li class="hl-step" style="--i:1"><span class="hl-no mono">2</span><span>Prepared prompt</span></li>
+            <li class="hl-step" style="--i:2"><span class="hl-no mono">3</span><span>Your AI</span></li>
+            <li class="hl-step" style="--i:3"><span class="hl-no mono">4</span><span>Paste &amp; check</span></li>
+            <li class="hl-step hl-done" style="--i:4"><span class="hl-no mono">✓</span><span>Finished files</span></li>
+          </ol>
+          <p class="hero-annot mono">you stay in the AI you already pay for</p>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- Relief: your AI -->
-  <section class="tw-sec sec-ai" id="supported-ai" aria-labelledby="ai-h">
-    <div class="tw-wrap">
-      <header class="sec-head ai-head" data-reveal>
-        <p class="tw-kicker mono">your AI</p>
-        <h2 id="ai-h">Works with the AI you already use.</h2>
-        <p class="sec-sub-tw">SousMeow does not replace ChatGPT, Claude, Gemini, Cursor, or
-          any other assistant. You copy a prepared prompt, run it there, and paste the answer
-          back. No API keys. No new subscription.</p>
-      </header>
-
-      <ul class="ai-wall" data-reveal aria-label="Examples of AI tools you can use with SousMeow">
-        <?php foreach ($supportedAi as $i => $name): ?>
-          <li class="ai-chip mono" style="--i:<?= (int) $i ?>"><?= e($name) ?></li>
-        <?php endforeach; ?>
-      </ul>
-      <p class="ai-disclaimer mono" data-reveal>Examples of tools people use — not partnerships
-        or built-in integrations.</p>
-    </div>
-  </section>
-
-  <!-- Problem deepened -->
-  <section class="tw-sec sec-problem" id="why-prompts" aria-labelledby="problem-h">
-    <div class="tw-wrap">
-      <header class="sec-head" data-reveal>
-        <p class="tw-kicker mono">the problem</p>
-        <h2 id="problem-h">One prompt rarely finishes the job.</h2>
-      </header>
-
-      <div class="problem-grid">
-        <figure class="problem-panel" data-reveal style="--i:0">
-          <div class="diagram">
-            <svg viewBox="0 0 340 220" role="img" aria-label="Diagram: three isolated prompts drift apart, each trailing off into nothing.">
-              <g class="pr-chip" transform="rotate(-4 70 46)">
-                <rect x="18" y="28" width="198" height="34" rx="8"/>
-                <text x="34" y="50">“write me a landing page”</text>
-              </g>
-              <path class="pr-trail" d="M216 46 C 236 42, 252 30, 268 24"/>
-              <circle class="pr-end" cx="278" cy="22" r="2.2"/><circle class="pr-end" cx="290" cy="20" r="2.2"/><circle class="pr-end" cx="302" cy="19" r="2.2"/>
-
-              <g class="pr-chip" transform="rotate(2 110 106)">
-                <rect x="46" y="88" width="172" height="34" rx="8"/>
-                <text x="62" y="110">“hmm. make it better”</text>
-              </g>
-              <path class="pr-trail" d="M218 106 C 234 110, 248 120, 262 130"/>
-              <circle class="pr-end" cx="272" cy="134" r="2.2"/><circle class="pr-end" cx="284" cy="139" r="2.2"/>
-
-              <g class="pr-chip" transform="rotate(-2 96 168)">
-                <rect x="26" y="150" width="192" height="34" rx="8"/>
-                <text x="42" y="172">“wait, who is this for?”</text>
-              </g>
-              <path class="pr-trail" d="M218 168 C 228 174, 234 186, 240 198"/>
-              <text class="pr-q" x="252" y="210">?</text>
-            </svg>
-          </div>
-          <figcaption>Each chat starts over. You re-explain. Quality drifts. Nothing adds up.</figcaption>
-        </figure>
-
-        <div class="problem-vs mono" aria-hidden="true" data-reveal style="--i:1">vs</div>
-
-        <figure class="problem-panel" data-reveal style="--i:2">
-          <div class="diagram">
-            <svg viewBox="0 0 340 220" role="img" aria-label="Diagram: four connected steps pass their work forward and end in a finished kit.">
-              <g class="wf-node"><rect x="16" y="92" width="56" height="36" rx="8"/><text x="28" y="114">step 1</text></g>
-              <path class="wf-link" d="M72 110 H96"/>
-              <g class="wf-node"><rect x="98" y="92" width="56" height="36" rx="8"/><text x="110" y="114">step 2</text></g>
-              <path class="wf-link" d="M154 110 H178"/>
-              <g class="wf-node"><rect x="180" y="92" width="56" height="36" rx="8"/><text x="192" y="114">step 3</text></g>
-              <path class="wf-link" d="M236 110 H260"/>
-              <g class="wf-kit"><rect x="262" y="86" width="62" height="48" rx="8"/><text x="274" y="107">done</text><text class="wf-kit-sub" x="274" y="122">.zip</text></g>
-              <path class="wf-carry" d="M44 128 C 44 156, 126 156, 126 130"/>
-              <path class="wf-carry" d="M126 128 C 126 162, 208 162, 208 130"/>
-              <text class="wf-annot" x="70" y="186">each step hands its work to the next</text>
-            </svg>
-          </div>
-          <figcaption>Guided steps carry your work forward until the project is actually done.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3. HOW IT WORKS (plain language; keep real demos) -->
-  <section class="tw-sec sec-pantry" id="how-it-works" aria-labelledby="how-h">
+  <!-- 2. SIMPLE GUIDED EXPERIENCE -->
+  <section class="tw-sec sec-loop" id="how-it-works" aria-labelledby="loop-h">
     <div class="tw-wrap">
       <header class="sec-head" data-reveal>
         <p class="tw-kicker mono">how it works</p>
-        <h2 id="how-h">Answer a few facts. Follow the steps. Check the work. Finish.</h2>
-        <p class="sec-sub-tw">You enter what you already know about your project once.
-          SousMeow builds each prompt from that. Your AI does the writing. You decide what
-          is good enough to keep.</p>
+        <h2 id="loop-h">One clear loop until the project is done.</h2>
+        <p class="sec-sub-tw">You do not need to know how to write prompts.
+          SousMeow guides each step. Your AI does the writing.</p>
       </header>
 
-      <div class="pantry-demo" data-pantry>
-        <div class="pantry-fields" role="list" aria-label="Sample project details">
-          <div class="pf" role="listitem" data-field="product_name" style="--i:0">
-            <span class="pf-label mono">product_name</span>
-            <span class="pf-value">Driftlog</span>
-          </div>
-          <div class="pf" role="listitem" data-field="one_liner" style="--i:1">
-            <span class="pf-label mono">one_liner</span>
-            <span class="pf-value">Effortless time logging for freelance designers</span>
-          </div>
-          <div class="pf" role="listitem" data-field="audience" style="--i:2">
-            <span class="pf-label mono">audience</span>
-            <span class="pf-value">Freelancers who bill by the hour but hate timers</span>
-          </div>
-          <div class="pf" role="listitem" data-field="tone" style="--i:3">
-            <span class="pf-label mono">tone</span>
-            <span class="pf-value">Quietly confident</span>
-          </div>
-        </div>
-
-        <div class="pantry-prompt prompt-frame" aria-label="A prompt prepared from your information">
-          <div class="prompt-frame-bar mono"><span>step 1 of 4 · prompt, ready to copy</span></div>
-          <pre class="pantry-pre mono">You are a positioning-focused product marketer.
-Write positioning for a product using only the
-facts below. Invent nothing.
-
-Product: <span class="pv" data-token="product_name"><span class="pv-key">{{product_name}}</span><span class="pv-val">Driftlog</span></span>
-One-liner: <span class="pv" data-token="one_liner"><span class="pv-key">{{one_liner}}</span><span class="pv-val">Effortless time logging for freelance designers</span></span>
-Audience: <span class="pv" data-token="audience"><span class="pv-key">{{audience}}</span><span class="pv-val">Freelancers who bill by the hour but hate timers</span></span>
-Voice: <span class="pv" data-token="tone"><span class="pv-key">{{tone}}</span><span class="pv-val">Quietly confident</span></span></pre>
-        </div>
-
-        <button type="button" class="pantry-replay mono" data-pantry-replay hidden>↻ fill the prompt again</button>
-      </div>
+      <ol class="loop-grid" data-reveal>
+        <li class="loop-card" style="--i:0">
+          <span class="loop-no mono">01</span>
+          <h3>Tell SousMeow what you want to create</h3>
+          <p>Share a few plain facts about your project.</p>
+        </li>
+        <li class="loop-card" style="--i:1">
+          <span class="loop-no mono">02</span>
+          <h3>Follow one clear step</h3>
+          <p>Each step explains what you are doing and why it matters.</p>
+        </li>
+        <li class="loop-card" style="--i:2">
+          <span class="loop-no mono">03</span>
+          <h3>Copy the prepared prompt</h3>
+          <p>Paste it into ChatGPT, Claude, Gemini, or another AI you already use.</p>
+        </li>
+        <li class="loop-card" style="--i:3">
+          <span class="loop-no mono">04</span>
+          <h3>Paste the response back</h3>
+          <p>SousMeow saves it exactly as you received it.</p>
+        </li>
+        <li class="loop-card" style="--i:4">
+          <span class="loop-no mono">05</span>
+          <h3>Check if it is ready</h3>
+          <p>Clear criteria help you decide. Improve one thing if needed.</p>
+        </li>
+        <li class="loop-card" style="--i:5">
+          <span class="loop-no mono">06</span>
+          <h3>Continue until you finish</h3>
+          <p>Approved work carries forward. You leave with finished files.</p>
+        </li>
+      </ol>
     </div>
   </section>
 
-  <section class="tw-sec sec-runner" id="runner" aria-labelledby="loop-h">
+  <!-- 3. COMPARISON -->
+  <section class="tw-sec sec-compare" id="feel" aria-labelledby="feel-h">
     <div class="tw-wrap">
       <header class="sec-head" data-reveal>
-        <p class="tw-kicker mono">each step</p>
-        <h2 id="loop-h">Copy. Run in your AI. Paste back. Check. Continue.</h2>
-        <p class="sec-sub-tw">SousMeow never calls an AI for you. You stay in the assistant
-          you already pay for.</p>
+        <p class="tw-kicker mono">the difference</p>
+        <h2 id="feel-h">We don't expect you to know AI.</h2>
       </header>
 
-      <div class="runner-demo is-step-1" data-runner data-reveal>
-        <ol class="run-rail" aria-label="The loop for each step">
-          <li><button type="button" class="run-step" data-step="1"><span class="rs-no mono">1</span><span class="rs-name">Goal</span></button></li>
-          <li><button type="button" class="run-step" data-step="2"><span class="rs-no mono">2</span><span class="rs-name">Prompt</span></button></li>
-          <li><button type="button" class="run-step" data-step="3"><span class="rs-no mono">3</span><span class="rs-name">Your AI</span></button></li>
-          <li><button type="button" class="run-step" data-step="4"><span class="rs-no mono">4</span><span class="rs-name">Paste back</span></button></li>
-          <li><button type="button" class="run-step" data-step="5"><span class="rs-no mono">5</span><span class="rs-name">Check</span></button></li>
-          <li><button type="button" class="run-step" data-step="6"><span class="rs-no mono">6</span><span class="rs-name">Next</span></button></li>
-        </ol>
-
-        <div class="run-stage">
-          <div class="run-panel run-panel-recipe" data-panel="1 2">
-            <p class="run-panel-tag mono">sousmeow · step 1 of 4</p>
-            <h3 class="run-panel-title">Define your positioning</h3>
-            <p class="run-panel-body">Clarify what your product is, who it is for, and why
-              it matters. Later steps build on this.</p>
-            <div class="run-prompt mono" aria-label="Prepared prompt, ready to copy">
-              <span class="run-prompt-line">Write positioning for <b>Driftlog</b> using only</span>
-              <span class="run-prompt-line">the facts below. Invent nothing. …</span>
-              <span class="run-copy" aria-hidden="true">⧉ copy</span>
-            </div>
-          </div>
-
-          <div class="run-panel run-panel-ai" data-panel="3">
-            <p class="run-panel-tag mono">your AI · any of them</p>
-            <div class="run-ai-tabs" aria-hidden="true">
-              <span class="run-ai-tab is-on">ChatGPT</span><span class="run-ai-tab">Claude</span><span class="run-ai-tab">Gemini</span>
-            </div>
-            <div class="run-ai-thread" aria-hidden="true">
-              <span class="run-line run-line-user"></span>
-              <span class="run-line w80"></span>
-              <span class="run-line w95"></span>
-              <span class="run-line w60"></span>
-            </div>
-            <p class="run-panel-body">Paste the prompt into whichever assistant you already
-              use. Your subscription, your data, your choice.</p>
-          </div>
-
-          <div class="run-panel run-panel-review" data-panel="4 5 6">
-            <p class="run-panel-tag mono">sousmeow · review</p>
-            <div class="run-response" aria-hidden="true">
-              <span class="run-resp-head mono">## Positioning statement</span>
-              <span class="run-line w95"></span>
-              <span class="run-line w85"></span>
-            </div>
-            <ul class="run-checks">
-              <li class="run-check" style="--i:0"><span class="rc-box" aria-hidden="true"></span>Names the audience you gave, not a generic one</li>
-              <li class="run-check" style="--i:1"><span class="rc-box" aria-hidden="true"></span>Claims only features from your list</li>
-              <li class="run-check" style="--i:2"><span class="rc-box" aria-hidden="true"></span>You would say this sentence out loud</li>
-            </ul>
-            <p class="run-next mono"><span class="run-next-arrow" aria-hidden="true">→</span> next: Write landing page copy</p>
-          </div>
-        </div>
-
-        <div class="run-captions">
-          <p class="run-caption mono" data-caption="1">each step says what you're making and why it matters</p>
-          <p class="run-caption mono" data-caption="2">the prompt is built from your information — copy it in one tap</p>
-          <p class="run-caption mono" data-caption="3">run it in the AI you already have; SousMeow never sees your chat</p>
-          <p class="run-caption mono" data-caption="4">paste the answer back — saved exactly as you received it</p>
-          <p class="run-caption mono" data-caption="5">check the work yourself; nothing moves on unread</p>
-          <p class="run-caption mono" data-caption="6">approve it, and the next step unlocks</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tw-sec sec-checks" id="checks" aria-labelledby="checks-h">
-    <div class="tw-wrap">
-      <div class="checks-grid">
-        <header class="sec-head checks-head" data-reveal>
-          <p class="tw-kicker mono">your call</p>
-          <h2 id="checks-h">Nothing advances unread.</h2>
-          <p class="sec-sub-tw">You read the answer. You confirm a short checklist.
-            Edit it, and the checks reset on purpose.</p>
-          <ul class="checks-versions" aria-label="Version history of one response">
-            <li class="cv mono" style="--i:0"><span class="cv-v">v1</span> pasted response <span class="cv-state">superseded</span></li>
-            <li class="cv mono" style="--i:1"><span class="cv-v">v2</span> edited · checks reset <span class="cv-state">superseded</span></li>
-            <li class="cv cv-approved mono" style="--i:2"><span class="cv-v">v3</span> restored from v1 <span class="cv-state">approved</span></li>
+      <div class="compare-grid" data-reveal>
+        <div class="compare-col compare-before">
+          <h3>What most AI tools feel like</h3>
+          <ul>
+            <li>A blank chat box</li>
+            <li>No idea what to ask</li>
+            <li>Generic answers</li>
+            <li>No explanation</li>
+            <li>No way to know if the result is good</li>
+            <li>Start over when something goes wrong</li>
           </ul>
-        </header>
-
-        <figure class="checks-artifact" data-checks data-reveal>
-          <figcaption class="visually-hidden">A pasted response with three confirmed checks
-            and an approval stamp.</figcaption>
-          <div class="ca-sheet">
-            <p class="ca-head mono">positioning.md · v3</p>
-            <p class="ca-line ca-strong">Driftlog is a passive time logger for freelance
-              designers who bill by the hour but refuse to babysit a timer.</p>
-            <p class="ca-line">It watches the apps you already work in, then turns your day
-              into clean, client-ready entries in one review tap.</p>
-            <span class="ca-annot ca-annot-1 mono" aria-hidden="true">audience from your<br>facts — nothing invented</span>
-            <span class="ca-annot ca-annot-2 mono" aria-hidden="true">a claim you can<br>defend</span>
-
-            <ul class="ca-checks">
-              <li class="ca-check" style="--i:0"><span class="ca-mark" aria-hidden="true"></span>Names the audience you gave</li>
-              <li class="ca-check" style="--i:1"><span class="ca-mark" aria-hidden="true"></span>Claims only features from your list</li>
-              <li class="ca-check" style="--i:2"><span class="ca-mark" aria-hidden="true"></span>You would say this out loud</li>
-            </ul>
-
-            <span class="ca-stamp" aria-hidden="true">
-              <span class="ca-stamp-top">approved</span>
-              <span class="ca-stamp-sub mono">read by you · v3 · 3/3</span>
-            </span>
-          </div>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="tw-sec sec-kit" id="kit" aria-labelledby="kit-h">
-    <div class="tw-wrap">
-      <div class="kit-grid">
-        <header class="sec-head" data-reveal>
-          <p class="tw-kicker mono">the result</p>
-          <h2 id="kit-h">Finish with files, not a chat history.</h2>
-          <p class="sec-sub-tw">Everything you approve lands in one zip of plain files.
-            Yours to keep, ship, or hand off.</p>
-        </header>
-
-        <div class="kit-manifest" data-kit data-reveal>
-          <p class="km-head mono">launch-day-kit.zip <span class="km-count" data-kit-count>0 of 5 packed</span></p>
-          <ol class="km-files">
-            <li class="km-file" style="--i:0"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">positioning.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">step 1</span></li>
-            <li class="km-file" style="--i:1"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">landing-page.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">step 2</span></li>
-            <li class="km-file" style="--i:2"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">announcements.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">step 3</span></li>
-            <li class="km-file" style="--i:3"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">faq.md</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">step 4</span></li>
-            <li class="km-file km-file-manifest" style="--i:4"><span class="km-in" aria-hidden="true">→</span><span class="km-name mono">manifest.txt</span><span class="km-leader" aria-hidden="true"></span><span class="km-from">what you approved</span></li>
-          </ol>
-          <p class="km-foot mono">plain files · no lock-in</p>
+        </div>
+        <div class="compare-col compare-after">
+          <h3>What SousMeow feels like</h3>
+          <ul>
+            <li>One small step at a time</li>
+            <li>The prompt is already prepared</li>
+            <li>Each step explains why it matters</li>
+            <li>Examples show what good looks like</li>
+            <li>Clear checks help you continue</li>
+            <li>When answers are weak, you know what to fix</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <?php if ($featured !== null): ?>
-  <!-- 4. PROOF — real guided project demo -->
-  <section class="tw-sec sec-cookbook" id="proof" aria-labelledby="proof-h">
+  <!-- 4. EVERY STEP HAS A TEACHER -->
+  <section class="tw-sec sec-teacher" id="teacher" aria-labelledby="teacher-h">
     <div class="tw-wrap">
       <header class="sec-head" data-reveal>
-        <p class="tw-kicker mono">an example</p>
-        <h2 id="proof-h">One guided project, start to finish.</h2>
+        <p class="tw-kicker mono">inside a step</p>
+        <h2 id="teacher-h">Every step has a teacher.</h2>
+        <p class="sec-sub-tw">Not just a prompt. An explanation, an example, a place to paste,
+          and a clear way to know when you are ready.</p>
       </header>
 
-      <article class="cb-artifact" data-reveal aria-label="<?= e($featured['title']) ?>">
-        <div class="cb-cover">
-          <p class="cb-cat mono"><?= e($featured['category_name'] ?? '') ?> · <?= e($featured['difficulty'] ?? 'Intermediate') ?></p>
-          <h3 class="cb-title"><?= e($featured['title']) ?></h3>
-          <p class="cb-tagline"><?= e($featured['tagline']) ?></p>
+      <article class="teacher-demo" data-reveal aria-label="Example guided step">
+        <header class="td-head">
+          <p class="td-eyebrow mono">Step 1 of 4 · about 5 min</p>
+          <h3>Define who your landing page is for</h3>
+          <p class="td-what"><strong>What you are doing:</strong> Name a specific audience,
+            their main problem, and the outcome they want.</p>
+          <p class="td-why"><strong>Why it matters:</strong> Later steps quote this.
+            Vague audiences make generic landing pages.</p>
+        </header>
 
-          <dl class="cb-facts">
-            <div><dt class="mono">steps</dt><dd><?= (int) $featured['recipe_count'] ?></dd></div>
-            <div><dt class="mono">time</dt><dd>~<?= (int) $featured['est_minutes'] ?> min</dd></div>
-            <div><dt class="mono">completed runs</dt><dd><?= number_format((int) ($featured['demo_completed_runs'] ?? 0)) ?></dd></div>
-          </dl>
-
-          <div class="cb-outcome">
-            <p class="cb-outcome-label mono">you leave with</p>
-            <p class="cb-outcome-text"><?= e(ucfirst((string) $featured['outcome'])) ?>.</p>
+        <div class="td-prompt prompt-frame">
+          <div class="prompt-frame-bar mono">
+            <span>prepared prompt</span>
+            <span class="td-copy mono" aria-hidden="true">⧉ copy</span>
           </div>
+          <pre class="td-pre mono">Using only the facts below, write who this landing page is for.
+Invent nothing.
 
-          <a class="button button-ghost" href="<?= e(url('/cookbooks/' . $featured['slug'])) ?>">Open this guide</a>
+Product: Driftlog
+One-liner: Effortless time logging for freelance designers
+Audience notes: Freelancers who bill by the hour but hate timers
+
+Include: a specific audience, their main problem, and the outcome they want.</pre>
         </div>
 
-        <div class="cb-toc" aria-label="Table of contents">
-          <p class="cb-toc-head mono">what's inside</p>
-          <?php foreach ($featuredStages as $stage): ?>
-            <div class="cb-stage">
-              <p class="cb-stage-name"><span class="cb-stage-no mono"><?= sprintf('%02d', (int) $stage['position']) ?></span>
-                <?= e($stage['title']) ?> <span class="cb-stage-sum">— <?= e($stage['summary']) ?></span></p>
-              <ol class="cb-recipes">
-                <?php foreach ($recipesByStage[(int) $stage['position']] ?? [] as $recipe): ?>
-                  <li class="cb-recipe">
-                    <span class="cb-recipe-name"><?= e($recipe['title']) ?></span>
-                    <span class="cb-leader" aria-hidden="true"></span>
-                    <span class="cb-recipe-min mono"><?= (int) $recipe['est_minutes'] ?>&nbsp;min</span>
-                  </li>
-                <?php endforeach; ?>
-              </ol>
+        <div class="td-grid">
+          <div class="td-panel">
+            <p class="td-label mono">paste your AI response</p>
+            <div class="td-paste" aria-hidden="true">
+              <p>Freelance designers and small studios who bill by the hour…
+                They lose money forgetting to log hours and rebuilding the week on Friday.</p>
             </div>
-          <?php endforeach; ?>
+          </div>
+          <div class="td-panel">
+            <p class="td-label mono">what good looks like</p>
+            <ul class="td-good">
+              <li>Names a specific audience</li>
+              <li>States a real problem</li>
+              <li>Ends with a clear outcome</li>
+            </ul>
+            <p class="td-label mono td-label-spaced">common mistakes</p>
+            <ul class="td-miss">
+              <li>“Everyone who needs time tracking”</li>
+              <li>Features with no audience</li>
+              <li>Vague “save time” claims</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="td-check">
+          <p class="td-check-label mono">confidence check</p>
+          <p>Ready to continue when the answer names a specific audience, their main problem,
+            and the outcome they want.</p>
+          <p class="td-continue mono">→ continue to next step</p>
         </div>
       </article>
     </div>
   </section>
-  <?php endif; ?>
 
-  <!-- 5. EXPLORE — first natural introduction of Cookbook -->
-  <section class="tw-sec sec-shelf" id="shelf" aria-labelledby="shelf-h">
+  <!-- 5. LEARN WHILE YOU BUILD -->
+  <section class="tw-sec sec-learn" id="learn" aria-labelledby="learn-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">skill while you work</p>
+        <h2 id="learn-h">Get better at AI by actually using it.</h2>
+        <p class="sec-sub-tw">You finish a real project. Along the way you pick up practical
+          judgment. No course required.</p>
+      </header>
+
+      <ul class="learn-grid" data-reveal>
+        <li class="learn-item" style="--i:0">
+          <h3>Give useful context</h3>
+          <p>You learn what facts help AI write something specific.</p>
+        </li>
+        <li class="learn-item" style="--i:1">
+          <h3>Spot weak answers</h3>
+          <p>Examples and checks train your eye for generic fluff.</p>
+        </li>
+        <li class="learn-item" style="--i:2">
+          <h3>Improve without starting over</h3>
+          <p>Edit one part, paste a new take, or try again with clearer instructions.</p>
+        </li>
+        <li class="learn-item" style="--i:3">
+          <h3>See why a prompt works</h3>
+          <p>Prepared prompts show structure you can recognize next time.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6. RELATABLE THOUGHTS -->
+  <section class="tw-sec sec-said" id="said" aria-labelledby="said-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">if this sounds familiar</p>
+        <h2 id="said-h">Built for people who have said…</h2>
+      </header>
+
+      <ul class="said-grid" data-reveal>
+        <li class="said-card" style="--i:0">“I never know what to ask.”</li>
+        <li class="said-card" style="--i:1">“The answers always feel generic.”</li>
+        <li class="said-card" style="--i:2">“I don't know whether the result is good.”</li>
+        <li class="said-card" style="--i:3">“I keep rewriting the prompt.”</li>
+        <li class="said-card" style="--i:4">“I feel like everyone else understands AI better than I do.”</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 7. RECOVERY -->
+  <section class="tw-sec sec-recover" id="recover" aria-labelledby="recover-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">when output is weak</p>
+        <h2 id="recover-h">Bad AI answer? You're not stuck.</h2>
+        <p class="sec-sub-tw">Weak answers are normal. SousMeow keeps the work and shows
+          what you can do next. You stay in control.</p>
+      </header>
+
+      <ul class="recover-grid" data-reveal>
+        <li class="recover-card" style="--i:0"><strong>Improve this answer</strong><span>Edit the text by hand until it fits.</span></li>
+        <li class="recover-card" style="--i:1"><strong>Retry in your AI</strong><span>Paste a clearer prompt and bring a new response back.</span></li>
+        <li class="recover-card" style="--i:2"><strong>See an example</strong><span>Sample answers show the shape of a good result.</span></li>
+        <li class="recover-card" style="--i:3"><strong>Find what is missing</strong><span>Criteria call out the specific gap to fix.</span></li>
+        <li class="recover-card" style="--i:4"><strong>Simplify the response</strong><span>Trim noise until the important parts are clear.</span></li>
+        <li class="recover-card" style="--i:5"><strong>Continue and return later</strong><span>Approved work stays saved. Come back when ready.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 8. CONFIDENCE CHECKS -->
+  <section class="tw-sec sec-confidence" id="checks" aria-labelledby="checks-h">
+    <div class="tw-wrap">
+      <header class="sec-head" data-reveal>
+        <p class="tw-kicker mono">confidence checks</p>
+        <h2 id="checks-h">You'll always know when you're ready to continue.</h2>
+        <p class="sec-sub-tw">These are clear criteria you confirm yourself. SousMeow does not
+          auto-grade your AI's writing.</p>
+      </header>
+
+      <div class="conf-grid" data-reveal>
+        <figure class="conf-card conf-ok">
+          <p class="conf-state mono">ready</p>
+          <blockquote>You're ready. This answer includes a clear audience, problem, and outcome.</blockquote>
+          <ul class="conf-list">
+            <li class="is-on">Specific audience</li>
+            <li class="is-on">Real problem</li>
+            <li class="is-on">Desired outcome</li>
+          </ul>
+        </figure>
+        <figure class="conf-card conf-fix">
+          <p class="conf-state mono">needs work</p>
+          <blockquote>Almost there. The audience is still too broad. Make it more specific.</blockquote>
+          <ul class="conf-list">
+            <li class="is-on">Specific audience</li>
+            <li>Real problem</li>
+            <li>Desired outcome</li>
+          </ul>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. OUTCOMES -->
+  <section class="tw-sec sec-outcomes" id="outcomes" aria-labelledby="outcomes-h">
     <div class="tw-wrap">
       <header class="sec-head shelf-head" data-reveal>
         <div>
-          <p class="tw-kicker mono">explore</p>
-          <h2 id="shelf-h">We call these guides Cookbooks.</h2>
+          <p class="tw-kicker mono">what you can finish</p>
+          <h2 id="outcomes-h">Real projects. Finished files.</h2>
         </div>
-        <a class="shelf-all mono" href="<?= e($marketplaceUrl) ?>">see all Cookbooks →</a>
+        <a class="shelf-all mono" href="<?= e($marketplaceUrl) ?>">see guided projects →</a>
       </header>
-      <p class="sec-sub-tw" data-reveal>Each one is a step-by-step project with the hard thinking
-        already done. Pick one that matches what you want to finish.</p>
 
-      <?php if ($cookbooks === []): ?>
-        <p class="sec-sub-tw" data-reveal>Guides are being added —
-          <a href="<?= e($marketplaceUrl) ?>">browse what is ready</a>.</p>
+      <?php if ($outcomes === []): ?>
+        <p class="sec-sub-tw" data-reveal>Guides are being added.
+          <a href="<?= e($marketplaceUrl) ?>">Browse what is ready</a>.</p>
       <?php else: ?>
-      <ul class="shelf" data-reveal>
-        <?php foreach ($cookbooks as $i => $cookbook): ?>
-          <li class="shelf-book accent-<?= e(preg_replace('/[^a-z]/', '', (string) $cookbook['accent'])) ?>" style="--i:<?= (int) $i ?>">
-            <p class="sb-tag mono"><?= e($shelfLabel($cookbook)) ?></p>
-            <h3 class="sb-title"><a href="<?= e(url('/cookbooks/' . $cookbook['slug'])) ?>"><?= e($cookbook['title']) ?></a></h3>
-            <p class="sb-tagline"><?= e($cookbook['tagline']) ?></p>
-            <p class="sb-meta mono">
-              <?= (int) $cookbook['recipe_count'] ?> steps ·
-              ~<?= (int) $cookbook['est_minutes'] ?> min ·
-              <?= e($cookbook['difficulty'] ?? 'Intermediate') ?>
-            </p>
-            <p class="sb-foot">
-              <?php if ((int) $cookbook['is_executable'] === 1): ?>
-                <span class="sb-runs mono"><?= number_format((int) ($cookbook['demo_completed_runs'] ?? 0)) ?> runs · ★ <?= e((string) ($cookbook['demo_avg_rating'] ?? '')) ?></span>
-              <?php else: ?>
-                <span class="sb-runs mono">preview · coming soon</span>
-              <?php endif; ?>
-            </p>
-          </li>
-        <?php endforeach; ?>
-      </ul>
-      <div class="shelf-rail" aria-hidden="true"></div>
+        <ul class="outcome-grid" data-reveal>
+          <?php foreach ($outcomes as $i => $o): ?>
+            <li class="outcome-card accent-<?= e((string) $o['accent']) ?>" style="--i:<?= (int) $i ?>">
+              <p class="oc-status mono"><?= $o['ready'] ? 'available now' : 'preview' ?></p>
+              <h3><a href="<?= e(url('/cookbooks/' . $o['slug'])) ?>"><?= e($o['title']) ?></a></h3>
+              <p class="oc-result">You leave with: <?= e($o['result']) ?></p>
+              <p class="oc-meta mono">~<?= (int) $o['minutes'] ?> min</p>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+        <p class="outcomes-note mono" data-reveal>We call these reusable guides <strong>Cookbooks</strong>
+          once you are ready to start one.</p>
       <?php endif; ?>
     </div>
   </section>
 
+  <!-- 10. FINAL CTA -->
   <section class="tw-sec sec-cta" aria-labelledby="cta-h">
     <div class="tw-wrap">
       <div class="cta-inner" data-reveal>
-        <h2 id="cta-h">You don't have to become an AI expert.</h2>
-        <a class="button button-primary button-large" href="<?= e($marketplaceUrl) ?>">Find something to finish</a>
-        <p class="cta-foot mono">free to try · your AI · finished files</p>
+        <h2 id="cta-h">You do not need to become an AI expert.</h2>
+        <p class="cta-sub">You just need a clear next step.</p>
+        <a class="button button-primary button-large" href="<?= e($startUrl) ?>">Start your first guided project</a>
+        <p class="cta-foot mono">free to try · your own AI · finished files</p>
       </div>
     </div>
   </section>
