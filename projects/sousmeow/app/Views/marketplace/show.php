@@ -9,12 +9,14 @@ use SousMeow\Core\Csrf;
  * @var list<array<string, mixed>> $recipes
  * @var array<int, list<array<string, mixed>>> $recipeChecks
  * @var list<array<string, mixed>> $fields
+ * @var list<array<string, mixed>> $relatedCookbooks
  */
 $executable = (int) $cookbook['is_executable'] === 1;
 $isPaid = $cookbook['price_cents'] !== null;
 $price = $isPaid ? '$' . number_format(((int) $cookbook['price_cents']) / 100, 0) : 'Free';
 $runs = (int) ($cookbook['demo_completed_runs'] ?? 0);
 $rating = $cookbook['demo_avg_rating'] ?? null;
+$relatedCookbooks = $relatedCookbooks ?? [];
 
 $recipesByStage = [];
 foreach ($recipes as $recipe) {
@@ -55,7 +57,8 @@ foreach ($stages as $stage) {
         <div><dt>Made for</dt><dd><?= e($cookbook['audience']) ?></dd></div>
         <div><dt>You leave with</dt><dd><?= e($cookbook['outcome']) ?></dd></div>
         <div><dt>Time</dt><dd>about <?= (int) $cookbook['est_minutes'] ?> minutes</dd></div>
-        <div><dt>Requires</dt><dd>any AI you already use; sample answers included where available</dd></div>
+        <div><dt>Steps</dt><dd><?= e(plural(count($recipes), 'guided step')) ?></dd></div>
+        <div><dt>Requires</dt><dd>any AI you already use (a free chat account is usually enough); sample answers included where available</dd></div>
         <?php if ($runs > 0): ?>
           <div><dt>Completed runs</dt><dd><?= e(number_format($runs)) ?> (demo metric)</dd></div>
         <?php endif; ?>
@@ -238,4 +241,25 @@ foreach ($stages as $stage) {
       <li><code>README.md</code> Manifest of what you approved</li>
     </ul>
   </section>
+
+  <?php if ($relatedCookbooks !== []): ?>
+    <section class="detail-related" aria-labelledby="related-heading">
+      <div class="section-heading">
+        <h2 id="related-heading"><?= in_array((string) $cookbook['slug'], [
+            'tailor-resume-to-a-job',
+            'prep-for-an-interview',
+            'write-a-strong-cover-letter',
+            'improve-your-linkedin-profile',
+            'plan-a-career-change',
+            'prepare-for-salary-negotiation',
+        ], true) ? 'Continue your job search' : 'Related Cookbooks' ?></h2>
+        <span class="section-sub">Nearby guided projects you can start next</span>
+      </div>
+      <div class="cookbook-grid detail-related-grid">
+        <?php foreach ($relatedCookbooks as $c): ?>
+          <?php \SousMeow\Core\View::partial('partials/cookbook-card', ['c' => $c]); ?>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  <?php endif; ?>
 </div>

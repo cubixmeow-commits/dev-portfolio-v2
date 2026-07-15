@@ -20,7 +20,7 @@ return [
     'tagline'             => "Clarify what you do, where you're heading, and why it matters.",
     'description'         => 'A useful LinkedIn profile makes your current work, target direction, and evidence easy to understand. This Cookbook helps you define positioning, compare headlines, rewrite About copy, improve experience entries, organize skills and proof, draft content pillars, and review consistency. It avoids influencer exaggeration unless you explicitly ask for that tone. ' . sm_career_beginner_footer('a positioning statement, headline options, About section, experience entries, skills/proof map, content pillars, and consistency checklist', 7, 'about 65 minutes'),
     'primary_category'    => 'career-freelance',
-    'collections'         => ['start-here', 'selected-by-sousmeow'],
+    'collections'         => [],
     'audience'            => 'Professionals updating a LinkedIn profile for job search, freelance work, or clearer positioning',
     'outcome'             => 'positioning statement, headline options, About section, experience entries, skills/proof map, content pillars, and consistency checklist',
     'price_cents'         => null,

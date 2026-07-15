@@ -55,16 +55,41 @@ final class MarketplaceController
             }
         }
 
+        require_once dirname(__DIR__, 2) . '/database/seeds/career_helpers.php';
+        $relatedCookbooks = [];
+        if (in_array((string) $cookbook['slug'], sm_career_collection_slugs(), true)) {
+            foreach (sm_career_related_slugs((string) $cookbook['slug']) as $relatedSlug) {
+                $related = Cookbook::listingBySlug($relatedSlug);
+                if ($related !== null) {
+                    $relatedCookbooks[] = $related;
+                }
+            }
+        } else {
+            $category = Category::forCookbook((int) $cookbook['id']);
+            if ($category !== null) {
+                foreach (Cookbook::inCategory((int) $category['id']) as $peer) {
+                    if ((int) $peer['id'] === (int) $cookbook['id']) {
+                        continue;
+                    }
+                    $relatedCookbooks[] = $peer;
+                    if (count($relatedCookbooks) >= 5) {
+                        break;
+                    }
+                }
+            }
+        }
+
         View::render('marketplace/show', [
-            'title'        => (string) $cookbook['title'],
-            'pageCss'      => 'marketplace',
-            'cookbook'     => $cookbook,
-            'category'     => Category::forCookbook((int) $cookbook['id']),
-            'collections'  => $collections,
-            'stages'       => CookbookStage::forCookbook((int) $cookbook['id']),
-            'recipes'      => $recipes,
-            'recipeChecks' => $recipeChecks,
-            'fields'       => PantryField::forCookbook((int) $cookbook['id']),
+            'title'            => (string) $cookbook['title'],
+            'pageCss'          => 'marketplace',
+            'cookbook'         => $cookbook,
+            'category'         => Category::forCookbook((int) $cookbook['id']),
+            'collections'      => $collections,
+            'stages'           => CookbookStage::forCookbook((int) $cookbook['id']),
+            'recipes'          => $recipes,
+            'recipeChecks'     => $recipeChecks,
+            'fields'           => PantryField::forCookbook((int) $cookbook['id']),
+            'relatedCookbooks' => $relatedCookbooks,
         ]);
     }
 }

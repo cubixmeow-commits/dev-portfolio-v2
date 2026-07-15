@@ -20,7 +20,7 @@ return [
     'tagline'             => "Connect real experience to the employer's needs in one letter.",
     'description'         => 'A strong cover letter does not repeat the resume in paragraph form. This Cookbook helps you identify employer needs, choose truthful evidence, form one central argument, draft the letter, remove generic language, and prepare short application messages. ' . sm_career_beginner_footer('an employer-needs brief, evidence selection, tailored cover letter, application note, follow-up email, and fact checklist', 6, 'about 55 minutes'),
     'primary_category'    => 'career-freelance',
-    'collections'         => ['start-here', 'selected-by-sousmeow'],
+    'collections'         => [],
     'audience'            => 'Job seekers writing a tailored cover letter from real experience and a real posting',
     'outcome'             => 'employer-needs brief, evidence selection, opening-hook alternatives, tailored cover letter, short application note, follow-up email, and fact and tone checklist',
     'price_cents'         => null,

@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of twenty-four first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform. Every primary category has exactly two Cookbooks.
+Curated library of twenty-nine first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform. Most categories have two Cookbooks; Career & Freelance hosts the Career Collection plus the portfolio preview.
 
 ## Mandatory authoring rule
 
@@ -32,7 +32,12 @@ Each Cookbook must keep a unique **stage shape** (recipes per stage, e.g. `2-2-1
 | Plan a Newsletter Issue | Executable | 3 | 8 | 6 | Beginner | 35 min | 2-3-3 | content-audience |
 | Outline an Article | Executable | 3 | 5 | 6 | Beginner | 25 min | 1-3-1 | writing-publishing |
 | Critique a Screen | Executable | 3 | 7 | 7 | Intermediate | 40 min | 2-2-3 | design-brand |
-| Prep for an Interview | Executable | 3 | 8 | 7 | Beginner | 35 min | 3-2-3 | career-freelance |
+| Tailor Your Resume to a Job | Executable | 4 | 7 | 10 | Beginner | 80 min | 2-2-2-1 | career-freelance |
+| Prepare for an Interview | Executable | 4 | 7 | 9 | Beginner | 75 min | 1-2-2-2 | career-freelance |
+| Write a Strong Cover Letter | Executable | 4 | 6 | 10 | Beginner | 55 min | 2-2-1-1 | career-freelance |
+| Improve Your LinkedIn Profile | Executable | 4 | 7 | 9 | Beginner | 65 min | 2-3-1-1 | career-freelance |
+| Plan a Career Change | Executable | 4 | 8 | 10 | Beginner | 90 min | 2-2-2-2 | career-freelance |
+| Prepare for a Salary Negotiation | Executable | 4 | 7 | 8 | Beginner | 70 min | 1-3-2-1 | career-freelance |
 | Synthesize Interview Notes | Executable | 4 | 6 | 7 | Intermediate | 50 min | 1-2-2-1 | research-insights |
 | Plan a Lesson | Executable | 3 | 5 | 7 | Beginner | 45 min | 2-1-2 | learning-teaching |
 | Document a Simple Process | Executable | 3 | 7 | 6 | Beginner | 30 min | 3-2-2 | planning-productivity |
@@ -40,6 +45,8 @@ Each Cookbook must keep a unique **stage shape** (recipes per stage, e.g. `2-2-1
 | Set a Thirty-Day Goal | Executable | 3 | 6 | 6 | Beginner | 22 min | 1-4-1 | personal-projects |
 
 No two Cookbooks share the same stage shape.
+
+Career Collection research notes live in `research/CAREER_COLLECTION_SOURCE_NOTES.md`. QA matrix: `research/CAREER_COLLECTION_QA.md`.
 
 ---
 

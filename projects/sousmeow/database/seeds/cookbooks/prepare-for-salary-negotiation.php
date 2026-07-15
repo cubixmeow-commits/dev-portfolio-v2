@@ -20,7 +20,7 @@ return [
     'tagline'             => 'Build a calm, evidence-based negotiation plan you can verify.',
     'description'         => 'Salary negotiation prep should separate evidence, research to verify, relationship tone, and fallback options. This Cookbook is not legal, financial, tax, or employment-law advice; verify all salary figures with reliable sources before using them. It never invents market ranges or tells you what you deserve without evidence. ' . sm_career_beginner_footer('a negotiation objective, evidence case, research checklist, target and fallback plan, opening script, pushback responses, follow-up note, and decision checklist', 7, 'about 70 minutes'),
     'primary_category'    => 'career-freelance',
-    'collections'         => ['start-here', 'selected-by-sousmeow'],
+    'collections'         => [],
     'audience'            => 'Job seekers and employees preparing a calm, evidence-based compensation conversation',
     'outcome'             => 'negotiation objective, evidence case, research checklist, target and fallback plan, opening conversation draft, pushback responses, follow-up note, and decision checklist',
     'price_cents'         => null,

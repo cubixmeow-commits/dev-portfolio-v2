@@ -20,7 +20,7 @@ return [
     'tagline'             => 'Map a realistic transition without pretending gaps disappear.',
     'description'         => 'A career change is easier to plan when transferable skills, real gaps, proof, and small validation experiments are visible. This Cookbook helps you define the transition, map skills, compare capabilities, name gaps, prioritize learning and proof, build a staged plan, test assumptions, and produce a 90-day roadmap. It does not tell you to quit a job or make major financial decisions; it presents options, assumptions, and risks to verify. ' . sm_career_beginner_footer('a transferable-skills map, gap analysis, learning plan, proof plan, experiments, 90-day roadmap, and progress review template', 8, 'about 90 minutes'),
     'primary_category'    => 'career-freelance',
-    'collections'         => ['start-here', 'selected-by-sousmeow'],
+    'collections'         => [],
     'audience'            => 'People exploring a role or industry change who want a grounded transition plan',
     'outcome'             => 'transferable-skills map, gap analysis, learning plan, proof plan, experiments, 90-day roadmap, and progress review template',
     'price_cents'         => null,
