@@ -50,9 +50,14 @@ set_exception_handler(static function (Throwable $e) use ($isDev): void {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-$basePath = rtrim(Config::string('app.base_path'), '/');
+// Same helper used by url()/asset() so Config and .env stay aligned.
+$basePath = rtrim(app_base_path(), '/');
 if ($basePath !== '' && str_starts_with($path, $basePath)) {
     $path = substr($path, strlen($basePath)) ?: '/';
+}
+// If base_path was set without /public but REQUEST_URI still includes it.
+if ($path === '/public' || str_starts_with($path, '/public/')) {
+    $path = substr($path, strlen('/public')) ?: '/';
 }
 
 if ($method === 'POST') {

@@ -17,13 +17,14 @@ return [
         // and unlocks the simulation control page for signed-in users.
         'env' => 'development',
 
-        // Public base URL of the app, no trailing slash.
+        // Public origin only (no path). Used for absolute / share links.
         'url' => Env::get('APP_URL', 'http://localhost:8091'),
 
         'base_url' => Env::get('APP_URL', 'http://localhost:8091'),
 
-        // Path prefix if the app lives in a subdirectory, e.g. '/rally'.
-        'base_path' => '',
+        // Subdirectory prefix with no trailing slash, e.g.
+        // '/iain/projects/rally/public' on cubixmeow.com.
+        'base_path' => Env::get('APP_BASE_PATH', ''),
 
         'timezone' => 'UTC',
 
