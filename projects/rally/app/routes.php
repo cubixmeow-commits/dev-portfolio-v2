@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Rally\Controllers\ActivityController;
 use Rally\Controllers\AuthController;
 use Rally\Controllers\DashboardController;
 use Rally\Controllers\HomeController;
@@ -20,6 +21,7 @@ return static function (Router $router): void {
     $router->post('/logout', [AuthController::class, 'logout']);
 
     $router->get('/dashboard', [DashboardController::class, 'index']);
+    $router->get('/activity', [ActivityController::class, 'index']);
 
     $router->get('/matches', [MatchController::class, 'index']);
     $router->get('/matches/create', [MatchController::class, 'create']);

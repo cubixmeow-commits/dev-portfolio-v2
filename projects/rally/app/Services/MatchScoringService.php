@@ -8,17 +8,29 @@ use Rally\Core\Database;
 
 /**
  * Derives match scores and summary statistics from official match days.
- * Nothing here is persisted — tie counts, voids, streaks, and margins are
- * always computed from current day and result rows.
+ * Supports daily_wins and series_average strategies. Nothing is persisted.
  */
 final class MatchScoringService
 {
     /**
      * @param array<string, mixed> $match
-     * @param list<array<string, mixed>> $days With optional embedded results.
+     * @param list<array<string, mixed>> $days
      * @return array<string, mixed>
      */
     public static function summarize(array $match, array $days): array
+    {
+        if (MetricCompetitionService::isSeriesAverage($match)) {
+            return self::summarizeSeriesAverage($match, $days);
+        }
+        return self::summarizeDailyWins($match, $days);
+    }
+
+    /**
+     * @param array<string, mixed> $match
+     * @param list<array<string, mixed>> $days
+     * @return array<string, mixed>
+     */
+    private static function summarizeDailyWins(array $match, array $days): array
     {
         $playerA = (int) $match['player_a_user_id'];
         $playerB = (int) $match['player_b_user_id'];
@@ -33,15 +45,13 @@ final class MatchScoringService
         $pendingDays = 0;
         $remainingDays = 0;
         $liveDays = 0;
-
-        $officialOutcomes = []; // chronological decisive or tie outcomes for streak
+        $officialOutcomes = [];
         $margins = [];
         $valuesA = [];
         $valuesB = [];
 
         foreach ($days as $day) {
             $status = (string) $day['status'];
-
             if ($status === 'scheduled') {
                 $remainingDays++;
                 continue;
@@ -67,9 +77,7 @@ final class MatchScoringService
             $officialDays++;
             $resultA = self::resultFor($day, $playerA);
             $resultB = self::resultFor($day, $playerB);
-
             if ($resultA === null || $resultB === null) {
-                // Should not happen for official days; treat as void-like anomaly.
                 $voids++;
                 continue;
             }
@@ -78,7 +86,6 @@ final class MatchScoringService
             $valB = (int) $resultB['metric_value'];
             $valuesA[] = $valA;
             $valuesB[] = $valB;
-
             $cmp = MetricComparisonService::compare($valA, $valB, $tieThreshold, $higherWins);
 
             if ($cmp['is_tie']) {
@@ -95,27 +102,16 @@ final class MatchScoringService
             }
         }
 
-        $isComplete = ((string) $match['status'] === 'completed')
-            || (self::allDaysTerminal($days) && $remainingDays === 0 && $pendingDays === 0 && $liveDays === 0
-                && $officialDays === count($days));
-
-        // More accurate complete check: every day official or void.
         $isComplete = self::allDaysTerminal($days);
-
         $leaderUserId = null;
-        $isDraw = false;
         if ($playerAWins > $playerBWins) {
             $leaderUserId = $playerA;
         } elseif ($playerBWins > $playerAWins) {
             $leaderUserId = $playerB;
-        } else {
-            $isDraw = $isComplete && $playerAWins === $playerBWins;
-            // When not complete and tied on wins, no leader.
         }
 
-        $isProvisional = !$isComplete;
-
         return [
+            'scoring_strategy' => MetricCompetitionService::STRATEGY_DAILY_WINS,
             'player_a_wins' => $playerAWins,
             'player_b_wins' => $playerBWins,
             'ties' => $ties,
@@ -125,7 +121,7 @@ final class MatchScoringService
             'remaining_days' => $remainingDays + $liveDays,
             'live_days' => $liveDays,
             'leader_user_id' => $leaderUserId,
-            'is_provisional' => $isProvisional,
+            'is_provisional' => !$isComplete,
             'is_complete' => $isComplete,
             'is_draw' => $isComplete && $playerAWins === $playerBWins,
             'current_streak' => self::currentStreak($officialOutcomes, $playerA, $playerB),
@@ -138,15 +134,144 @@ final class MatchScoringService
     }
 
     /**
-     * Load days + results and summarize a match by id.
-     *
+     * @param array<string, mixed> $match
+     * @param list<array<string, mixed>> $days
+     * @return array<string, mixed>
+     */
+    private static function summarizeSeriesAverage(array $match, array $days): array
+    {
+        $playerA = (int) $match['player_a_user_id'];
+        $playerB = (int) $match['player_b_user_id'];
+        $tieThreshold = (int) $match['tie_threshold'];
+        $higherWins = (int) ($match['higher_wins'] ?? 1) === 1;
+
+        $voids = 0;
+        $officialDays = 0;
+        $pendingDays = 0;
+        $remainingDays = 0;
+        $liveDays = 0;
+        $valuesA = [];
+        $valuesB = [];
+        $dailyA = 0;
+        $dailyB = 0;
+        $dailyTies = 0;
+        $allOfficialValues = [];
+
+        foreach ($days as $day) {
+            $status = (string) $day['status'];
+            if ($status === 'scheduled') {
+                $remainingDays++;
+                continue;
+            }
+            if ($status === 'live') {
+                $liveDays++;
+                $remainingDays++;
+                continue;
+            }
+            if ($status === 'pending') {
+                $pendingDays++;
+                continue;
+            }
+            if ($status === 'void') {
+                $voids++;
+                $officialDays++;
+                continue;
+            }
+            if ($status !== 'official') {
+                continue;
+            }
+
+            $officialDays++;
+            $resultA = self::resultFor($day, $playerA);
+            $resultB = self::resultFor($day, $playerB);
+            if ($resultA === null || $resultB === null) {
+                $voids++;
+                continue;
+            }
+
+            $valA = (int) $resultA['metric_value'];
+            $valB = (int) $resultB['metric_value'];
+            $valuesA[] = $valA;
+            $valuesB[] = $valB;
+            $allOfficialValues[] = $valA;
+            $allOfficialValues[] = $valB;
+
+            $cmp = MetricComparisonService::compare($valA, $valB, $tieThreshold, $higherWins);
+            if ($cmp['is_tie']) {
+                $dailyTies++;
+            } elseif ($cmp['winner_side'] === 'a') {
+                $dailyA++;
+            } else {
+                $dailyB++;
+            }
+        }
+
+        $avgA = $valuesA === [] ? null : array_sum($valuesA) / count($valuesA);
+        $avgB = $valuesB === [] ? null : array_sum($valuesB) / count($valuesB);
+        $avgDiff = ($avgA !== null && $avgB !== null) ? abs($avgA - $avgB) : null;
+
+        $isComplete = self::allDaysTerminal($days);
+        $leaderUserId = null;
+        $isDraw = false;
+
+        if ($avgA !== null && $avgB !== null) {
+            if ($avgDiff !== null && $avgDiff < $tieThreshold) {
+                if ($isComplete) {
+                    $isDraw = true;
+                }
+                // Provisional: no leader when within threshold.
+            } else {
+                $aLeads = $higherWins ? ($avgA > $avgB) : ($avgA < $avgB);
+                $leaderUserId = $aLeads ? $playerA : $playerB;
+                if ($isComplete && $avgDiff !== null && $avgDiff < $tieThreshold) {
+                    $isDraw = true;
+                    $leaderUserId = null;
+                }
+            }
+        }
+
+        // Equal-to-threshold is decisive (handled by NOT < threshold above).
+
+        return [
+            'scoring_strategy' => MetricCompetitionService::STRATEGY_SERIES_AVERAGE,
+            'player_a_average' => $avgA === null ? null : round($avgA, 2),
+            'player_b_average' => $avgB === null ? null : round($avgB, 2),
+            'average_difference' => $avgDiff === null ? null : round($avgDiff, 2),
+            'daily_comparison_a_leads' => $dailyA,
+            'daily_comparison_b_leads' => $dailyB,
+            'daily_comparison_ties' => $dailyTies,
+            'voids' => $voids,
+            'official_days' => $officialDays,
+            'pending_days' => $pendingDays,
+            'remaining_days' => $remainingDays + $liveDays,
+            'live_days' => $liveDays,
+            'leader_user_id' => $isDraw ? null : $leaderUserId,
+            'is_provisional' => !$isComplete,
+            'is_complete' => $isComplete,
+            'is_draw' => $isComplete && ($isDraw || ($avgA !== null && $avgB !== null && $avgDiff !== null && $avgDiff < $tieThreshold)),
+            'highest_value' => $allOfficialValues === [] ? null : max($allOfficialValues),
+            'lowest_value' => $allOfficialValues === [] ? null : min($allOfficialValues),
+            // Compatibility aliases for shared UI bits
+            'player_a_wins' => $dailyA,
+            'player_b_wins' => $dailyB,
+            'ties' => $dailyTies,
+            'average_a' => $avgA === null ? null : (int) round($avgA),
+            'average_b' => $avgB === null ? null : (int) round($avgB),
+            'score_display' => ($avgA !== null && $avgB !== null)
+                ? MetricFormatter::formatCompact($avgA, $match) . ' / ' . MetricFormatter::formatCompact($avgB, $match)
+                : '—',
+        ];
+    }
+
+    /**
      * @return array{match: array<string, mixed>, days: list<array<string, mixed>>, summary: array<string, mixed>}
      */
     public static function forMatchId(int $matchId): array
     {
         $match = Database::fetch(
             'SELECT m.*, mt.slug AS metric_slug, mt.name AS metric_name, mt.unit AS metric_unit,
-                    mt.higher_wins,
+                    mt.display_unit, mt.classification, mt.scoring_strategy, mt.higher_wins,
+                    mt.description, mt.context_note, mt.default_length_days, mt.default_tie_threshold,
                     ua.name AS player_a_name, ua.username AS player_a_username,
                     ub.name AS player_b_name, ub.username AS player_b_username,
                     sa.name AS player_a_source_name, sa.source_class AS player_a_source_class, sa.slug AS player_a_source_slug,
@@ -170,9 +295,7 @@ final class MatchScoringService
         return ['match' => $match, 'days' => $days, 'summary' => $summary];
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
+    /** @return list<array<string, mixed>> */
     public static function daysWithResults(int $matchId): array
     {
         $days = Database::fetchAll(
@@ -194,7 +317,6 @@ final class MatchScoringService
         foreach ($results as $row) {
             $byDay[(int) $row['match_day_id']][] = $row;
         }
-
         foreach ($days as &$day) {
             $day['results'] = $byDay[(int) $day['id']] ?? [];
         }
@@ -203,10 +325,7 @@ final class MatchScoringService
         return $days;
     }
 
-    /**
-     * @param array<string, mixed> $day
-     * @return array<string, mixed>|null
-     */
+    /** @param array<string, mixed> $day @return array<string, mixed>|null */
     private static function resultFor(array $day, int $userId): ?array
     {
         foreach ($day['results'] ?? [] as $result) {
@@ -270,8 +389,6 @@ final class MatchScoringService
     }
 
     /**
-     * Daily winner label for an official day.
-     *
      * @param array<string, mixed> $match
      * @param array<string, mixed> $day
      * @return array<string, mixed>
@@ -328,7 +445,7 @@ final class MatchScoringService
         if ($cmp['is_tie']) {
             return [
                 'kind' => 'tie',
-                'label' => 'Tie',
+                'label' => MetricCompetitionService::isSeriesAverage($match) ? 'Within threshold' : 'Tie',
                 'winner_user_id' => null,
                 'margin' => $cmp['margin'],
                 'value_a' => $valA,
@@ -339,7 +456,7 @@ final class MatchScoringService
         $winnerId = $cmp['winner_side'] === 'a' ? $playerA : $playerB;
         return [
             'kind' => 'win',
-            'label' => 'Win',
+            'label' => MetricCompetitionService::isSeriesAverage($match) ? 'Daily lead' : 'Win',
             'winner_user_id' => $winnerId,
             'winner_side' => $cmp['winner_side'],
             'margin' => $cmp['margin'],

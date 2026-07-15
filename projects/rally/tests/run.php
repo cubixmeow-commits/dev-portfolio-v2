@@ -16,10 +16,14 @@ if (PHP_SAPI !== 'cli') {
 require __DIR__ . '/../app/bootstrap.php';
 
 use Rally\Core\Database;
+use Rally\Services\ActivityFeedService;
 use Rally\Services\Clock;
 use Rally\Services\MatchService;
 use Rally\Services\MatchScoringService;
 use Rally\Services\MetricComparisonService;
+use Rally\Services\MetricCompetitionService;
+use Rally\Services\MetricFormatter;
+use Rally\Services\PersonalRecordsService;
 use Rally\Services\ResultIngestionService;
 use Rally\Services\SettlementService;
 
@@ -124,8 +128,36 @@ foreach (array_filter(array_map('trim', explode(';', implode("\n", $lines)))) as
 Clock::freezeForTests(new DateTimeImmutable('2026-07-21T19:00:00Z'));
 
 $now = '2026-07-21 12:00:00';
-Database::run('INSERT INTO rly_metric_types (slug, name, unit, higher_wins, is_active, created_at) VALUES (?,?,?,1,1,?)', ['steps', 'Daily Steps', 'steps', $now]);
-$metricId = (int) Database::fetchValue('SELECT id FROM rly_metric_types WHERE slug=?', ['steps']);
+$insertMetric = static function (
+    string $slug,
+    string $name,
+    string $unit,
+    ?string $displayUnit,
+    string $classification,
+    string $strategy,
+    int $higherWins,
+    int $defaultLength,
+    int $defaultThreshold
+) use ($now): int {
+    Database::run(
+        'INSERT INTO rly_metric_types
+         (slug, name, unit, display_unit, classification, scoring_strategy, higher_wins,
+          default_length_days, default_tie_threshold, description, context_note, is_active, created_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,1,?)',
+        [
+            $slug, $name, $unit, $displayUnit, $classification, $strategy, $higherWins,
+            $defaultLength, $defaultThreshold, $name . ' competition', null, $now,
+        ]
+    );
+    return (int) Database::fetchValue('SELECT id FROM rly_metric_types WHERE slug=?', [$slug]);
+};
+
+$metricId = $insertMetric('steps', 'Daily Steps', 'steps', null, 'performance', 'daily_wins', 1, 14, 100);
+$metricActive = $insertMetric('active_minutes', 'Active Minutes', 'min', null, 'performance', 'daily_wins', 1, 14, 2);
+$metricRhr = $insertMetric('resting_heart_rate', 'Resting Heart Rate', 'bpm', null, 'health_comparison', 'series_average', 0, 7, 1);
+$metricHrv = $insertMetric('hrv', 'Heart Rate Variability', 'ms', null, 'health_comparison', 'series_average', 1, 7, 2);
+$metricSleep = $insertMetric('sleep_duration', 'Sleep Duration', 'min', 'hours_minutes', 'health_comparison', 'series_average', 1, 7, 15);
+
 Database::run('INSERT INTO rly_data_sources (slug, name, source_class, is_active, created_at) VALUES (?,?,?,1,?)', ['apple_watch', 'Apple Watch', 'watch', $now]);
 Database::run('INSERT INTO rly_data_sources (slug, name, source_class, is_active, created_at) VALUES (?,?,?,1,?)', ['iphone', 'iPhone', 'phone', $now]);
 $srcWatch = (int) Database::fetchValue('SELECT id FROM rly_data_sources WHERE slug=?', ['apple_watch']);
@@ -138,6 +170,32 @@ Database::run('INSERT INTO rly_users (name, username, email, password_hash, role
     ['Bob', 'bob', 'b@test.local', $hash, 'user', 0, 'Europe/London', 'active', $now, $now]);
 $alice = (int) Database::fetchValue('SELECT id FROM rly_users WHERE username=?', ['alice']);
 $bob = (int) Database::fetchValue('SELECT id FROM rly_users WHERE username=?', ['bob']);
+
+echo "\nMetric definitions\n";
+$defs = Database::fetchAll('SELECT * FROM rly_metric_types ORDER BY slug');
+assert_eq(5, count($defs), 'All five metrics seed correctly');
+$bySlug = [];
+foreach ($defs as $d) {
+    $bySlug[$d['slug']] = $d;
+}
+assert_eq('daily_wins', $bySlug['steps']['scoring_strategy'], 'Steps strategy daily_wins');
+assert_eq('daily_wins', $bySlug['active_minutes']['scoring_strategy'], 'Active minutes strategy');
+assert_eq('series_average', $bySlug['hrv']['scoring_strategy'], 'HRV strategy series_average');
+assert_eq('series_average', $bySlug['resting_heart_rate']['scoring_strategy'], 'RHR strategy');
+assert_eq('series_average', $bySlug['sleep_duration']['scoring_strategy'], 'Sleep strategy');
+assert_eq(1, (int) $bySlug['steps']['higher_wins'], 'Steps higher wins');
+assert_eq(0, (int) $bySlug['resting_heart_rate']['higher_wins'], 'RHR lower wins');
+assert_eq(1, (int) $bySlug['hrv']['higher_wins'], 'HRV higher wins');
+assert_eq(100, (int) $bySlug['steps']['default_tie_threshold'], 'Steps default threshold');
+assert_eq(2, (int) $bySlug['active_minutes']['default_tie_threshold'], 'Active minutes threshold');
+assert_eq(1, (int) $bySlug['resting_heart_rate']['default_tie_threshold'], 'RHR threshold');
+assert_eq(2, (int) $bySlug['hrv']['default_tie_threshold'], 'HRV threshold');
+assert_eq(15, (int) $bySlug['sleep_duration']['default_tie_threshold'], 'Sleep threshold');
+assert_eq('7h 47m', MetricFormatter::format(467, $bySlug['sleep_duration']), 'Sleep values format correctly');
+assert_eq('11,248 steps', MetricFormatter::format(11248, $bySlug['steps']), 'Steps formatting');
+assert_eq('84 min', MetricFormatter::format(84, $bySlug['active_minutes']), 'Active minutes formatting');
+assert_eq('58 bpm', MetricFormatter::format(58, $bySlug['resting_heart_rate']), 'RHR formatting');
+assert_eq('62 ms', MetricFormatter::format(62, $bySlug['hrv']), 'HRV formatting');
 
 echo "\nMatch timezone authority\n";
 $match = MatchService::create([
@@ -337,6 +395,139 @@ $outcome = MatchScoringService::dayOutcome(
 );
 assert_eq('awaiting', $outcome['kind'], 'No results → awaiting, not zero');
 assert_eq(null, $outcome['value_a'], 'Missing value stays null');
+
+echo "\nDaily-wins: active minutes\n";
+Clock::freezeForTests(new DateTimeImmutable('2026-09-01T12:00:00Z'));
+$amMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricActive,
+    'start_date' => '2026-09-01', 'length_days' => 3, 'timezone' => 'UTC', 'tie_threshold' => 2,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$amId = (int) $amMatch['id'];
+$amDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$amId]);
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $amDays[0]['id'], 'metric_type' => 'active_minutes', 'value' => 80, 'data_source' => $srcWatch, 'source_record_key' => 'am1a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $amDays[0]['id'], 'metric_type' => 'active_minutes', 'value' => 70, 'data_source' => $srcWatch, 'source_record_key' => 'am1b'], true);
+SettlementService::settleDayNow((int) $amDays[0]['id']);
+$pack = MatchScoringService::forMatchId($amId);
+assert_eq('daily_wins', $pack['summary']['scoring_strategy'], 'Active minutes score by daily victories');
+assert_eq(1, $pack['summary']['player_a_wins'], 'Active minutes day 1 win for A');
+
+echo "\nSeries-average: HRV / RHR / Sleep\n";
+Clock::freezeForTests(new DateTimeImmutable('2026-09-10T12:00:00Z'));
+$hrvMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricHrv,
+    'start_date' => '2026-09-10', 'length_days' => 3, 'timezone' => 'UTC', 'tie_threshold' => 2,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$hrvId = (int) $hrvMatch['id'];
+$hrvDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$hrvId]);
+// A averages higher: 60,62,64 vs 50,52,54
+foreach ([[60, 50], [62, 52], [64, 54]] as $i => [$va, $vb]) {
+    ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $hrvDays[$i]['id'], 'metric_type' => 'hrv', 'value' => $va, 'data_source' => $srcWatch, 'source_record_key' => "hrva{$i}"], true);
+    ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $hrvDays[$i]['id'], 'metric_type' => 'hrv', 'value' => $vb, 'data_source' => $srcWatch, 'source_record_key' => "hrvb{$i}"], true);
+    SettlementService::settleDayNow((int) $hrvDays[$i]['id']);
+}
+$pack = MatchScoringService::forMatchId($hrvId);
+assert_eq('series_average', $pack['summary']['scoring_strategy'], 'Correct series summary type');
+assert_eq($alice, $pack['summary']['leader_user_id'], 'HRV winner uses highest official average');
+assert_true(abs(($pack['summary']['player_a_average'] ?? 0) - 62.0) < 0.01, 'HRV A average 62');
+assert_true($pack['summary']['daily_comparison_a_leads'] >= 1, 'Daily comparison ownership recorded');
+assert_true($pack['summary']['is_complete'], 'All days settled → complete');
+
+// Pending observation does not affect official average
+Database::run("UPDATE rly_match_days SET status='pending', official_at=NULL WHERE id=?", [(int) $hrvDays[2]['id']]);
+$pack = MatchScoringService::forMatchId($hrvId);
+assert_true(abs(($pack['summary']['player_a_average'] ?? 0) - 61.0) < 0.01, 'Pending observations do not affect official averages');
+assert_true($pack['summary']['is_provisional'], 'Series-average match provisional until all days settle');
+assert_true(!$pack['summary']['is_complete'], 'Incomplete while pending');
+// Restore official for later
+Database::run("UPDATE rly_match_days SET status='official', official_at=? WHERE id=?", [Clock::nowUtcString(), (int) $hrvDays[2]['id']]);
+
+$rhrMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricRhr,
+    'start_date' => '2026-09-20', 'length_days' => 2, 'timezone' => 'UTC', 'tie_threshold' => 1,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$rhrId = (int) $rhrMatch['id'];
+$rhrDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$rhrId]);
+foreach ([[55, 62], [57, 60]] as $i => [$va, $vb]) {
+    ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $rhrDays[$i]['id'], 'metric_type' => 'resting_heart_rate', 'value' => $va, 'data_source' => $srcWatch, 'source_record_key' => "rhra{$i}"], true);
+    ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $rhrDays[$i]['id'], 'metric_type' => 'resting_heart_rate', 'value' => $vb, 'data_source' => $srcWatch, 'source_record_key' => "rhrb{$i}"], true);
+    SettlementService::settleDayNow((int) $rhrDays[$i]['id']);
+}
+$pack = MatchScoringService::forMatchId($rhrId);
+assert_eq($alice, $pack['summary']['leader_user_id'], 'Resting heart rate winner uses lowest official average');
+
+$sleepMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricSleep,
+    'start_date' => '2026-09-25', 'length_days' => 2, 'timezone' => 'UTC', 'tie_threshold' => 15,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$sleepId = (int) $sleepMatch['id'];
+$sleepDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$sleepId]);
+foreach ([[450, 400], [460, 410]] as $i => [$va, $vb]) {
+    ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $sleepDays[$i]['id'], 'metric_type' => 'sleep_duration', 'value' => $va, 'data_source' => $srcWatch, 'source_record_key' => "sla{$i}"], true);
+    ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $sleepDays[$i]['id'], 'metric_type' => 'sleep_duration', 'value' => $vb, 'data_source' => $srcWatch, 'source_record_key' => "slb{$i}"], true);
+    SettlementService::settleDayNow((int) $sleepDays[$i]['id']);
+}
+$pack = MatchScoringService::forMatchId($sleepId);
+assert_eq($alice, $pack['summary']['leader_user_id'], 'Sleep winner uses highest official average');
+
+echo "\nSeries-average: voids, draws, thresholds, daily ownership\n";
+$avgMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricHrv,
+    'start_date' => '2026-10-01', 'length_days' => 3, 'timezone' => 'UTC', 'tie_threshold' => 2,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$avgId = (int) $avgMatch['id'];
+$avgDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$avgId]);
+// Day 1: A 60 vs B 50 (A daily lead)
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $avgDays[0]['id'], 'value' => 60, 'data_source' => $srcWatch, 'source_record_key' => 'avg1a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $avgDays[0]['id'], 'value' => 50, 'data_source' => $srcWatch, 'source_record_key' => 'avg1b'], true);
+SettlementService::settleDayNow((int) $avgDays[0]['id']);
+// Day 2: void (only A)
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $avgDays[1]['id'], 'value' => 200, 'data_source' => $srcWatch, 'source_record_key' => 'avg2a'], true);
+SettlementService::settleDayNow((int) $avgDays[1]['id']);
+assert_eq('void', Database::fetchValue('SELECT status FROM rly_match_days WHERE id=?', [(int) $avgDays[1]['id']]), 'Void days excluded from averages');
+// Day 3: A 50 vs B 60 (B daily lead) — A avg (60+50)/2=55, B (50+60)/2=55 → draw if complete
+ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $avgDays[2]['id'], 'value' => 50, 'data_source' => $srcWatch, 'source_record_key' => 'avg3a'], true);
+ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $avgDays[2]['id'], 'value' => 60, 'data_source' => $srcWatch, 'source_record_key' => 'avg3b'], true);
+SettlementService::settleDayNow((int) $avgDays[2]['id']);
+$pack = MatchScoringService::forMatchId($avgId);
+assert_true($pack['summary']['voids'] >= 1, 'Void days remain separate');
+assert_true(abs(($pack['summary']['player_a_average'] ?? 0) - 55.0) < 0.01, 'Void excluded; average uses official comparable days only');
+assert_true(!isset($pack['summary']['player_a_average']) || $pack['summary']['player_a_average'] !== 0.0 || $pack['summary']['official_days'] > 0, 'Missing data is not treated as zero');
+assert_eq(1, (int) $pack['summary']['daily_comparison_a_leads'], 'Daily comparison A lead count');
+assert_eq(1, (int) $pack['summary']['daily_comparison_b_leads'], 'Daily comparison B lead count');
+assert_true($pack['summary']['is_draw'], 'Final average below threshold difference is a draw');
+assert_eq(null, $pack['summary']['leader_user_id'], 'Daily comparison ownership does not determine the final winner when averages draw');
+
+// Equal-to-threshold decisive
+$thrMatch = MatchService::create([
+    'creator_id' => $alice, 'opponent_id' => $bob, 'metric_type_id' => $metricHrv,
+    'start_date' => '2026-10-10', 'length_days' => 2, 'timezone' => 'UTC', 'tie_threshold' => 2,
+    'player_a_source_id' => $srcWatch, 'player_b_source_id' => $srcWatch, 'auto_accept' => true,
+]);
+$thrId = (int) $thrMatch['id'];
+$thrDays = Database::fetchAll('SELECT * FROM rly_match_days WHERE match_id=? ORDER BY day_number', [$thrId]);
+foreach ([[62, 60], [62, 60]] as $i => [$va, $vb]) {
+    ResultIngestionService::ingest(['user_id' => $alice, 'match_day_id' => (int) $thrDays[$i]['id'], 'value' => $va, 'data_source' => $srcWatch, 'source_record_key' => "thra{$i}"], true);
+    ResultIngestionService::ingest(['user_id' => $bob, 'match_day_id' => (int) $thrDays[$i]['id'], 'value' => $vb, 'data_source' => $srcWatch, 'source_record_key' => "thrb{$i}"], true);
+    SettlementService::settleDayNow((int) $thrDays[$i]['id']);
+}
+$pack = MatchScoringService::forMatchId($thrId);
+assert_eq($alice, $pack['summary']['leader_user_id'], 'Final difference equal to threshold is decisive');
+assert_true(!$pack['summary']['is_draw'], 'Equal threshold is not a draw');
+
+echo "\nPresentation: feed + personal records + step compatibility\n";
+$events = ActivityFeedService::eventsFromPack(MatchScoringService::forMatchId($thrId));
+assert_true($events !== [], 'Correct social event generation');
+$records = PersonalRecordsService::forUser($alice);
+assert_true(isset($records['by_metric']['hrv']), 'Correct personal-record derivation');
+$stepsPack = MatchScoringService::forMatchId($matchId);
+assert_eq('daily_wins', $stepsPack['summary']['scoring_strategy'], 'Current step-only matches remain compatible');
+$scoreline = MetricCompetitionService::scoreline($stepsPack['match'], $stepsPack['summary']);
+assert_true(str_contains($scoreline['primary'], '–'), 'Daily-wins scoreline uses win tally');
 
 Clock::resetForTests();
 @unlink($testDb);

@@ -74,7 +74,9 @@ final class User
     public static function derivedStats(int $userId): array
     {
         $matches = Database::fetchAll(
-            'SELECT m.*, mt.higher_wins FROM rly_matches m
+            'SELECT m.*, mt.higher_wins, mt.scoring_strategy, mt.name AS metric_name, mt.unit AS metric_unit,
+                    mt.display_unit, mt.classification, mt.slug AS metric_slug
+             FROM rly_matches m
              JOIN rly_metric_types mt ON mt.id = m.metric_type_id
              WHERE (m.player_a_user_id = ? OR m.player_b_user_id = ?)
                AND m.invitation_status = \'accepted\'

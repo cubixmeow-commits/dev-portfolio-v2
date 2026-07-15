@@ -1,17 +1,28 @@
 <?php
+
+use Rally\Services\MetricCompetitionService;
+use Rally\Services\MetricFormatter;
+
 /** @var array $pack */
 /** @var list<array> $rows */
 $m = $pack['match'];
 $s = $pack['summary'];
+$metric = MetricCompetitionService::metricPayload($m);
+$isAvg = MetricCompetitionService::isSeriesAverage($m);
 $matchId = (int) $m['id'];
 $aName = (string) $m['player_a_name'];
 $bName = (string) $m['player_b_name'];
+$score = MetricCompetitionService::scoreline($m, $s);
+$dayWord = $isAvg ? 'Day' : 'Game';
 ?>
 <section class="wrap history-page">
   <header class="page-header">
     <p class="eyebrow"><a href="<?= e(url('/matches/' . $matchId)) ?>">← Back to match</a></p>
     <h1>Match history</h1>
-    <p class="history-scoreline t-num"><?= e($aName) ?> <strong><?= (int) $s['player_a_wins'] ?>–<?= (int) $s['player_b_wins'] ?></strong> <?= e($bName) ?><?= !empty($s['is_provisional']) ? ' · provisional' : '' ?></p>
+    <p class="history-scoreline t-num"><?= e($aName) ?> <strong><?= e($score['primary']) ?></strong> <?= e($bName) ?><?= !empty($s['is_provisional']) ? ' · provisional' : '' ?></p>
+    <?php if ($isAvg): ?>
+      <p class="hint">Daily columns are comparisons. The series winner is the final official average.</p>
+    <?php endif; ?>
   </header>
 
   <?php
@@ -22,11 +33,11 @@ $bName = (string) $m['player_b_name'];
       $status = (string) $day['status'];
       $winnerSide = $o['winner_side'] ?? null;
       $resultLabel = match (true) {
-          $status === 'scheduled' => 'Future game',
+          $status === 'scheduled' => $isAvg ? 'Future day' : 'Future game',
           $status === 'live' => 'Live now',
-          $status === 'void' => 'Void — no winner awarded',
-          $o['kind'] === 'tie' => 'Tie',
-          $o['kind'] === 'win' => ($winnerSide === 'a' ? $aName : $bName) . ' win',
+          $status === 'void' => 'Void — no result awarded',
+          $o['kind'] === 'tie' => $isAvg ? 'Within threshold' : 'Tie',
+          $o['kind'] === 'win' => ($winnerSide === 'a' ? $aName : $bName) . ($isAvg ? ' leading value' : ' win'),
           default => 'Awaiting sync',
       };
       $prepared[] = [
@@ -40,7 +51,6 @@ $bName = (string) $m['player_b_name'];
   }
   ?>
 
-  <!-- Mobile: stacked game records -->
   <ul class="fixture-list history-rows">
     <?php foreach ($prepared as $p):
       $day = $p['day'];
@@ -50,7 +60,7 @@ $bName = (string) $m['player_b_name'];
     <li class="fixture<?= $p['status'] === 'scheduled' ? ' fixture--future' : '' ?>">
       <span class="fixture-game" aria-hidden="true">
         <span class="fixture-game-num t-num"><?= $dayNum ?></span>
-        <span class="fixture-game-label">Game</span>
+        <span class="fixture-game-label"><?= e($dayWord) ?></span>
       </span>
       <div class="fixture-main">
         <p class="fixture-result">
@@ -59,7 +69,7 @@ $bName = (string) $m['player_b_name'];
           <?php else: ?>
             <a href="<?= e(url('/matches/' . $matchId . '/day/' . $dayNum)) ?>">
               <?php if ($p['o']['kind'] === 'win'): ?>
-                <?= e($p['winnerSide'] === 'a' ? $aName : $bName) ?> d. <span class="is-loser"><?= e($p['winnerSide'] === 'a' ? $bName : $aName) ?></span>
+                <?= e($p['winnerSide'] === 'a' ? $aName : $bName) ?> <?= $isAvg ? 'leads' : 'd.' ?> <span class="is-loser"><?= e($p['winnerSide'] === 'a' ? $bName : $aName) ?></span>
               <?php else: ?>
                 <?= e($p['resultLabel']) ?>
               <?php endif; ?>
@@ -70,26 +80,25 @@ $bName = (string) $m['player_b_name'];
           <span class="t-num"><?= e($p['date']) ?></span>
           <span class="status-pill status-<?= e($p['status']) ?>"><?= e(ucfirst($p['status'])) ?></span>
           <?php if ($p['status'] === 'official' && $o['kind'] === 'win'): ?>
-            <span>Margin <span class="t-num"><?= e(number_format((int) $o['margin'])) ?></span></span>
+            <span>Margin <span class="t-num"><?= e(MetricFormatter::formatCompact((int) $o['margin'], $metric)) ?></span></span>
           <?php endif; ?>
         </p>
       </div>
       <div class="fixture-vals" aria-hidden="true">
         <?php if ($p['status'] !== 'void' && $p['status'] !== 'scheduled'): ?>
-          <div class="<?= $p['winnerSide'] === 'a' ? 'is-winner' : 'is-loser' ?>"><?= $o['value_a'] !== null ? e(number_format((int) $o['value_a'])) : '—' ?></div>
-          <div class="<?= $p['winnerSide'] === 'b' ? 'is-winner' : 'is-loser' ?>"><?= $o['value_b'] !== null ? e(number_format((int) $o['value_b'])) : '—' ?></div>
+          <div class="<?= $p['winnerSide'] === 'a' ? 'is-winner' : 'is-loser' ?>"><?= $o['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $o['value_a'], $metric)) : '—' ?></div>
+          <div class="<?= $p['winnerSide'] === 'b' ? 'is-winner' : 'is-loser' ?>"><?= $o['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $o['value_b'], $metric)) : '—' ?></div>
         <?php endif; ?>
       </div>
     </li>
     <?php endforeach; ?>
   </ul>
 
-  <!-- Desktop: structured fixture table -->
-  <div class="history-table-wrap" role="region" aria-label="Daily games" tabindex="0">
+  <div class="history-table-wrap" role="region" aria-label="<?= $isAvg ? 'Daily comparisons' : 'Daily games' ?>" tabindex="0">
     <table class="history-table">
       <thead>
         <tr>
-          <th scope="col" class="t-num">Game</th>
+          <th scope="col" class="t-num"><?= e($dayWord) ?></th>
           <th scope="col">Date</th>
           <th scope="col" class="col-num"><?= e($aName) ?></th>
           <th scope="col" class="col-num"><?= e($bName) ?></th>
@@ -113,10 +122,10 @@ $bName = (string) $m['player_b_name'];
               <?php endif; ?>
             </td>
             <td class="t-num"><?= e($p['date']) ?></td>
-            <td class="col-num t-num<?= $p['winnerSide'] === 'a' ? ' is-winner' : '' ?>"><?= $o['value_a'] !== null ? e(number_format((int) $o['value_a'])) : '—' ?></td>
-            <td class="col-num t-num<?= $p['winnerSide'] === 'b' ? ' is-winner' : '' ?>"><?= $o['value_b'] !== null ? e(number_format((int) $o['value_b'])) : '—' ?></td>
+            <td class="col-num t-num<?= $p['winnerSide'] === 'a' ? ' is-winner' : '' ?>"><?= $o['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $o['value_a'], $metric)) : '—' ?></td>
+            <td class="col-num t-num<?= $p['winnerSide'] === 'b' ? ' is-winner' : '' ?>"><?= $o['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $o['value_b'], $metric)) : '—' ?></td>
             <td><?= e($p['resultLabel']) ?></td>
-            <td class="col-num t-num"><?= $o['margin'] !== null && $o['kind'] === 'win' ? e(number_format((int) $o['margin'])) : '—' ?></td>
+            <td class="col-num t-num"><?= $o['margin'] !== null && $o['kind'] === 'win' ? e(MetricFormatter::formatCompact((int) $o['margin'], $metric)) : '—' ?></td>
             <td><span class="status-pill status-<?= e($p['status']) ?>"><?= e(ucfirst($p['status'])) ?></span></td>
           </tr>
         <?php endforeach; ?>

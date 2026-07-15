@@ -148,11 +148,44 @@ $pdo->exec('DELETE FROM rly_users');
 $pdo->exec('DELETE FROM rly_metric_types');
 $pdo->exec('DELETE FROM rly_data_sources');
 
-Database::run(
-    'INSERT INTO rly_metric_types (slug, name, unit, higher_wins, is_active, created_at) VALUES (?, ?, ?, 1, 1, ?)',
-    ['steps', 'Daily Steps', 'steps', $now]
-);
-$metricId = (int) Database::fetchValue('SELECT id FROM rly_metric_types WHERE slug = ?', ['steps']);
+$metrics = [
+    [
+        'steps', 'Daily Steps', 'steps', null, 'performance', 'daily_wins', 1, 14, 100,
+        'Daily step totals contested as a multi-day series of head-to-head games.',
+        null,
+    ],
+    [
+        'active_minutes', 'Active Minutes', 'min', null, 'performance', 'daily_wins', 1, 14, 2,
+        'Minutes of elevated activity contested day by day. Platforms may classify activity differently.',
+        'Active-minute definitions vary by device. Rally compares the declared recorded values.',
+    ],
+    [
+        'resting_heart_rate', 'Resting Heart Rate', 'bpm', null, 'health_comparison', 'series_average', 0, 7, 1,
+        'Compare recorded resting heart-rate averages across the series. Lower official average wins.',
+        'Resting heart rate varies by person and context. Rally compares recorded values for this series and does not interpret them medically.',
+    ],
+    [
+        'hrv', 'Heart Rate Variability', 'ms', null, 'health_comparison', 'series_average', 1, 7, 2,
+        'Compare recorded HRV averages across the series. Higher official average wins.',
+        'HRV varies by person and device. Rally compares the recorded values for this series and does not interpret them medically.',
+    ],
+    [
+        'sleep_duration', 'Sleep Duration', 'min', 'hours_minutes', 'health_comparison', 'series_average', 1, 7, 15,
+        'Compare recorded sleep duration averages. Higher official average wins. This is duration, not sleep quality.',
+        'Sleep needs vary. Rally compares recorded duration for this series without judging sleep quality or overall health.',
+    ],
+];
+$metricIds = [];
+foreach ($metrics as $row) {
+    Database::run(
+        'INSERT INTO rly_metric_types
+         (slug, name, unit, display_unit, classification, scoring_strategy, higher_wins,
+          default_length_days, default_tie_threshold, description, context_note, is_active, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)',
+        [...$row, $now]
+    );
+    $metricIds[$row[0]] = (int) Database::fetchValue('SELECT id FROM rly_metric_types WHERE slug = ?', [$row[0]]);
+}
 
 $sources = [
     ['apple_watch', 'Apple Watch', 'watch'],
@@ -173,7 +206,6 @@ foreach ($sources as [$slug, $name, $class]) {
 }
 
 $players = [
-    // name, username, email, timezone, role, simulation
     ['Iain', 'iain', 'iain@rally.demo', 'America/Los_Angeles', 'admin', 1],
     ['Mike', 'mike', 'mike@rally.demo', 'America/Los_Angeles', 'user', 1],
     ['Sarah', 'sarah', 'sarah@rally.demo', 'America/New_York', 'user', 1],
@@ -192,10 +224,8 @@ foreach ($players as [$name, $username, $email, $tz, $role, $sim]) {
 }
 
 /**
- * Bootstrap match shell (users/days), then ingest results through the service.
- *
- * @param array<int, array{0:?int,1:?int}> $dayValues Map day_number => [a, b] null = missing
- * @param array<int, string> $forceStatus Optional day_number => status override after lifecycle
+ * @param array<int, array{0:?int,1:?int}> $dayValues
+ * @param array<int, string> $forceStatus
  */
 function seed_match(
     int $metricId,
@@ -210,7 +240,8 @@ function seed_match(
     string $initialStatus,
     array $dayValues,
     int $lengthDays = 14,
-    array $forceStatus = []
+    array $forceStatus = [],
+    string $metricSlug = 'steps'
 ): int {
     $now = Clock::nowUtcString();
     Database::run(
@@ -246,7 +277,7 @@ function seed_match(
             ResultIngestionService::ingest([
                 'user_id' => $playerA,
                 'match_day_id' => (int) $day['id'],
-                'metric_type' => 'steps',
+                'metric_type' => $metricSlug,
                 'value' => $valA,
                 'data_source' => $sourceA,
                 'source_record_key' => "seed-{$matchId}-{$dayNum}-a",
@@ -258,7 +289,7 @@ function seed_match(
             ResultIngestionService::ingest([
                 'user_id' => $playerB,
                 'match_day_id' => (int) $day['id'],
-                'metric_type' => 'steps',
+                'metric_type' => $metricSlug,
                 'value' => $valB,
                 'data_source' => $sourceB,
                 'source_record_key' => "seed-{$matchId}-{$dayNum}-b",
@@ -270,7 +301,6 @@ function seed_match(
 
     SettlementService::refreshMatch($matchId);
 
-    // Force-settle days that should already be official/void for the demo timeline.
     foreach ($forceStatus as $dayNum => $status) {
         $day = $dayByNum[$dayNum] ?? null;
         if ($day === null) {
@@ -290,191 +320,80 @@ function seed_match(
 echo "Seeding demo matches...\n";
 $tzLA = 'America/Los_Angeles';
 
-// 1) Primary showcase: Iain vs Mike — dramatic active, days 1-8 official (5–3), day 9 live, includes close & blowout.
-// Pattern days 1-8: A A B A B A A B → 5–3. Day 4 margin within drama; include a near-tie elsewhere.
+// ---- STEPS ----
 $showcaseValues = [
-    1 => [12450, 9800],   // A blowout
-    2 => [10200, 9100],   // A
-    3 => [8700, 11200],   // B
-    4 => [11800, 10500],  // A
-    5 => [9400, 10100],   // B close
-    6 => [15200, 11000],  // A
-    7 => [13100, 12000],  // A
-    8 => [9731, 11248],   // B (Mike) — showcase "game 8" flipped for history variety; wait, example has Iain winning game 8
+    1 => [12450, 9800],
+    2 => [10200, 9100],
+    3 => [8700, 11200],
+    4 => [11800, 10500],
+    5 => [9400, 10100],
+    6 => [15200, 11000],
+    7 => [9900, 12100],
+    8 => [11248, 9731],
+    9 => [8421, 7984],
 ];
-// Re-align to example GAME 8: Iain 11248 vs Mike 9731
-$showcaseValues[8] = [11248, 9731]; // A → series 5–3 going into game 9? Days 1-8: A A B A B A A A = 6-2
-// Spec scoreboard shows 5–3 before game 9. Adjust day 7 to B:
-$showcaseValues[7] = [9900, 12100]; // B → A A B A B A B A = 5–3 ✓
-$showcaseValues[9] = [8421, 7984];  // LIVE today
-// Day 10+ empty
-
 $forceOfficial = [];
 for ($d = 1; $d <= 8; $d++) {
     $forceOfficial[$d] = 'official';
 }
 $forceOfficial[9] = 'live';
-
 $showcaseId = seed_match(
-    $metricId,
-    $userIds['iain'],
-    $userIds['mike'],
-    $sourceIds['apple_watch'],
-    $sourceIds['apple_watch'],
-    '2026-07-13',
-    $tzLA,
-    100,
-    'accepted',
-    'active',
-    $showcaseValues,
-    14,
-    $forceOfficial
+    $metricIds['steps'], $userIds['iain'], $userIds['mike'],
+    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
+    '2026-07-13', $tzLA, 100, 'accepted', 'active', $showcaseValues, 14, $forceOfficial, 'steps'
 );
+Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9", [$showcaseId]);
+Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$showcaseId]);
 
-// Force day 9 live explicitly (refresh may already set it).
-$day9 = Database::fetch('SELECT id FROM rly_match_days WHERE match_id = ? AND day_number = 9', [$showcaseId]);
-if ($day9) {
-    Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL, updated_at = ? WHERE id = ?", [Clock::nowUtcString(), (int) $day9['id']]);
-}
-
-// 2) Upcoming match: Sarah vs Jordan starting tomorrow
-seed_match(
-    $metricId,
-    $userIds['sarah'],
-    $userIds['jordan'],
-    $sourceIds['fitbit'],
-    $sourceIds['garmin'],
-    '2026-07-22',
-    'America/New_York',
-    100,
-    'accepted',
-    'scheduled',
-    [],
-    14,
-    []
-);
-
-// 3) Newly active: Elena vs Marcus — started yesterday, day 1 pending-ish / day 2 live
-$newActiveValues = [
-    1 => [7800, 8100],
-    2 => [3200, 2900], // live partial day
-];
-$newForce = [1 => 'pending', 2 => 'live'];
-seed_match(
-    $metricId,
-    $userIds['elena'],
-    $userIds['marcus'],
-    $sourceIds['apple_watch'],
-    $sourceIds['apple_watch'],
-    '2026-07-20',
-    'Europe/London',
-    100,
-    'accepted',
-    'active',
-    $newActiveValues,
-    14,
-    $newForce
-);
-
-// 4) Completed decisive match: Sarah vs Mike — Sarah wins 8–5 with 1 tie (14 days)
-$completed = [];
-// Build 14 days of results. Start 2026-06-20.
-$aWins = [1, 2, 4, 5, 7, 9, 11, 13]; // 8 wins for A
-$bWins = [3, 6, 8, 10, 12]; // 5 wins
-// day 14 tie
+// Completed close steps
+$closeSteps = [];
 for ($d = 1; $d <= 14; $d++) {
     if ($d === 14) {
-        $completed[$d] = [10050, 10020]; // diff 30 < 100 tie
-    } elseif (in_array($d, $aWins, true)) {
-        $completed[$d] = [11000 + $d * 50, 9000 + $d * 40];
+        $closeSteps[$d] = [10050, 10020];
+    } elseif (in_array($d, [1, 2, 4, 5, 7, 9, 11, 13], true)) {
+        $closeSteps[$d] = [11000 + $d * 50, 9000 + $d * 40];
     } else {
-        $completed[$d] = [8500 + $d * 30, 10500 + $d * 45];
+        $closeSteps[$d] = [8500 + $d * 30, 10500 + $d * 45];
     }
 }
-$compForce = array_fill(1, 14, 'official');
 seed_match(
-    $metricId,
-    $userIds['sarah'],
-    $userIds['mike'],
-    $sourceIds['fitbit'],
-    $sourceIds['fitbit'],
-    '2026-06-20',
-    'America/New_York',
-    100,
-    'accepted',
-    'completed',
-    $completed,
-    14,
-    $compForce
+    $metricIds['steps'], $userIds['sarah'], $userIds['mike'],
+    $sourceIds['fitbit'], $sourceIds['fitbit'],
+    '2026-06-20', 'America/New_York', 100, 'accepted', 'completed', $closeSteps, 14, array_fill(1, 14, 'official'), 'steps'
 );
 
-// 5) Drawn 7–7 exhibition: Jordan vs Elena
-$draw = [];
+// Completed decisive steps
+$decisive = [];
 for ($d = 1; $d <= 14; $d++) {
-    if ($d % 2 === 1) {
-        $draw[$d] = [12000, 10000]; // A
+    if ($d <= 9) {
+        $decisive[$d] = [12500 + $d * 20, 9000 + $d * 15];
     } else {
-        $draw[$d] = [9500, 11500]; // B
+        $decisive[$d] = [8800 + $d, 11000 + $d * 10];
     }
 }
-$drawForce = array_fill(1, 14, 'official');
-$drawId = seed_match(
-    $metricId,
-    $userIds['jordan'],
-    $userIds['elena'],
-    $sourceIds['garmin'],
-    $sourceIds['garmin'],
-    '2026-06-01',
-    'America/Chicago',
-    100,
-    'accepted',
-    'completed',
-    $draw,
-    14,
-    $drawForce
-);
-Database::run(
-    "UPDATE rly_matches SET status = 'completed', completed_at = ?, updated_at = ? WHERE id = ?",
-    ['2026-06-17 13:00:00', Clock::nowUtcString(), $drawId]
-);
-
-// 6) Source mismatch active: Iain (watch) vs Sarah (phone)
-$mmValues = [
-    1 => [14000, 12500],
-    2 => [9000, 11000],
-    3 => [10500, 10200],
-    4 => [8000, 8700],
-    5 => [11500, 9800],
-    6 => [10000, 10050], // very close but A loses? diff 50 tie
-    7 => [12200, 10100],
-    8 => [9500, 9900],
-];
-$mmForce = [];
-for ($d = 1; $d <= 7; $d++) {
-    $mmForce[$d] = 'official';
-}
-$mmForce[8] = 'pending';
 seed_match(
-    $metricId,
-    $userIds['iain'],
-    $userIds['sarah'],
-    $sourceIds['apple_watch'],
-    $sourceIds['iphone'],
-    '2026-07-14',
-    $tzLA,
-    100,
-    'accepted',
-    'active',
-    $mmValues + [9 => [5000, 4800]],
-    14,
-    $mmForce + [9 => 'live']
+    $metricIds['steps'], $userIds['jordan'], $userIds['elena'],
+    $sourceIds['garmin'], $sourceIds['garmin'],
+    '2026-06-01', 'America/Chicago', 100, 'accepted', 'completed', $decisive, 14, array_fill(1, 14, 'official'), 'steps'
 );
 
-// 7) Match with void day + settling state-ish: Marcus vs Mike, nearly done
+// Source mismatch steps
+$mmValues = [
+    1 => [14000, 12500], 2 => [9000, 11000], 3 => [10500, 10200], 4 => [8000, 8700],
+    5 => [11500, 9800], 6 => [10000, 10050], 7 => [12200, 10100], 8 => [9500, 9900], 9 => [5000, 4800],
+];
+$mmForce = array_replace(array_fill(1, 7, 'official'), [8 => 'pending', 9 => 'live']);
+seed_match(
+    $metricIds['steps'], $userIds['iain'], $userIds['sarah'],
+    $sourceIds['apple_watch'], $sourceIds['iphone'],
+    '2026-07-14', $tzLA, 100, 'accepted', 'active', $mmValues, 14, $mmForce, 'steps'
+);
+
+// Void / settling steps
 $voidValues = [];
 for ($d = 1; $d <= 12; $d++) {
     if ($d === 5) {
-        $voidValues[$d] = [9000, null]; // one missing → void at settle
+        $voidValues[$d] = [9000, null];
     } elseif ($d % 2 === 0) {
         $voidValues[$d] = [10000, 12000];
     } else {
@@ -485,41 +404,118 @@ $voidForce = array_fill(1, 12, 'official');
 $voidForce[5] = 'void';
 $voidForce[13] = 'pending';
 $voidForce[14] = 'pending';
-// Start so day 14 competition date already passed relative to clock: start 2026-07-07 → day 14 = 2026-07-20
 seed_match(
-    $metricId,
-    $userIds['marcus'],
-    $userIds['mike'],
-    $sourceIds['android_phone'],
-    $sourceIds['android_phone'],
-    '2026-07-07',
-    'America/Denver',
-    100,
-    'accepted',
-    'settling',
-    $voidValues,
-    14,
-    $voidForce
+    $metricIds['steps'], $userIds['marcus'], $userIds['mike'],
+    $sourceIds['android_phone'], $sourceIds['android_phone'],
+    '2026-07-07', 'America/Denver', 100, 'accepted', 'settling', $voidValues, 14, $voidForce, 'steps'
 );
 
-// 8) Pending invitation: Jordan challenged by Mike (not yet accepted)
 seed_match(
-    $metricId,
-    $userIds['mike'],
-    $userIds['jordan'],
-    $sourceIds['apple_watch'],
-    null,
-    '2026-07-25',
-    $tzLA,
-    100,
-    'pending',
-    'invited',
-    [],
-    14,
-    []
+    $metricIds['steps'], $userIds['mike'], $userIds['jordan'],
+    $sourceIds['apple_watch'], null,
+    '2026-07-25', $tzLA, 100, 'pending', 'invited', [], 14, [], 'steps'
 );
 
-// Re-affirm showcase statuses after all refreshes
+// ---- ACTIVE MINUTES ----
+$amActive = [
+    1 => [62, 55], 2 => [48, 71], 3 => [90, 84], 4 => [40, 38],
+    5 => [105, 92], 6 => [55, 60], 7 => [72, 68], 8 => [88, 95], 9 => [33, 29],
+];
+$amForce = array_replace(array_fill(1, 8, 'official'), [9 => 'live']);
+seed_match(
+    $metricIds['active_minutes'], $userIds['elena'], $userIds['marcus'],
+    $sourceIds['apple_watch'], $sourceIds['garmin'],
+    '2026-07-13', 'Europe/London', 2, 'accepted', 'active', $amActive, 14, $amForce, 'active_minutes'
+);
+
+$amDone = [];
+for ($d = 1; $d <= 14; $d++) {
+    $amDone[$d] = $d % 3 === 0 ? [45, 70] : [80 + $d, 55 + $d];
+}
+seed_match(
+    $metricIds['active_minutes'], $userIds['sarah'], $userIds['jordan'],
+    $sourceIds['fitbit'], $sourceIds['fitbit'],
+    '2026-06-10', 'America/New_York', 2, 'accepted', 'completed', $amDone, 14, array_fill(1, 14, 'official'), 'active_minutes'
+);
+
+// ---- RHR (series average, 7 days) ----
+// Start 2026-07-15 → day 7 = Jul 21 live
+$rhr = [
+    1 => [58, 61], 2 => [57, 60], 3 => [59, 59], // daily tie / within
+    4 => [56, 62], 5 => [58, 60], 6 => [57, 58], 7 => [55, 59],
+];
+$rhrForce = array_replace(array_fill(1, 6, 'official'), [7 => 'live']);
+seed_match(
+    $metricIds['resting_heart_rate'], $userIds['iain'], $userIds['elena'],
+    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
+    '2026-07-15', $tzLA, 1, 'accepted', 'active', $rhr, 7, $rhrForce, 'resting_heart_rate'
+);
+
+// Completed near-draw RHR (avg differ by < 1 → draw) — values designed for avg tie
+$rhrDraw = [
+    1 => [60, 61], 2 => [61, 60], 3 => [59, 60], 4 => [60, 59], 5 => [60, 60], 6 => [61, 61], 7 => [60, 60],
+];
+seed_match(
+    $metricIds['resting_heart_rate'], $userIds['mike'], $userIds['marcus'],
+    $sourceIds['garmin'], $sourceIds['garmin'],
+    '2026-06-01', 'America/Denver', 1, 'accepted', 'completed', $rhrDraw, 7, array_fill(1, 7, 'official'), 'resting_heart_rate'
+);
+
+// ---- HRV ----
+$hrv = [
+    1 => [58, 52], 2 => [61, 55], 3 => [54, 57], 4 => [63, 50],
+    5 => [59, 58], 6 => [62, 53], 7 => [60, 56],
+];
+$hrvForce = array_replace(array_fill(1, 5, 'official'), [6 => 'pending', 7 => 'live']);
+seed_match(
+    $metricIds['hrv'], $userIds['sarah'], $userIds['elena'],
+    $sourceIds['apple_watch'], $sourceIds['fitbit'],
+    '2026-07-15', 'America/New_York', 2, 'accepted', 'active', $hrv, 7, $hrvForce, 'hrv'
+);
+
+$hrvDone = [
+    1 => [48, 55], 2 => [52, 51], 3 => [60, 47], 4 => [55, 58], 5 => [50, 49], 6 => [57, 53], 7 => [54, 56],
+];
+seed_match(
+    $metricIds['hrv'], $userIds['jordan'], $userIds['mike'],
+    $sourceIds['garmin'], $sourceIds['apple_watch'],
+    '2026-06-05', 'America/Chicago', 2, 'accepted', 'completed', $hrvDone, 7, array_fill(1, 7, 'official'), 'hrv'
+);
+
+// ---- SLEEP DURATION (minutes) ----
+$sleep = [
+    1 => [430, 401], // 7h10 / 6h41
+    2 => [455, 470],
+    3 => [390, 405],
+    4 => [480, 445],
+    5 => [420, 418], // within 15 threshold daily
+    6 => [440, 460],
+    7 => [410, 395],
+];
+$sleepForce = array_replace(array_fill(1, 5, 'official'), [6 => 'pending', 7 => 'live']);
+seed_match(
+    $metricIds['sleep_duration'], $userIds['marcus'], $userIds['jordan'],
+    $sourceIds['fitbit'], $sourceIds['garmin'],
+    '2026-07-15', 'America/Denver', 15, 'accepted', 'active', $sleep, 7, $sleepForce, 'sleep_duration'
+);
+
+$sleepDone = [
+    1 => [400, 420], 2 => [450, 430], 3 => [380, 410], 4 => [470, 440],
+    5 => [425, 425], 6 => [460, 405], 7 => [415, 450],
+];
+seed_match(
+    $metricIds['sleep_duration'], $userIds['iain'], $userIds['sarah'],
+    $sourceIds['apple_watch'], $sourceIds['apple_watch'],
+    '2026-06-08', $tzLA, 15, 'accepted', 'completed', $sleepDone, 7, array_fill(1, 7, 'official'), 'sleep_duration'
+);
+
+// Upcoming scheduled steps
+seed_match(
+    $metricIds['steps'], $userIds['sarah'], $userIds['jordan'],
+    $sourceIds['fitbit'], $sourceIds['garmin'],
+    '2026-07-22', 'America/New_York', 100, 'accepted', 'scheduled', [], 14, [], 'steps'
+);
+
 SettlementService::refreshMatch($showcaseId);
 for ($d = 1; $d <= 8; $d++) {
     Database::run(
@@ -527,21 +523,16 @@ for ($d = 1; $d <= 8; $d++) {
         [Clock::nowUtcString(), Clock::nowUtcString(), $showcaseId, $d]
     );
 }
-Database::run(
-    "UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9",
-    [$showcaseId]
-);
-Database::run(
-    "UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?",
-    [$showcaseId]
-);
+Database::run("UPDATE rly_match_days SET status = 'live', official_at = NULL WHERE match_id = ? AND day_number = 9", [$showcaseId]);
+Database::run("UPDATE rly_matches SET status = 'active', completed_at = NULL WHERE id = ?", [$showcaseId]);
 
-echo "\nRally seed complete.\n";
+echo "\nRally multi-metric seed complete.\n";
 echo "Demo password for all seeded players: {$demoPassword}\n";
 echo "Accounts:\n";
 foreach ($players as [$name, $username, $email]) {
     echo "  {$name} <{$email}> (@{$username})\n";
 }
+echo "Metrics: " . implode(', ', array_keys($metricIds)) . "\n";
 echo "Simulated clock override: 2026-07-21T19:00:00Z (noon PDT)\n";
-echo "Showcase match id: {$showcaseId} (Iain vs Mike)\n";
+echo "Showcase steps match id: {$showcaseId} (Iain vs Mike)\n";
 echo "Run: php -S localhost:8091 -t public public/index.php\n";

@@ -58,6 +58,7 @@ $bodyClasses = trim(($bodyClass ?? '') . ($auth ? ' has-bottom-nav' : ''));
         <div class="nav-links nav-links--primary">
           <a href="<?= e(url('/dashboard')) ?>"<?= $navCurrent('/dashboard') ?>>Dashboard</a>
           <a href="<?= e(url('/matches')) ?>"<?= $navCurrent('/matches', true) ?>>Matches</a>
+          <a href="<?= e(url('/activity')) ?>"<?= $navCurrent('/activity') ?>>Activity</a>
           <a href="<?= e(url('/matches/create')) ?>"<?= $navCurrent('/matches/create') ?>>New series</a>
           <a href="<?= e(url('/players/' . (int) $auth['id'])) ?>"<?= $navCurrent('/players/' . (int) $auth['id']) ?>>Profile</a>
           <?php if ($canSim): ?><a href="<?= e(url('/simulation')) ?>"<?= $navCurrent('/simulation') ?>>Simulation</a><?php endif; ?>
@@ -105,7 +106,7 @@ $bodyClasses = trim(($bodyClass ?? '') . ($auth ? ' has-bottom-nav' : ''));
 
 <footer class="site-footer">
   <div class="site-footer-inner">
-    <p class="footer-note">Rally is a competition engine for wearable data — not a fitness tracker.</p>
+    <p class="footer-note">Rally presents health and activity data for friendly comparison and entertainment. It does not provide medical advice or determine overall health.</p>
   </div>
 </footer>
 
@@ -118,6 +119,10 @@ $bodyClasses = trim(($bodyClass ?? '') . ($auth ? ' has-bottom-nav' : ''));
   <a href="<?= e(url('/matches')) ?>"<?= $navCurrent('/matches', true) ?>>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2.5 12h19"/><path d="M5 12V6.5h4V12M10 12v5.5h4V12M15 12V7.5h4V12" fill="currentColor" stroke="none"/></svg>
     <span>Matches</span>
+  </a>
+  <a href="<?= e(url('/activity')) ?>"<?= $navCurrent('/activity') ?>>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h13"/></svg>
+    <span>Activity</span>
   </a>
   <a href="<?= e(url('/matches/create')) ?>"<?= $navCurrent('/matches/create') ?>>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg>

@@ -25,13 +25,20 @@ CREATE TABLE IF NOT EXISTS rly_rate_events (
 CREATE INDEX IF NOT EXISTS idx_rly_rate_events_key ON rly_rate_events (event_key, created_at);
 
 CREATE TABLE IF NOT EXISTS rly_metric_types (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug        TEXT NOT NULL UNIQUE,
-    name        TEXT NOT NULL,
-    unit        TEXT NOT NULL,
-    higher_wins INTEGER NOT NULL DEFAULT 1,
-    is_active   INTEGER NOT NULL DEFAULT 1,
-    created_at  TEXT NOT NULL
+    id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug                   TEXT NOT NULL UNIQUE,
+    name                   TEXT NOT NULL,
+    unit                   TEXT NOT NULL,
+    display_unit           TEXT NULL,
+    classification         TEXT NOT NULL DEFAULT 'performance',
+    scoring_strategy       TEXT NOT NULL DEFAULT 'daily_wins',
+    higher_wins            INTEGER NOT NULL DEFAULT 1,
+    default_length_days    INTEGER NOT NULL DEFAULT 14,
+    default_tie_threshold  INTEGER NOT NULL DEFAULT 100,
+    description            TEXT NOT NULL DEFAULT '',
+    context_note           TEXT NULL,
+    is_active              INTEGER NOT NULL DEFAULT 1,
+    created_at             TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS rly_data_sources (

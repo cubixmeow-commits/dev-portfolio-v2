@@ -1,6 +1,8 @@
 <?php
 
 use Rally\Core\View;
+use Rally\Services\MetricCompetitionService;
+use Rally\Services\MetricFormatter;
 
 /** @var array $pack */
 /** @var array $comparability */
@@ -12,6 +14,9 @@ $days = $pack['days'];
 $matchId = (int) $m['id'];
 $status = (string) $m['status'];
 $provisional = !empty($s['is_provisional']);
+$isAvg = MetricCompetitionService::isSeriesAverage($m);
+$metric = MetricCompetitionService::metricPayload($m);
+$railCopy = MetricCompetitionService::railLegendCopy($m);
 
 $tz = new DateTimeZone((string) $m['timezone']);
 $startDate = new DateTimeImmutable((string) $m['start_date']);
@@ -33,9 +38,22 @@ foreach ($days as $d) {
     }
 }
 
-$aWins = (int) $s['player_a_wins'];
-$bWins = (int) $s['player_b_wins'];
-$leaderSide = $aWins > $bWins ? 'a' : ($bWins > $aWins ? 'b' : null);
+if ($isAvg) {
+    $avgA = $s['player_a_average'] ?? null;
+    $avgB = $s['player_b_average'] ?? null;
+    $aWins = (int) ($s['daily_comparison_a_leads'] ?? 0);
+    $bWins = (int) ($s['daily_comparison_b_leads'] ?? 0);
+    $leaderSide = null;
+    if (($s['leader_user_id'] ?? null) === (int) $m['player_a_user_id']) {
+        $leaderSide = 'a';
+    } elseif (($s['leader_user_id'] ?? null) === (int) $m['player_b_user_id']) {
+        $leaderSide = 'b';
+    }
+} else {
+    $aWins = (int) $s['player_a_wins'];
+    $bWins = (int) $s['player_b_wins'];
+    $leaderSide = $aWins > $bWins ? 'a' : ($bWins > $aWins ? 'b' : null);
+}
 
 $matchChip = match (true) {
     $liveDayNum !== null => ['live', 'Live'],
@@ -55,12 +73,14 @@ if ($status === 'completed') {
 } elseif ($status === 'settling') {
     $verdict = '<strong>Settling</strong> — ' . (int) $s['pending_days'] . ' result' . ((int) $s['pending_days'] === 1 ? '' : 's') . ' awaiting official review';
 } elseif ($provisional) {
-    $verdict = '<strong>Provisional</strong> — ' . $remainingGames . ' game' . ($remainingGames === 1 ? '' : 's') . ' remaining';
+    $remainLabel = $isAvg ? 'day' : 'game';
+    $verdict = '<strong>Provisional</strong> — ' . $remainingGames . ' ' . $remainLabel . ($remainingGames === 1 ? '' : 's') . ' remaining';
 } else {
     $verdict = '<strong>Final</strong>';
 }
-$tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
-    ? 'Ties ' . (int) $s['ties'] . ' · Voids ' . (int) $s['voids']
+$tieCount = $isAvg ? (int) ($s['daily_comparison_ties'] ?? 0) : (int) ($s['ties'] ?? 0);
+$tieVoidNote = ($tieCount > 0 || (int) $s['voids'] > 0)
+    ? ($isAvg ? 'Within threshold ' : 'Ties ') . $tieCount . ' · Voids ' . (int) $s['voids']
     : null;
 ?>
 <article class="scoreboard wrap" aria-labelledby="match-title">
@@ -69,7 +89,7 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
   <div class="board-meta">
     <span class="t-label"><?= e($m['metric_name']) ?></span>
     <span class="t-label" aria-hidden="true">·</span>
-    <span class="t-label"><?= (int) $m['length_days'] ?>-game series</span>
+    <span class="t-label"><?= $isAvg ? ((int) $m['length_days'] . '-day average series') : ((int) $m['length_days'] . '-game series') ?></span>
     <span class="t-label" aria-hidden="true">·</span>
     <span class="t-label t-num"><?= e($dateRange) ?></span>
     <?php if ($currentDayNum !== null && $status !== 'completed'): ?>
@@ -80,18 +100,22 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
     <span class="status-pill status-<?= e($matchChip[0]) ?>"><?= e($matchChip[1]) ?></span>
   </div>
 
-  <div class="board" aria-hidden="true">
+  <div class="board<?= $isAvg ? ' board--average' : '' ?>" aria-live="polite">
     <div class="board-side board-side--a">
       <div class="board-ident">
         <span class="avatar"><?= e(mb_strtoupper(mb_substr((string) $m['player_a_name'], 0, 1))) ?></span>
         <a class="board-name" href="<?= e(url('/players/' . (int) $m['player_a_user_id'])) ?>"><?= e($m['player_a_name']) ?></a>
       </div>
       <p class="board-source"><?= e($m['player_a_source_name']) ?></p>
-      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'b' ? ' is-trailing' : '' ?>"><?= $aWins ?></p>
+      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'b' ? ' is-trailing' : '' ?>"><?= $isAvg ? e(MetricFormatter::formatCompact($avgA, $metric)) : (int) $aWins ?></p>
+      <?php if ($isAvg): ?><p class="board-avg-unit t-label">Series average</p><?php endif; ?>
       <span class="board-lead-tick board-score-inner<?= $leaderSide === 'a' ? '' : ' is-hidden' ?>"></span>
     </div>
     <div class="board-center">
       <span class="board-center-rule"></span>
+      <?php if ($isAvg && ($s['average_difference'] ?? null) !== null): ?>
+        <span class="board-diff t-label">Diff <span class="t-num"><?= e(MetricFormatter::formatCompact($s['average_difference'], $metric)) ?></span></span>
+      <?php endif; ?>
     </div>
     <div class="board-side board-side--b">
       <div class="board-ident">
@@ -99,7 +123,8 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
         <a class="board-name" href="<?= e(url('/players/' . (int) $m['player_b_user_id'])) ?>"><?= e($m['player_b_name']) ?></a>
       </div>
       <p class="board-source"><?= e($m['player_b_source_name'] ?? 'Source pending') ?></p>
-      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'a' ? ' is-trailing' : '' ?>"><?= $bWins ?></p>
+      <p class="board-score-num t-num board-score-inner<?= $leaderSide === 'a' ? ' is-trailing' : '' ?>"><?= $isAvg ? e(MetricFormatter::formatCompact($avgB, $metric)) : (int) $bWins ?></p>
+      <?php if ($isAvg): ?><p class="board-avg-unit t-label">Series average</p><?php endif; ?>
       <span class="board-lead-tick board-score-inner<?= $leaderSide === 'b' ? '' : ' is-hidden' ?>"></span>
     </div>
   </div>
@@ -118,7 +143,7 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
     </div>
   <?php endif; ?>
 
-  <?php View::partial('partials/rail', ['match' => $m, 'days' => $days]); ?>
+  <?php View::partial('partials/rail', ['match' => $m, 'days' => $days, 'railCopy' => $railCopy]); ?>
 
   <div class="source-strip<?= $comparability['mismatch'] ? ' source-strip--mismatch' : '' ?>" role="<?= $comparability['mismatch'] ? 'alert' : 'status' ?>">
     <span class="source-strip-kicker"><?= e($comparability['title']) ?></span>
@@ -141,16 +166,9 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
             }
         }
         $bothIn = $outcome['value_a'] !== null && $outcome['value_b'] !== null;
-        $dayLeader = null;
-        $margin = null;
-        $withinTie = false;
-        if ($bothIn) {
-            $margin = abs((int) $outcome['value_a'] - (int) $outcome['value_b']);
-            $withinTie = $margin < (int) $m['tie_threshold'];
-            if (!$withinTie) {
-                $dayLeader = ((int) $outcome['value_a'] > (int) $outcome['value_b']) ? 'a' : 'b';
-            }
-        }
+        $dayLeader = $outcome['winner_side'] ?? null;
+        $margin = $outcome['margin'] ?? null;
+        $withinTie = $bothIn && ($outcome['kind'] ?? '') === 'tie';
       ?>
       <section class="live-panel<?= $isLive ? '' : ' live-panel--pending' ?>" aria-labelledby="today-heading">
         <div class="live-panel-head">
@@ -165,7 +183,7 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
           <div class="live-side live-side--a">
             <p class="live-side-name"><?= e($m['player_a_name']) ?></p>
             <p class="live-side-value t-num<?= $outcome['value_a'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'a' ? ' is-leading' : '' ?>">
-              <?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : 'Awaiting sync' ?>
+              <?= $outcome['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_a'], $metric)) : 'Awaiting sync' ?>
             </p>
           </div>
           <div class="live-mid" aria-hidden="true">
@@ -174,14 +192,14 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
           <div class="live-side live-side--b">
             <p class="live-side-name"><?= e($m['player_b_name']) ?></p>
             <p class="live-side-value t-num<?= $outcome['value_b'] === null ? ' is-awaiting' : '' ?><?= $dayLeader === 'b' ? ' is-leading' : '' ?>">
-              <?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : 'Awaiting sync' ?>
+              <?= $outcome['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_b'], $metric)) : 'Awaiting sync' ?>
             </p>
           </div>
         </div>
 
         <div class="live-margin">
           <?php if ($dayLeader !== null): ?>
-            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> leads by <span class="t-num"><?= e(number_format((int) $margin)) ?></span></span>
+            <span class="live-margin-lead"><?= e($dayLeader === 'a' ? $m['player_a_name'] : $m['player_b_name']) ?> leads by <span class="t-num"><?= e(MetricFormatter::formatCompact((int) $margin, $metric)) ?></span></span>
           <?php elseif ($withinTie): ?>
             <span class="live-margin-lead">Level — within tie threshold (<span class="t-num"><?= (int) $m['tie_threshold'] ?></span>)</span>
           <?php else: ?>
@@ -215,7 +233,7 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
 
       <section aria-labelledby="recent-heading">
         <div class="section-head">
-          <h2 id="recent-heading">Recent games</h2>
+          <h2 id="recent-heading"><?= $isAvg ? 'Recent days' : 'Recent games' ?></h2>
           <a class="section-aside" href="<?= e(url('/matches/' . $matchId . '/history')) ?>">Full history</a>
         </div>
         <ul class="fixture-list">
@@ -240,7 +258,7 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
           <li class="fixture">
             <span class="fixture-game" aria-hidden="true">
               <span class="fixture-game-num t-num"><?= $dayNum ?></span>
-              <span class="fixture-game-label">Game</span>
+              <span class="fixture-game-label"><?= $isAvg ? 'Day' : 'Game' ?></span>
             </span>
             <div class="fixture-main">
               <p class="fixture-result">
@@ -271,8 +289,8 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
             </div>
             <div class="fixture-vals" aria-hidden="true">
               <?php if ($st !== 'void'): ?>
-                <div class="<?= $winnerSide === 'a' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_a'] !== null ? e(number_format((int) $outcome['value_a'])) : '—' ?></div>
-                <div class="<?= $winnerSide === 'b' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_b'] !== null ? e(number_format((int) $outcome['value_b'])) : '—' ?></div>
+                <div class="<?= $winnerSide === 'a' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_a'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_a'], $metric)) : '—' ?></div>
+                <div class="<?= $winnerSide === 'b' ? 'is-winner' : 'is-loser' ?>"><?= $outcome['value_b'] !== null ? e(MetricFormatter::formatCompact((int) $outcome['value_b'], $metric)) : '—' ?></div>
               <?php endif; ?>
             </div>
           </li>
@@ -289,21 +307,29 @@ $tieVoidNote = ((int) $s['ties'] > 0 || (int) $s['voids'] > 0)
         <h2 id="stats-heading">Series notes</h2>
       </div>
       <dl class="note-list" aria-labelledby="stats-heading">
-        <?php if (($s['largest_margin'] ?? null) !== null): ?>
-          <div><dt>Largest official margin</dt><dd class="t-num"><?= e(number_format((int) $s['largest_margin'])) ?></dd></div>
+        <div><dt>Scoring</dt><dd><?= e(MetricFormatter::strategyLabel((string) ($m['scoring_strategy'] ?? 'daily_wins'))) ?></dd></div>
+        <div><dt>Classification</dt><dd><?= e(MetricFormatter::classificationLabel((string) ($m['classification'] ?? 'performance'))) ?></dd></div>
+        <?php if (!$isAvg && ($s['largest_margin'] ?? null) !== null): ?>
+          <div><dt>Largest official margin</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['largest_margin'], $metric)) ?></dd></div>
         <?php endif; ?>
-        <?php if (($s['closest_decisive_margin'] ?? null) !== null): ?>
-          <div><dt>Closest decisive game</dt><dd class="t-num"><?= e(number_format((int) $s['closest_decisive_margin'])) ?></dd></div>
+        <?php if ($isAvg && ($s['highest_value'] ?? null) !== null): ?>
+          <div><dt>Highest official value</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['highest_value'], $metric)) ?></dd></div>
         <?php endif; ?>
-        <?php if (($s['average_a'] ?? null) !== null): ?>
-          <div><dt><?= e($m['player_a_name']) ?> official average</dt><dd class="t-num"><?= e(number_format((int) $s['average_a'])) ?></dd></div>
+        <?php if ($isAvg && ($s['lowest_value'] ?? null) !== null): ?>
+          <div><dt>Lowest official value</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['lowest_value'], $metric)) ?></dd></div>
         <?php endif; ?>
-        <?php if (($s['average_b'] ?? null) !== null): ?>
-          <div><dt><?= e($m['player_b_name']) ?> official average</dt><dd class="t-num"><?= e(number_format((int) $s['average_b'])) ?></dd></div>
+        <?php if (!$isAvg && ($s['average_a'] ?? null) !== null): ?>
+          <div><dt><?= e($m['player_a_name']) ?> official average</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['average_a'], $metric)) ?></dd></div>
+        <?php endif; ?>
+        <?php if (!$isAvg && ($s['average_b'] ?? null) !== null): ?>
+          <div><dt><?= e($m['player_b_name']) ?> official average</dt><dd class="t-num"><?= e(MetricFormatter::formatCompact((int) $s['average_b'], $metric)) ?></dd></div>
         <?php endif; ?>
         <div><dt>Tie threshold</dt><dd class="t-num"><?= (int) $m['tie_threshold'] ?> <?= e($m['metric_unit']) ?></dd></div>
         <div><dt>Match timezone</dt><dd><?= e($m['timezone']) ?></dd></div>
       </dl>
+      <?php if (!empty($m['context_note'])): ?>
+        <p class="hint metric-context"><?= e($m['context_note']) ?></p>
+      <?php endif; ?>
     </aside>
   </div>
 </article>

@@ -35,3 +35,58 @@
 }
 
 .accept-page .stack-form { margin-bottom: var(--s-2); }
+
+.metric-cards {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.metric-card {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.metric-card:hover,
+.metric-card.is-selected {
+  border-color: var(--signal);
+  background: color-mix(in srgb, var(--signal) 6%, transparent);
+}
+
+.metric-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.metric-card-name {
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+}
+
+.metric-card-meta,
+.metric-card-dir {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.metric-card-desc,
+.metric-card-note {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  margin-top: 0.15rem;
+}
+
+@media (min-width: 720px) {
+  .metric-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}

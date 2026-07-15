@@ -8,6 +8,7 @@ use Rally\Core\Auth;
 use Rally\Core\Flash;
 use Rally\Core\View;
 use Rally\Models\DataSource;
+use Rally\Services\ActivityFeedService;
 use Rally\Services\Clock;
 use Rally\Services\MatchScoringService;
 use Rally\Services\SettlementService;
@@ -40,6 +41,7 @@ final class SimulationController
             'sources' => DataSource::active(),
             'clock' => Clock::now(),
             'hasOverride' => Clock::hasOverride(),
+            'previewEvents' => $pack !== null ? ActivityFeedService::eventsFromPack($pack) : [],
         ]);
     }
 

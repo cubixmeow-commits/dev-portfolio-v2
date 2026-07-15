@@ -65,6 +65,19 @@ final class MatchService
             throw new \InvalidArgumentException('Metric type not available.');
         }
 
+        if (!isset($input['length_days'])) {
+            $lengthDays = (int) ($metric['default_length_days'] ?? 14);
+        }
+        if (!isset($input['tie_threshold'])) {
+            $tieThreshold = (int) ($metric['default_tie_threshold'] ?? 100);
+        }
+        if ($lengthDays < 1 || $lengthDays > 60) {
+            throw new \InvalidArgumentException('Match length must be between 1 and 60 days.');
+        }
+        if ($tieThreshold < 0 || $tieThreshold > 10000) {
+            throw new \InvalidArgumentException('Tie threshold is out of range.');
+        }
+
         $now = Clock::nowUtcString();
         $invitationStatus = $autoAccept ? 'accepted' : 'pending';
         $status = $autoAccept ? 'scheduled' : 'invited';
@@ -210,7 +223,7 @@ final class MatchService
             'mismatch' => true,
             'title' => 'Source mismatch',
             'message' => "{$playerA} is using {$nameA}. {$playerB} is using {$nameB}. "
-                . ucfirst($normA) . ' and ' . $normB . ' step counts may not be directly comparable. '
+                . ucfirst($normA) . ' and ' . $normB . ' readings may not be directly comparable. '
                 . 'This match can continue, but results should be interpreted with caution.',
         ];
     }

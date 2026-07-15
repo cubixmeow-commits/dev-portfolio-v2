@@ -1,15 +1,40 @@
 <?php
+
+use Rally\Services\MetricFormatter;
+
 /** @var list<array> $opponents */
 /** @var list<array> $metrics */
 /** @var list<array> $sources */
 /** @var array $errors */
 /** @var array $old */
+
+$selectedMetricId = (int) ($old['metric_type_id'] ?? 0);
+if ($selectedMetricId === 0) {
+    foreach ($metrics as $m) {
+        if (($m['slug'] ?? '') === 'steps') {
+            $selectedMetricId = (int) $m['id'];
+            break;
+        }
+    }
+    if ($selectedMetricId === 0 && $metrics !== []) {
+        $selectedMetricId = (int) $metrics[0]['id'];
+    }
+}
+$selectedMetric = null;
+foreach ($metrics as $m) {
+    if ((int) $m['id'] === $selectedMetricId) {
+        $selectedMetric = $m;
+        break;
+    }
+}
+$defaultLength = (int) ($old['length_days'] ?? ($selectedMetric['default_length_days'] ?? 14));
+$defaultThreshold = (int) ($old['tie_threshold'] ?? ($selectedMetric['default_tie_threshold'] ?? 100));
 ?>
 <section class="wrap-narrow create-page">
   <header class="page-header">
     <p class="t-label">New series</p>
-    <h1>Create a 14-game series</h1>
-    <p class="lede">One metric. One court. Daily winners decide the series.</p>
+    <h1>Create a match</h1>
+    <p class="lede">One metric. One court. Choose how you compete — daily wins or series average.</p>
   </header>
 
   <?php if (!empty($errors['form'])): ?>
@@ -33,18 +58,50 @@
           <?php endforeach; ?>
         </select>
       </label>
+    </fieldset>
 
-      <label>
-        <span>Metric — the court</span>
-        <select name="metric_type_id" required>
-          <?php foreach ($metrics as $metric): ?>
-            <option value="<?= (int) $metric['id'] ?>" <?= ((int) ($old['metric_type_id'] ?? 0) === (int) $metric['id'] || $metric['slug'] === 'steps') ? 'selected' : '' ?>>
-              <?= e($metric['name']) ?>
-            </option>
-          <?php endforeach; ?>
-        </select>
-        <span class="hint">Every match contests exactly one metric.</span>
-      </label>
+    <fieldset class="form-group metric-picker">
+      <legend class="t-label">Metric — the court</legend>
+      <p class="hint">Every match contests exactly one metric.</p>
+      <div class="metric-cards" role="radiogroup" aria-label="Metric type">
+        <?php foreach ($metrics as $metric):
+          $checked = (int) $metric['id'] === $selectedMetricId;
+          $cls = MetricFormatter::classificationLabel((string) ($metric['classification'] ?? 'performance'));
+          $strat = MetricFormatter::strategyLabel((string) ($metric['scoring_strategy'] ?? 'daily_wins'));
+          $dir = MetricFormatter::directionLabel((int) ($metric['higher_wins'] ?? 1) === 1);
+          $len = (int) ($metric['default_length_days'] ?? 14);
+          $thr = (int) ($metric['default_tie_threshold'] ?? 100);
+        ?>
+          <label class="metric-card<?= $checked ? ' is-selected' : '' ?>">
+            <input
+              type="radio"
+              name="metric_type_id"
+              value="<?= (int) $metric['id'] ?>"
+              required
+              <?= $checked ? 'checked' : '' ?>
+              data-length="<?= $len ?>"
+              data-threshold="<?= $thr ?>"
+              data-strategy="<?= e((string) ($metric['scoring_strategy'] ?? 'daily_wins')) ?>"
+              data-unit="<?= e((string) ($metric['unit'] ?? '')) ?>"
+            >
+            <span class="metric-card-name"><?= e((string) $metric['name']) ?></span>
+            <span class="metric-card-meta">
+              <span><?= e($cls) ?></span>
+              <span aria-hidden="true">·</span>
+              <span><?= e($strat) ?></span>
+              <span aria-hidden="true">·</span>
+              <span><?= $len ?>-day default</span>
+            </span>
+            <span class="metric-card-dir"><?= e($dir) ?> · Tie threshold <?= $thr ?> <?= e((string) $metric['unit']) ?></span>
+            <?php if (!empty($metric['description'])): ?>
+              <span class="metric-card-desc"><?= e((string) $metric['description']) ?></span>
+            <?php endif; ?>
+            <?php if (!empty($metric['context_note'])): ?>
+              <span class="metric-card-note hint"><?= e((string) $metric['context_note']) ?></span>
+            <?php endif; ?>
+          </label>
+        <?php endforeach; ?>
+      </div>
     </fieldset>
 
     <fieldset class="form-group">
@@ -57,8 +114,11 @@
         </label>
 
         <label>
-          <span>Length (days)</span>
-          <input type="number" name="length_days" min="1" max="60" required value="<?= e((string) ($old['length_days'] ?? 14)) ?>">
+          <span>Length</span>
+          <select name="length_days" id="length-days" required>
+            <option value="7" <?= $defaultLength === 7 ? 'selected' : '' ?>>7 days</option>
+            <option value="14" <?= $defaultLength === 14 ? 'selected' : '' ?>>14 days</option>
+          </select>
         </label>
       </div>
 
@@ -74,8 +134,8 @@
 
       <label>
         <span>Tie threshold</span>
-        <input type="number" name="tie_threshold" min="0" max="10000" required value="<?= e((string) ($old['tie_threshold'] ?? 100)) ?>">
-        <span class="hint">Difference below this value is a tie. Equal to the threshold is a win.</span>
+        <input type="number" name="tie_threshold" id="tie-threshold" min="0" max="10000" required value="<?= e((string) $defaultThreshold) ?>">
+        <span class="hint" id="threshold-hint">Difference below this value is a tie (or draw for series averages). Equal to the threshold is decisive.</span>
       </label>
     </fieldset>
 

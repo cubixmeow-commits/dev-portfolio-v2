@@ -50,9 +50,12 @@ set_exception_handler(static function (Throwable $e) use ($isDev): void {
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 
-$basePath = rtrim(Config::string('app.base_path'), '/');
+$basePath = rtrim(app_base_path(), '/');
 if ($basePath !== '' && str_starts_with($path, $basePath)) {
     $path = substr($path, strlen($basePath)) ?: '/';
+}
+if ($path === '/public' || str_starts_with($path, '/public/')) {
+    $path = substr($path, strlen('/public')) ?: '/';
 }
 
 if ($method === 'POST') {

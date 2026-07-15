@@ -7,6 +7,8 @@ namespace Rally\Controllers;
 use Rally\Core\Auth;
 use Rally\Core\View;
 use Rally\Models\User;
+use Rally\Services\ActivityFeedService;
+use Rally\Services\PersonalRecordsService;
 
 final class PlayerController
 {
@@ -21,12 +23,16 @@ final class PlayerController
         }
 
         $stats = User::derivedStats((int) $player['id']);
+        $records = PersonalRecordsService::forUser((int) $player['id']);
+        $feed = ActivityFeedService::forUser((int) $player['id'], 12);
 
         View::render('players/show', [
             'title' => $player['name'],
             'pageCss' => 'players',
             'player' => $player,
             'stats' => $stats,
+            'records' => $records,
+            'feed' => $feed,
             'initials' => User::initials((string) $player['name']),
         ]);
     }

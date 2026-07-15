@@ -52,6 +52,15 @@ final class MatchController
         $user = Auth::user();
         assert($user !== null);
 
+        $metrics = MetricType::active();
+        $defaultMetric = $metrics[0] ?? null;
+        foreach ($metrics as $m) {
+            if (($m['slug'] ?? '') === 'steps') {
+                $defaultMetric = $m;
+                break;
+            }
+        }
+
         View::render('matches/create', [
             'title' => 'Create match',
             'pageCss' => 'matches',
@@ -60,13 +69,14 @@ final class MatchController
                 User::allActive(),
                 static fn(array $u): bool => (int) $u['id'] !== (int) $user['id']
             )),
-            'metrics' => MetricType::active(),
+            'metrics' => $metrics,
             'sources' => DataSource::active(),
             'errors' => [],
             'old' => [
                 'start_date' => (new \DateTimeImmutable('tomorrow'))->format('Y-m-d'),
-                'length_days' => 14,
-                'tie_threshold' => 100,
+                'length_days' => (int) ($defaultMetric['default_length_days'] ?? 14),
+                'tie_threshold' => (int) ($defaultMetric['default_tie_threshold'] ?? 100),
+                'metric_type_id' => (int) ($defaultMetric['id'] ?? 0),
                 'timezone' => $user['timezone'] ?: 'America/Los_Angeles',
                 'auto_accept' => '1',
             ],
