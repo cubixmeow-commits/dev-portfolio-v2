@@ -1,0 +1,25 @@
+.sim-page { padding-bottom: 3rem; }
+.sim-block {
+  margin: 1.5rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+.sim-day-form {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.sim-day-form fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.sim-day-form legend {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.inline-form { max-width: 28rem; }
