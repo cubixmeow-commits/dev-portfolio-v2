@@ -20,7 +20,7 @@ final class Accent
     /** Approved semantic accent keys. The only values `accent` may hold. */
     public const KEYS = [
         'terracotta', 'amber', 'sage', 'teal', 'lilac', 'clay',
-        'indigo', 'slate', 'pine', 'ochre', 'plum', 'moss',
+        'indigo', 'slate', 'pine', 'ochre', 'plum', 'moss', 'harbor',
     ];
 
     public const FALLBACK = 'terracotta';

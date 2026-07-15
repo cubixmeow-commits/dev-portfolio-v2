@@ -120,4 +120,16 @@ return [
         'outcomes'    => ['Plan a goal', 'Organize a decision', 'Finish a project'],
         'accent'      => 'moss',
     ],
+    [
+        'slug'        => 'money-major-decisions',
+        'name'        => 'Money & Major Decisions',
+        'short_name'  => 'Money',
+        'tagline'     => 'Budgets, bills, home buying, and other important life decisions.',
+        'description' => 'Navigate important financial choices with confidence. These guided Cookbooks help you organize information, ask better questions, prepare documents, and make major decisions without becoming an expert overnight.',
+        'audience'    => 'Anyone facing a real money decision who feels overwhelmed by paperwork, options, or jargon — renters, first-time buyers, people sorting bills, and households building a clearer budget.',
+        'reassure'    => "You don't need to become a financial expert. These guided Cookbooks help you organize information, ask better questions, prepare important documents, and make major decisions with confidence. They never promise outcomes and are not financial, legal, medical, or tax advice.",
+        'outcomes'    => ['Build a calm budget plan', 'Prepare billing disputes', 'Navigate a home purchase'],
+        'accent'      => 'harbor',
+        'icon_key'    => 'ledger',
+    ],
 ];

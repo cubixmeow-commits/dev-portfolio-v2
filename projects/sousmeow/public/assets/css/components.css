@@ -452,3 +452,4 @@ select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
 .accent-ochre      { --accent: var(--ochre);      --accent-wash: var(--ochre-wash); }
 .accent-plum       { --accent: var(--plum);       --accent-wash: var(--plum-wash); }
 .accent-moss       { --accent: var(--moss);       --accent-wash: var(--moss-wash); }
+.accent-harbor     { --accent: var(--harbor);     --accent-wash: var(--harbor-wash); }

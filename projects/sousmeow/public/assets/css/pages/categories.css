@@ -210,6 +210,33 @@
 
 .cat-featured-in { border-top: 1px solid var(--line); padding-top: var(--space-5); }
 .cat-featured-in h2 { font-size: 1.1rem; margin: 0 0 var(--space-3); }
+
+.cat-landing-notes {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-6);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .cat-landing-notes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.cat-landing-card { margin: 0; }
+.cat-landing-h {
+  font-size: 0.95rem;
+  margin: 0 0 var(--space-2);
+}
+.cat-expect-list {
+  margin: 0 0 var(--space-2);
+  padding-left: 1.1rem;
+  color: var(--ink-soft);
+}
+.cat-expect-note {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-faint);
+}
+.cat-featured-books { margin-bottom: var(--space-6); }
+.cat-featured-books .section-heading { margin-bottom: var(--space-4); }
 .collection-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .collection-tag {
   font-size: 0.85rem; font-weight: 500;

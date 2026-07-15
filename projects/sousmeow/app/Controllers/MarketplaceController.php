@@ -56,9 +56,18 @@ final class MarketplaceController
         }
 
         require_once dirname(__DIR__, 2) . '/database/seeds/career_helpers.php';
+        require_once dirname(__DIR__, 2) . '/database/seeds/money_helpers.php';
         $relatedCookbooks = [];
-        if (in_array((string) $cookbook['slug'], sm_career_collection_slugs(), true)) {
-            foreach (sm_career_related_slugs((string) $cookbook['slug']) as $relatedSlug) {
+        $cookbookSlug = (string) $cookbook['slug'];
+        if (in_array($cookbookSlug, sm_money_collection_slugs(), true)) {
+            foreach (sm_money_related_slugs($cookbookSlug) as $relatedSlug) {
+                $related = Cookbook::listingBySlug($relatedSlug);
+                if ($related !== null) {
+                    $relatedCookbooks[] = $related;
+                }
+            }
+        } elseif (in_array($cookbookSlug, sm_career_collection_slugs(), true)) {
+            foreach (sm_career_related_slugs($cookbookSlug) as $relatedSlug) {
                 $related = Cookbook::listingBySlug($relatedSlug);
                 if ($related !== null) {
                     $relatedCookbooks[] = $related;

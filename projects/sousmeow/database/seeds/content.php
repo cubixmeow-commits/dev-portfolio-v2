@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Seed content loader for SousMeow first-party Cookbook library.
  *
- * Twenty-nine curated Cookbooks (twenty-seven executable, two preview):
+ * Thirty-three curated Cookbooks (thirty-one executable, two preview):
  * - Launch Day Kit (executable)
  * - Validate a SaaS Idea (executable)
  * - Build a Professional Portfolio (preview)
@@ -30,6 +30,10 @@ declare(strict_types=1);
  * - Improve Your LinkedIn Profile (executable)
  * - Plan a Career Change (executable)
  * - Prepare for a Salary Negotiation (executable)
+ * - Build a Budget and Debt Payoff Plan (executable)
+ * - Prepare a Bill Dispute (executable)
+ * - Audit a Medical Bill (executable)
+ * - Navigate a First Home Purchase (executable)
  * - Synthesize Interview Notes (executable)
  * - Plan a Lesson (executable)
  * - Document a Simple Process (executable)
@@ -66,6 +70,10 @@ $cookbookFiles = [
     'improve-your-linkedin-profile.php',
     'plan-a-career-change.php',
     'prepare-for-salary-negotiation.php',
+    'build-budget-and-debt-plan.php',
+    'prepare-bill-dispute.php',
+    'audit-medical-bill.php',
+    'navigate-first-home-purchase.php',
     'synthesize-interview-notes.php',
     'plan-a-lesson.php',
     'document-a-simple-process.php',

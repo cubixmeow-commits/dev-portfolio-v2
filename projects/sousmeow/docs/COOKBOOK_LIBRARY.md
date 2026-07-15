@@ -1,6 +1,6 @@
 # SousMeow First-Party Cookbook Library
 
-Curated library of twenty-nine first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform. Most categories have two Cookbooks; Career & Freelance hosts the Career Collection plus the portfolio preview.
+Curated library of thirty-three first-party Cookbooks demonstrating distinct expert-guided workflows on the SousMeow platform. Most categories have two Cookbooks; Career & Freelance and Money & Major Decisions host focused collections.
 
 ## Mandatory authoring rule
 
@@ -38,6 +38,10 @@ Each Cookbook must keep a unique **stage shape** (recipes per stage, e.g. `2-2-1
 | Improve Your LinkedIn Profile | Executable | 4 | 7 | 9 | Beginner | 65 min | 2-3-1-1 | career-freelance |
 | Plan a Career Change | Executable | 4 | 8 | 10 | Beginner | 90 min | 2-2-2-2 | career-freelance |
 | Prepare for a Salary Negotiation | Executable | 4 | 7 | 8 | Beginner | 70 min | 1-3-2-1 | career-freelance |
+| Build a Budget and Debt Payoff Plan | Executable | 4 | 5 | 7 | Beginner | 55 min | 1-1-2-1 | money-major-decisions |
+| Prepare a Bill Dispute | Executable | 4 | 5 | 8 | Beginner | 45 min | 1-2-1-1 | money-major-decisions |
+| Audit a Medical Bill | Executable | 4 | 6 | 7 | Beginner | 60 min | 2-1-2-1 | money-major-decisions |
+| Navigate a First Home Purchase | Executable | 4 | 7 | 8 | Beginner | 70 min | 1-2-3-1 | money-major-decisions |
 | Synthesize Interview Notes | Executable | 4 | 6 | 7 | Intermediate | 50 min | 1-2-2-1 | research-insights |
 | Plan a Lesson | Executable | 3 | 5 | 7 | Beginner | 45 min | 2-1-2 | learning-teaching |
 | Document a Simple Process | Executable | 3 | 7 | 6 | Beginner | 30 min | 3-2-2 | planning-productivity |
@@ -46,7 +50,7 @@ Each Cookbook must keep a unique **stage shape** (recipes per stage, e.g. `2-2-1
 
 No two Cookbooks share the same stage shape.
 
-Career Collection research notes live in `research/CAREER_COLLECTION_SOURCE_NOTES.md`. QA matrix: `research/CAREER_COLLECTION_QA.md`.
+Money & Major Decisions research: `research/MONEY_MAJOR_DECISIONS_SOURCE_NOTES.md`. QA: `research/MONEY_MAJOR_DECISIONS_QA.md`.
 
 ---
 

@@ -737,3 +737,18 @@
     transform: none;
   }
 }
+
+.home-money-shelf {
+  margin: 0 0 2.25rem;
+  padding: 1.35rem 1.25rem 1.5rem;
+  border: 1px solid var(--tw-line);
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, var(--harbor-wash, #E4EEF1) 70%, white);
+}
+.home-money-head { margin-bottom: 1rem; }
+.home-money-head h3 {
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35rem;
+}
+.home-money-shelf .sec-sub-tw { margin: 0; }
