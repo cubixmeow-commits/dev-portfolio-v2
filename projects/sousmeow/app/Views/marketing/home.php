@@ -49,6 +49,32 @@ foreach ($cookbooks as $c) {
             <a class="button button-primary button-large" href="<?= e($startUrl) ?>">Start a guided project</a>
             <a class="button button-ghost button-large" href="#how-it-works">See how it works</a>
           </div>
+
+          <aside class="hero-compat" aria-label="AI compatibility">
+            <p class="hero-compat-title">
+              <span class="hero-compat-check" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                  <path d="M3.2 7.2 5.8 9.8 10.8 4.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              Works with the AI you already use
+            </p>
+            <ul class="hero-compat-providers">
+              <li>ChatGPT</li>
+              <li>Claude</li>
+              <li>Gemini</li>
+              <li>Grok</li>
+              <li class="hero-compat-more-hide">Copilot</li>
+              <li class="hero-compat-more-hide">DeepSeek</li>
+              <li class="hero-compat-others">and others</li>
+            </ul>
+            <p class="hero-compat-reassure">
+              <span class="hero-compat-badge">Free or paid</span>
+              <span>accounts supported · No API keys required</span>
+            </p>
+            <p class="hero-compat-micro">SousMeow prepares the prompts. You run them in the AI account you already have.</p>
+          </aside>
+
           <p class="hero-law">
             <a href="<?= e($productLawUrl) ?>">Built on Product Law 002: Remove Cognitive Load</a>
           </p>
@@ -63,7 +89,7 @@ foreach ($cookbooks as $c) {
             <li class="hl-step" style="--i:3"><span class="hl-no mono">4</span><span>Paste &amp; check</span></li>
             <li class="hl-step hl-done" style="--i:4"><span class="hl-no mono">✓</span><span>Finished files</span></li>
           </ol>
-          <p class="hero-annot mono">you stay in the AI you already pay for</p>
+          <p class="hero-annot mono">you stay in the AI you already use</p>
         </figure>
       </div>
     </div>
