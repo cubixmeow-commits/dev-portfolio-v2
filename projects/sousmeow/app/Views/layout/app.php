@@ -10,7 +10,7 @@ use SousMeow\Core\Flash;
  * @var string|null $bodyClass Extra class on <body>.
  * @var list<string>|string|null $pageCss Page stylesheet names under css/pages/.
  */
-$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Finish what AI started';
+$title = isset($title) && $title !== '' ? $title . ' · SousMeow' : 'SousMeow · Stop guessing what to ask AI';
 $pageCssList = isset($pageCss) ? (array) $pageCss : [];
 $flash = Flash::pull();
 $isAdmin = ($auth['role'] ?? '') === 'admin';
@@ -22,7 +22,7 @@ $needsVerification = $auth && !Auth::isVerified();
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title) ?></title>
-<meta name="description" content="SousMeow helps when AI won't give you exactly what you meant. Guided steps, the assistant you already use, finished files — without becoming a prompt expert.">
+<meta name="description" content="SousMeow walks you through complete projects one step at a time. Prepared prompts, clear checks, and recovery when AI answers are weak. Use ChatGPT, Claude, Gemini, or the AI you already have.">
 <link rel="icon" href="<?= e(asset('/assets/img/favicon.svg')) ?>" type="image/svg+xml">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/tokens.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('/assets/css/base.css')) ?>">
