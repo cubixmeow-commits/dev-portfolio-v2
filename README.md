@@ -103,15 +103,14 @@ Homepage sections (new order):
 - SousMeow (MERGED · v1 complete): Verified features only. Guided AI workflows,
   versioned artifacts, human checks, deterministic progression, exportable kits.
   No direct AI API calls — the user carries responses across a deliberate
-  boundary. Links: `projects/sousmeow` (source & docs).
+  boundary. Links: live `https://sousmeow.com`, and `projects/sousmeow` (source & docs).
 
 - Rally (OPEN · building): Product concept and rules are implemented with a
   working prototype. Head‑to‑head matchups, per‑source baselines, daily
   snapshots, tie handling, published game rules, and privacy‑aware language.
-  No public live URL in this repository. Links: `projects/rally` (source & docs).
+  Live demo: `http://cubixmeow.com/iain/projects/rally/public/`. Links: `projects/rally` (source & docs).
 
-If a live URL becomes available for either product, add it to the corresponding
-“Flagship products” link row.
+Live links are placed both in the Flagship sections and in Contact.
 
 ### Claims
 
