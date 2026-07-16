@@ -1,8 +1,9 @@
-# Iain — Operational Software
+# Iain — Product engineering and operational software
 
-A static portfolio site for an independent developer who builds operational
-software: inventory tracking, service-request pipelines, runbooks, and
-AI-assisted operations, all on plain PHP 8 and MySQL.
+A static portfolio site for an independent developer who builds complete
+software products and dependable operational systems — SousMeow, Rally, and
+PHP 8/MySQL systems with explicit state, human review, and production‑grade
+discipline.
 
 Live copy: [cubixmeow.com](https://cubixmeow.com)
 
@@ -74,7 +75,7 @@ deterministic and inspectable, and the page practices what it preaches.
 - Color contrast meets WCAG AA in the warm-dark palette.
 - Motion is disabled entirely under `prefers-reduced-motion: reduce`.
 
-## Structure
+## Structure (homepage hierarchy)
 
 ```
 /
@@ -87,6 +88,36 @@ deterministic and inspectable, and the page practices what it preaches.
 └── README.md
 ```
 
+Homepage sections (new order):
+
+1. README hero — product engineering + systems identity
+2. Flagship products — SousMeow and Rally
+3. Systems engineering proof — condensed operational subsystems + density graph
+4. Recurring architecture — compact comparison tying products and systems
+5. AI policy — advisory vs human‑carried workflow boundary
+6. Commit log — newest first
+7. Contact
+
+### Flagships positioning
+
+- SousMeow (MERGED · v1 complete): Verified features only. Guided AI workflows,
+  versioned artifacts, human checks, deterministic progression, exportable kits.
+  No direct AI API calls — the user carries responses across a deliberate
+  boundary. Links: live `https://sousmeow.com`, and `projects/sousmeow` (source & docs).
+
+- Rally (OPEN · building): Product concept and rules are implemented with a
+  working prototype. Head‑to‑head matchups, per‑source baselines, daily
+  snapshots, tie handling, published game rules, and privacy‑aware language.
+  Live demo: `http://cubixmeow.com/iain/projects/rally/public/`. Links: `projects/rally` (source & docs).
+
+Live links are placed both in the Flagship sections and in Contact.
+
+### Claims
+
+- Only claims supported by the repository are presented. Rally integrations with
+  Apple Health, Health Connect, Fitbit, or Garmin are not represented as live
+  unless implemented here; docs discuss future ingestion paths.
+
 ## Running it
 
 No build, no server required. Open `index.html` directly in a browser, or serve
@@ -96,3 +127,22 @@ the folder statically:
 python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
+
+## New components and diagrams
+
+- Flagship product blocks reuse the existing `.project` grid with minor
+  variations; miniatures are inline SVG and readable with JS disabled.
+- “Recurring architecture” uses compact repo‑card rows for small‑screen
+  readability over literal tables.
+
+## Accessibility notes
+
+- Correct heading order across the new sections.
+- Diagrams include role and aria‑labels; decorative lines are hidden via CSS
+  theming. All content remains visible with JavaScript disabled.
+
+## Updating flagships later
+
+- Edit the `#flagships` section in `index.html`. Keep status labels honest
+  (`MERGED`, `OPEN`, `DRAFT`, `PROTOTYPE`) and prefer source/case‑study links
+  unless a live build is clearly published in this repo’s context.

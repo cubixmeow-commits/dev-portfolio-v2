@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Iain · Operational software, built on 30 years in IT · cubixmeow.com</title>
-  <meta name="description" content="Operational software built by someone who's spent 30 years learning how IT teams actually keep systems running. Independent developer shipping production PHP and MySQL systems: inventory tracking, service requests, runbooks, and AI-assisted operations.">
+  <title>Iain · Product engineering and operational software · cubixmeow.com</title>
+  <meta name="description" content="Independent developer building SousMeow, Rally, and dependable PHP and MySQL systems with explicit state, human review, and production-grade operational discipline.">
   <meta name="theme-color" content="#17130D">
-  <meta property="og:title" content="Iain · Operational software, built on 30 years in IT">
-  <meta property="og:description" content="Operational software built by someone who's spent 30 years learning how IT teams actually keep systems running.">
+  <meta property="og:title" content="Iain · Product engineering and operational software">
+  <meta property="og:description" content="SousMeow, Rally, and dependable PHP/MySQL systems — explicit state, human review, and end‑to‑end delivery.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://cubixmeow.com">
   <link rel="preload" href="fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
@@ -60,8 +60,8 @@
 
       <nav class="site-nav" id="site-nav" aria-label="Primary">
         <a href="#readme">README</a>
-        <a href="#subsystems">Subsystems</a>
-        <a href="#projects">Projects</a>
+        <a href="#flagships">Flagships</a>
+        <a href="#systems">Systems</a>
         <a href="#ai-policy">AI policy</a>
         <a href="#log">Log</a>
         <a href="#contact">Contact</a>
@@ -83,51 +83,58 @@
           </div>
 
           <div class="file-body readme-body">
-            <p class="eyebrow mono">// system of record + AI advisory</p>
-            <h1 id="readme-h">Operational software built by someone who's spent
-              <span class="hl">30 years</span> learning how IT teams actually keep systems running.</h1>
+            <p class="eyebrow mono">// product engineering + operational systems</p>
+            <h1 id="readme-h">Complete software products, built with the discipline of operational systems.</h1>
 
-            <p class="lede">Independent developer shipping production PHP&nbsp;8 and MySQL systems:
-              inventory tracking, service-request pipelines, runbooks, and AI-assisted operations.
-              Founder, engineer, and maintainer of the things he builds.</p>
+            <p class="lede">Independent developer with <span class="hl">30+ years</span> in IT, shipping original PHP&nbsp;8 and MySQL products, AI‑assisted workflow systems, deterministic backends, and software designed to survive real use. Current builds include <strong>SousMeow</strong> and <strong>Rally</strong>.</p>
 
             <div class="label-row" aria-label="Profile labels">
               <span class="label label--status-open"><span class="ldot" aria-hidden="true"></span>available for new roles</span>
               <span class="label label--lang">PHP&nbsp;8</span>
               <span class="label label--data">MySQL</span>
-              <span class="label label--infra">30 years in IT</span>
-              <span class="label label--api">AI-assisted</span>
+              <span class="label label--api">AI workflows</span>
+              <span class="label label--infra">systems architecture</span>
               <span class="label label--neutral">founder · engineer · maintainer</span>
             </div>
 
-            <!-- README-style callout: the recurring pattern -->
+            <!-- README-style callout: the recurring architecture -->
             <div class="callout" data-diagram>
-              <span class="callout-kick mono">The recurring pattern</span>
+              <span class="callout-kick mono">The recurring architecture</span>
               <div class="diagram">
-                <svg viewBox="0 0 720 120" role="img" aria-label="Overview: a deterministic system of record feeds a state machine with an append-only audit log; an AI advisory layer reads aggregates across a one-way boundary and never writes back.">
-                  <rect class="dg-box draw-in"    x="10"  y="34" width="176" height="52" rx="4"/>
-                  <text class="dg-label draw-in"  x="30"  y="58">System of record</text>
-                  <text class="dg-sub draw-in"    x="30"  y="76">MySQL · deterministic</text>
+                <svg viewBox="0 0 760 140" role="img" aria-label="Human intent flows into a structured workflow that sets deterministic application state, producing a reviewable output. External services or AI enter through a bounded input that always requires human confirmation.">
+                  <rect class="dg-box draw-in"     x="12"  y="26" width="170" height="48" rx="4"/>
+                  <text class="dg-label draw-in"   x="26"  y="48">Human intent</text>
+                  <text class="dg-sub draw-in"     x="26"  y="66">goal · task</text>
 
-                  <rect class="dg-box draw-in d2" x="272" y="34" width="176" height="52" rx="4"/>
-                  <text class="dg-label draw-in d2" x="292" y="58">State machine</text>
-                  <text class="dg-sub draw-in d2"   x="292" y="76">+ append-only audit</text>
+                  <rect class="dg-box draw-in d2"  x="196" y="26" width="190" height="48" rx="4"/>
+                  <text class="dg-label draw-in d2" x="210" y="48">Structured workflow</text>
+                  <text class="dg-sub draw-in d2"   x="210" y="66">steps · checks</text>
 
-                  <rect class="dg-box dg-box--accent draw-in d4" x="534" y="34" width="176" height="52" rx="4"/>
-                  <text class="dg-label draw-in d4" x="554" y="58">AI advisory</text>
-                  <text class="dg-sub draw-in d4"   x="554" y="76">reads aggregates</text>
+                  <rect class="dg-box draw-in d3"  x="402" y="26" width="190" height="48" rx="4"/>
+                  <text class="dg-label draw-in d3" x="416" y="48">Deterministic state</text>
+                  <text class="dg-sub draw-in d3"   x="416" y="66">versioned · auditable</text>
 
-                  <path class="dg-line draw" style="--len:86"  d="M186 60 H272"/>
-                  <path class="dg-line draw d2" style="--len:86" d="M448 60 H534"/>
-                  <polygon class="dg-head draw-in d2" points="272,60 262,55 262,65"/>
-                  <polygon class="dg-head draw-in d4" points="534,60 524,55 524,65"/>
+                  <rect class="dg-box dg-box--accent draw-in d4" x="610" y="26" width="138" height="48" rx="4"/>
+                  <text class="dg-label draw-in d4" x="624" y="48">Output</text>
+                  <text class="dg-sub draw-in d4"   x="624" y="66">reviewable</text>
 
-                  <path class="dg-annot draw-in d5" d="M622 86 C560 108, 300 108, 120 90"/>
-                  <text class="dg-annot-t draw-in d5" x="300" y="114">read-only · no write path back</text>
+                  <path class="dg-line draw"    style="--len:36" d="M182 50 H196"/>
+                  <polygon class="dg-head draw-in d2" points="196,50 186,45 186,55"/>
+                  <path class="dg-line draw d2" style="--len:36" d="M386 50 H402"/>
+                  <polygon class="dg-head draw-in d3" points="402,50 392,45 392,55"/>
+                  <path class="dg-line draw d3" style="--len:36" d="M592 50 H610"/>
+                  <polygon class="dg-head draw-in d4" points="610,50 600,45 600,55"/>
+
+                  <!-- External/AI branch -->
+                  <rect class="dg-box dg-box--accent draw-in d5" x="290" y="92" width="156" height="42" rx="4"/>
+                  <text class="dg-label draw-in d5" x="304" y="114">External service / AI</text>
+
+                  <path class="dg-annot draw-in d5" d="M368 92 V78 C368 70, 374 64, 382 64 H402"/>
+                  <polygon class="dg-head draw-in d5" points="402,64 392,59 392,69"/>
+                  <text class="dg-annot-t draw-in d5" x="450" y="96">bounded input · human confirms</text>
                 </svg>
               </div>
-              <p class="callout-note">The same shape recurs in every system here: the record stays
-                deterministic; AI reads aggregates and never writes back.</p>
+              <p class="callout-note">Across products and systems: explicit state, versioned artifacts, bounded automation, and human authority over final results.</p>
             </div>
           </div>
         </div>
@@ -135,7 +142,119 @@
     </section>
 
     <!-- =====================================================
-         ABOUT — continues the README
+         FLAGSHIPS — two feature products, early in the page
+         ===================================================== -->
+    <section class="section" id="flagships" aria-labelledby="flagships-h">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2 id="flagships-h"><span class="h-hash mono" aria-hidden="true">##</span> Flagship products</h2>
+          <span class="sec-note mono">current product line</span>
+        </div>
+        <p class="sec-intro">Two original products showing the full build — product concept, interaction design, application architecture, data model, safety boundaries, deployment path, and ongoing iteration.</p>
+
+        <!-- SousMeow -->
+        <article class="project flagship">
+          <div class="proj-head">
+            <div class="proj-title">
+              <span class="proj-no mono">flagship&nbsp;/&nbsp;01</span>
+              <h3><span class="lang-dot lang-php" aria-hidden="true"></span>SousMeow</h3>
+            </div>
+            <span class="status status--merged">MERGED · v1 complete</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede"><strong>Thesis:</strong> A platform for turning complex AI tasks into guided, reusable workflows that work with the AI subscriptions people already have.</p>
+              <p class="proj-lede">Instead of a giant prompt, SousMeow walks a person through the task one dependable step at a time: copy a prepared prompt, run it in ChatGPT, Claude, or Gemini, paste the response back, confirm human checks, progress, and finally export a complete Project Kit.</p>
+              <ul class="proj-points">
+                <li>Every pasted response is versioned; approvals bind to the exact content. Editing or restoring creates a new version and resets checks.</li>
+                <li>Deterministic progression: Pantry → Recipe steps → checks → export. SQLite or MySQL behind one config switch. CSRF, ownership enforcement, PDO prepared statements.</li>
+                <li>The core product never calls an AI API; the human carries responses across the trust boundary on purpose.</li>
+              </ul>
+              <div class="rc-labels" aria-label="Stack">
+                <span class="label label--lang">PHP 8</span><span class="label label--data">MySQL</span><span class="label label--data">SQLite</span><span class="label label--lang">Vanilla JS</span>
+              </div>
+              <div class="proj-links">
+                <a class="btn" href="https://sousmeow.com">Open the live app <span aria-hidden="true">↗</span></a>
+                <a class="btn btn--ghost" href="https://github.com/cubixmeow-commits/dev-portfolio-v2/tree/main/projects/sousmeow">Source &amp; docs ↗</a>
+              </div>
+              <p class="small mono" aria-hidden="true">why it matters: recoverable multi‑step AI work, with human approval bound to immutable versions</p>
+            </div>
+            <figure class="demo" data-diagram>
+              <div class="demo-label mono">miniature — the SousMeow loop</div>
+              <div class="diagram">
+                <svg viewBox="0 0 680 188" role="img" aria-label="SousMeow loop: Pantry inputs → Prepared prompt → Run in chosen AI → Paste response → Human checks → Next Recipe unlocked → Export Project Kit.">
+                  <rect class="dg-box draw-in" x="12" y="26" width="140" height="40" rx="4"/><text class="dg-label draw-in" x="24" y="48">Pantry inputs</text>
+                  <path class="dg-line draw" style="--len:24" d="M152 46 H168"/><polygon class="dg-head draw-in d2" points="168,46 158,41 158,51"/>
+                  <rect class="dg-box draw-in d2" x="168" y="26" width="150" height="40" rx="4"/><text class="dg-label draw-in d2" x="180" y="48">Prepared prompt</text>
+                  <path class="dg-line draw d2" style="--len:24" d="M318 46 H336"/><polygon class="dg-head draw-in d3" points="336,46 326,41 326,51"/>
+                  <rect class="dg-box dg-box--accent draw-in d3" x="336" y="26" width="140" height="40" rx="4"/><text class="dg-label draw-in d3" x="348" y="48">Run in chosen AI</text>
+                  <path class="dg-line draw d3" style="--len:24" d="M476 46 H494"/><polygon class="dg-head draw-in d4" points="494,46 484,41 484,51"/>
+                  <rect class="dg-box draw-in d4" x="494" y="26" width="140" height="40" rx="4"/><text class="dg-label draw-in d4" x="506" y="48">Paste response</text>
+                  <rect class="dg-box draw-in d5" x="168" y="102" width="150" height="40" rx="4"/><text class="dg-label draw-in d5" x="178" y="124">Human checks</text>
+                  <path class="dg-annot draw-in d5" d="M494 46 V102"/><polygon class="dg-head draw-in d5" points="494,102 489,92 499,92"/>
+                  <rect class="dg-box draw-in d5" x="336" y="102" width="140" height="40" rx="4"/><text class="dg-label draw-in d5" x="348" y="124">Next Recipe</text>
+                  <rect class="dg-box draw-in d5" x="506" y="102" width="128" height="40" rx="4"/><text class="dg-label draw-in d5" x="516" y="124">Export Kit</text>
+                </svg>
+              </div>
+            </figure>
+          </div>
+        </article>
+
+        <!-- Rally -->
+        <article class="project flagship alt">
+          <div class="proj-head">
+            <div class="proj-title">
+              <span class="proj-no mono">flagship&nbsp;/&nbsp;02</span>
+              <h3><span class="lang-dot lang-php" aria-hidden="true"></span>Rally</h3>
+            </div>
+            <span class="status status--open">OPEN · building</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-main">
+              <p class="proj-lede"><strong>Thesis:</strong> Turn passive health tracking into structured competition.</p>
+              <p class="proj-lede">Rally runs timed head‑to‑head matchups using normalized daily metrics and explicit rules for category scoring and winners. The work focuses on the scoring model, matchup state, and data provenance before expanding the interface.</p>
+              <ul class="proj-points">
+                <li>Two competition types (Baseline and Classic) with daily snapshots, tie handling, and published rules.</li>
+                <li>Per‑source series and baselines; no silent merging of Apple Watch and phone steps.</li>
+                <li>Match state, category results, and shareable summaries designed to avoid medical claims.</li>
+              </ul>
+              <div class="rc-labels" aria-label="Stack">
+                <span class="label label--lang">PHP 8</span><span class="label label--data">MySQL</span><span class="label label--lang">Vanilla JS</span>
+              </div>
+              <div class="proj-links">
+                <a class="btn" href="http://cubixmeow.com/iain/projects/rally/public/">Open the live demo <span aria-hidden="true">↗</span></a>
+                <a class="btn btn--ghost" href="https://github.com/cubixmeow-commits/dev-portfolio-v2/tree/main/projects/rally">Source &amp; docs ↗</a>
+              </div>
+              <p class="small mono" aria-hidden="true">why it matters: honest competition from everyday data, with explicit rules and auditable series</p>
+            </div>
+            <figure class="demo" data-diagram>
+              <div class="demo-label mono">miniature — head‑to‑head matchup</div>
+              <div class="diagram">
+                <svg viewBox="0 0 680 170" role="img" aria-label="Rally head-to-head card with two players, category scores, and a current-day leader.">
+                  <rect class="dg-box draw-in" x="20" y="28" width="280" height="48" rx="6"/>
+                  <text class="dg-label draw-in" x="34" y="50">Player A</text>
+                  <text class="dg-sub draw-in"   x="34" y="66">steps · sleep · classic</text>
+                  <rect class="dg-box draw-in d2" x="380" y="28" width="280" height="48" rx="6"/>
+                  <text class="dg-label draw-in d2" x="394" y="50">Player B</text>
+                  <text class="dg-sub draw-in d2"   x="394" y="66">steps · sleep · classic</text>
+                  <text class="dg-label draw-in d3" x="322" y="54">VS</text>
+
+                  <rect class="dg-box dg-box--accent draw-in d3" x="120" y="96" width="160" height="40" rx="4"/>
+                  <text class="dg-label draw-in d3" x="132" y="118">Steps: 12,420</text>
+                  <rect class="dg-box draw-in d4" x="400" y="96" width="160" height="40" rx="4"/>
+                  <text class="dg-label draw-in d4" x="412" y="118">Steps: 10,780</text>
+
+                  <text class="dg-annot-t draw-in d5" x="290" y="146">Game 6 · A leads today</text>
+                </svg>
+              </div>
+            </figure>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         ABOUT — compact operator profile
          ===================================================== -->
     <section class="section" id="about" aria-labelledby="about-h">
       <div class="wrap narrow">
@@ -146,36 +265,34 @@
         <ul class="facts">
           <li>
             <svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L10 18.5 L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>Iain — the operator behind every system on this page.</span>
+            <span>Iain — founder, engineer, and maintainer of the systems here.</span>
           </li>
           <li>
             <svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L10 18.5 L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>30+ years of hands-on development, from RPG games in C to production LAMP.</span>
+            <span>Experience: 30+ years hands‑on, from C to production LAMP.</span>
           </li>
           <li>
             <svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L10 18.5 L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>Founder, engineer, and maintainer — one person accountable end to end.</span>
+            <span>Focus: complete products and dependable systems.</span>
           </li>
           <li>
             <svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L10 18.5 L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>PHP · MySQL — the stacks that actually keep things running.</span>
+            <span>Core stack: PHP&nbsp;8 / MySQL / vanilla JavaScript.</span>
           </li>
         </ul>
       </div>
     </section>
 
     <!-- =====================================================
-         SUBSYSTEMS — repos-as-cards + reimagined activity graph
+         SYSTEMS — operational engineering proof
          ===================================================== -->
-    <section class="section" id="subsystems" aria-labelledby="subsystems-h">
+    <section class="section" id="systems" aria-labelledby="systems-h">
       <div class="wrap">
         <div class="sec-head">
-          <h2 id="subsystems-h"><span class="h-hash mono" aria-hidden="true">##</span> Subsystems</h2>
-          <span class="sec-note mono">mapped from real postings</span>
+          <h2 id="systems-h"><span class="h-hash mono" aria-hidden="true">##</span> Systems engineering proof</h2>
+          <span class="sec-note mono">operational layer</span>
         </div>
-        <p class="sec-intro">Not a skills cloud: these are the competencies scored across actual
-          government and enterprise IT postings. Each reads as a small repository — a name, a
-          one-line description, a primary stack, and the project that proves it.</p>
+        <p class="sec-intro">The same product discipline at the operational layer: state machines, audit trails, service queues, reporting, backup procedures, and controlled AI integrations.</p>
 
         <div class="card-grid">
           <article class="repo-card">
@@ -251,7 +368,7 @@
           </article>
         </div>
 
-        <!-- Reimagined contribution graph: horizontal density per subsystem -->
+        <!-- Reimagined contribution graph: horizontal density per system -->
         <div class="density" id="density" aria-labelledby="density-h">
           <div class="density-head">
             <h3 id="density-h" class="density-title">Depth of work, by subsystem</h3>
@@ -275,69 +392,44 @@
     </section>
 
     <!-- =====================================================
-         PROJECTS — three proof repos, then peripheral systems
+         RECURRING ARCHITECTURE — compact comparison
+         ===================================================== -->
+    <section class="section" id="architecture" aria-labelledby="arch-h">
+      <div class="wrap">
+        <div class="sec-head">
+          <h2 id="arch-h"><span class="h-hash mono" aria-hidden="true">##</span> The recurring architecture</h2>
+          <span class="sec-note mono">same philosophy, different domains</span>
+        </div>
+        <p class="sec-intro">Across products and systems: explicit state, traceable changes, bounded automation, human authority, and inspectable results.</p>
+        <div class="card-grid tight">
+          <article class="repo-card small">
+            <h4 class="rc-name">SousMeow</h4>
+            <p class="rc-desc"><strong>Intent</strong>: complete a complex task · <strong>State</strong>: recipe/run/artifact · <strong>External input</strong>: pasted AI response · <strong>Human decision</strong>: checks · <strong>Output</strong>: Project Kit</p>
+          </article>
+          <article class="repo-card small">
+            <h4 class="rc-name">Rally</h4>
+            <p class="rc-desc"><strong>Intent</strong>: compete in a matchup · <strong>State</strong>: match/category/score · <strong>External input</strong>: health metrics · <strong>Human decision</strong>: rules &amp; consent · <strong>Output</strong>: result/standings</p>
+          </article>
+          <article class="repo-card small">
+            <h4 class="rc-name">Inventory</h4>
+            <p class="rc-desc"><strong>Intent</strong>: manage asset lifecycle · <strong>State</strong>: asset state machine · <strong>External input</strong>: AI advisory report · <strong>Human decision</strong>: operator approval · <strong>Output</strong>: audit record</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         OPERATIONAL PROJECTS — supporting systems
          ===================================================== -->
     <section class="section" id="projects" aria-labelledby="projects-h">
       <div class="wrap">
         <div class="sec-head">
-          <h2 id="projects-h"><span class="h-hash mono" aria-hidden="true">##</span> Proof projects</h2>
-          <span class="sec-note mono">five systems, shown working</span>
+          <h2 id="projects-h"><span class="h-hash mono" aria-hidden="true">##</span> Operational systems</h2>
+          <span class="sec-note mono">supporting proof</span>
         </div>
-        <p class="sec-intro">One project per competency cluster, shown working rather than
-          screenshotted. Every measurable claim here is inspectable in the live app or its case study.</p>
+        <p class="sec-intro">Supporting systems, shown working. Every measurable claim is inspectable in the live app or case study.</p>
 
-        <!-- PROJECT 01 — SousMeow -->
-        <article class="project">
-          <div class="proj-head">
-            <div class="proj-title">
-              <span class="proj-no mono">project&nbsp;01</span>
-              <h3><span class="lang-dot lang-php" aria-hidden="true"></span>sousmeow</h3>
-            </div>
-            <span class="status status--merged">MERGED · v1 complete</span>
-          </div>
-          <div class="proj-body">
-            <div class="proj-main">
-              <p class="proj-lede">A complete SaaS product built solo, end to end: SousMeow packages
-                proven AI workflows as step-by-step Cookbooks. The user copies a prompt built from their
-                own inputs, runs it in whatever AI they already use, pastes the answer back, confirms
-                human quality checks, and exports a finished kit. The product never calls an AI itself —
-                the trust boundary is the whole design.</p>
-              <ul class="proj-points">
-                <li>Pasted AI responses are immutable versions: edits and restores stack as v2, v3; the exact raw response is always recoverable, and check confirmations bind to one version.</li>
-                <li>Quality checks are human judgement, recorded — the UI never pretends to grade text, and approval is re-validated server-side, not just a disabled button.</li>
-                <li>Every dynamic query is a PDO prepared statement, every POST passes one CSRF gate, ownership is enforced at the data layer, and admin accounts exist only via a CLI seed script.</li>
-                <li>Runs on SQLite or MySQL behind one config switch; zero build step, self-hosted fonts, works fully at 390px.</li>
-              </ul>
-              <div class="rc-labels" aria-label="Stack">
-                <span class="label label--lang">PHP 8</span><span class="label label--data">MySQL</span><span class="label label--data">SQLite</span><span class="label label--data">PDO</span><span class="label label--lang">Vanilla JS</span>
-              </div>
-              <div class="proj-links">
-                <a class="btn btn--ghost" href="https://github.com/cubixmeow-commits/dev-portfolio-v2/tree/main/projects/sousmeow">Source &amp; docs ↗</a>
-              </div>
-            </div>
-
-            <figure class="demo">
-              <div class="demo-label mono">live miniature — recipe runner, artifact versions</div>
-              <div class="tscroll">
-                <table class="mini">
-                  <thead><tr><th>version</th><th>source</th><th>checks</th><th>state</th></tr></thead>
-                  <tbody>
-                    <tr><td class="mono">v1</td><td>pasted response</td><td class="mono">1/3</td><td><span class="st st-stock">SUPERSEDED</span></td></tr>
-                    <tr><td class="mono">v2</td><td>edited</td><td class="mono">0/3</td><td><span class="st st-stock">SUPERSEDED</span></td></tr>
-                    <tr class="flash"><td class="mono">v3</td><td>restored from v1</td><td class="mono">3/3</td><td><span class="st st-assigned">APPROVED</span></td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="logbox mono" aria-label="Runner log excerpt">
-                <p><span class="lg-t">16:02:11</span> recipe 2/4 checks: 3 of 3 confirmed <span class="lg-by">by the human</span></p>
-                <p><span class="lg-t">16:02:38</span> artifact v3 <span class="lg-arrow ok">→</span> APPROVED, recipe 3 unlocked</p>
-                <p><span class="lg-t">16:14:52</span> project kit packed: 4 files + manifest (.zip)</p>
-              </div>
-              <figcaption>Editing a response spawns a new version and resets its checks on purpose:
-                confirmations mean "I read this exact text". Nothing exports unapproved.</figcaption>
-            </figure>
-          </div>
-        </article>
+        <!-- Removed here: SousMeow (now a flagship) -->
 
         <!-- PROJECT 02 -->
         <article class="project">
@@ -785,6 +877,14 @@
           <a class="cl" href="mailto:hello@cubixmeow.com">
             <span class="cl-k mono">email</span>
             <span class="cl-v">hello@cubixmeow.com</span>
+          </a>
+          <a class="cl" href="https://sousmeow.com">
+            <span class="cl-k mono">sousmeow</span>
+            <span class="cl-v">sousmeow.com ↗</span>
+          </a>
+          <a class="cl" href="http://cubixmeow.com/iain/projects/rally/public/">
+            <span class="cl-k mono">rally</span>
+            <span class="cl-v">cubixmeow.com/…/rally/public ↗</span>
           </a>
           <a class="cl" href="https://cubixmeow.com/ib/landing/public/resume/">
             <span class="cl-k mono">résumé (print-ready)</span>
